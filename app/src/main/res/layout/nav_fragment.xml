@@ -58,7 +58,7 @@
                 android:id="@+id/tv_left_label"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Atitude (m)"
+                android:text="Altitude (m)"
                 android:textAlignment="center" />
         </LinearLayout>
 

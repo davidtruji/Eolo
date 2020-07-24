@@ -54,7 +54,8 @@ import java.util.List;
 import static android.os.Looper.getMainLooper;
 
 
-public class NavFragment extends Fragment {
+public class NavFragment extends Fragment  implements
+        OnMapReadyCallback, PermissionsListener {
 
     private static final long DEFAULT_INTERVAL_IN_MILLISECONDS = 1000L;
     private static final long DEFAULT_MAX_WAIT_TIME = DEFAULT_INTERVAL_IN_MILLISECONDS * 5;
@@ -62,8 +63,9 @@ public class NavFragment extends Fragment {
     private MapView mapView;
     private PermissionsManager permissionsManager;
     private LocationEngine locationEngine;
-    private TextView location,altitude,speed;
-
+    private LocationChangeListeningActivityLocationCallback callback =
+            new LocationChangeListeningActivityLocationCallback(this);
+    private TextView tvSpeed,tvAltitude,tvPostion;
 
 
 
@@ -82,27 +84,175 @@ public class NavFragment extends Fragment {
 // object or in the same activity which contains the mapview.
         Mapbox.getInstance(getContext().getApplicationContext(), getString(R.string.mapbox_access_token));
 
+
 // This contains the MapView in XML and needs to be called after the access token is configured.
         View root = inflater.inflate(R.layout.nav_fragment, container, false);
 
         mapView = root.findViewById(R.id.mapView);
+        tvAltitude = (TextView) root.findViewById(R.id.tv_left);
+        tvSpeed = (TextView) root.findViewById(R.id.tv_center);
+        tvPostion = (TextView) root.findViewById(R.id.tv_right);
+
         mapView.onCreate(savedInstanceState);
-        mapView.getMapAsync(new OnMapReadyCallback() {
-            @Override
-            public void onMapReady(@NonNull MapboxMap mapboxMap) {
-                mapboxMap.setStyle(Style.MAPBOX_STREETS, new Style.OnStyleLoaded() {
-                    @Override
-                    public void onStyleLoaded(@NonNull Style style) {
+        mapView.getMapAsync(this);
 
-// Map is set up and the style has loaded. Now you can add data or make other map adjustments.
+        return root;
+    }
 
+    @Override
+    public void onMapReady(@NonNull final MapboxMap mapboxMap) {
+        this.mapboxMap = mapboxMap;
+
+        mapboxMap.setStyle(Style.TRAFFIC_NIGHT,
+                new Style.OnStyleLoaded() {
+                    @Override public void onStyleLoaded(@NonNull Style style) {
+                        enableLocationComponent(style);
                     }
                 });
-            }
-        });
-        return root;
 
     }
+
+
+
+
+    /**
+     * Initialize the Maps SDK's LocationComponent
+     */
+    @SuppressWarnings( {"MissingPermission"})
+    private void enableLocationComponent(@NonNull Style loadedMapStyle) {
+// Check if permissions are enabled and if not request
+        if (PermissionsManager.areLocationPermissionsGranted(getContext().getApplicationContext())) {
+
+// Get an instance of the component
+            LocationComponent locationComponent = mapboxMap.getLocationComponent();
+
+// Set the LocationComponent activation options
+            LocationComponentActivationOptions locationComponentActivationOptions =
+                    LocationComponentActivationOptions.builder(getContext().getApplicationContext(), loadedMapStyle)
+                            .useDefaultLocationEngine(false)
+                            .build();
+
+// Activate with the LocationComponentActivationOptions object
+            locationComponent.activateLocationComponent(locationComponentActivationOptions);
+
+// Enable to make component visible
+            locationComponent.setLocationComponentEnabled(true);
+
+// Set the component's camera mode
+            locationComponent.setCameraMode(CameraMode.TRACKING);
+
+// Set the component's render mode
+            locationComponent.setRenderMode(RenderMode.COMPASS);
+
+            initLocationEngine();
+        } else {
+            permissionsManager = new PermissionsManager(this);
+            permissionsManager.requestLocationPermissions(getActivity());
+        }
+    }
+
+    /**
+     * Set up the LocationEngine and the parameters for querying the device's location
+     */
+    @SuppressLint("MissingPermission")
+    private void initLocationEngine() {
+        locationEngine = LocationEngineProvider.getBestLocationEngine(getContext().getApplicationContext());
+
+        LocationEngineRequest request = new LocationEngineRequest.Builder(DEFAULT_INTERVAL_IN_MILLISECONDS)
+                .setPriority(LocationEngineRequest.PRIORITY_HIGH_ACCURACY)
+                .setMaxWaitTime(DEFAULT_MAX_WAIT_TIME).build();
+
+        locationEngine.requestLocationUpdates(request, callback, getMainLooper());
+        locationEngine.getLastLocation(callback);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        permissionsManager.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    @Override
+    public void onExplanationNeeded(List<String> permissionsToExplain) {
+        Toast.makeText(getContext().getApplicationContext(), R.string.user_location_permission_explanation,
+                Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onPermissionResult(boolean granted) {
+        if (granted) {
+            mapboxMap.getStyle(new Style.OnStyleLoaded() {
+                @Override
+                public void onStyleLoaded(@NonNull Style style) {
+                    enableLocationComponent(style);
+                }
+            });
+        } else {
+            Toast.makeText(getContext().getApplicationContext(), R.string.user_location_permission_not_granted, Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private static class LocationChangeListeningActivityLocationCallback
+            implements LocationEngineCallback<LocationEngineResult> {
+
+        private final WeakReference<NavFragment> activityWeakReference;
+
+        LocationChangeListeningActivityLocationCallback(NavFragment activity) {
+            this.activityWeakReference = new WeakReference<>(activity);
+        }
+
+        /**
+         * The LocationEngineCallback interface's method which fires when the device's location has changed.
+         *
+         * @param result the LocationEngineResult object which has the last known location within it.
+         */
+        @Override
+        public void onSuccess(LocationEngineResult result) {
+            NavFragment activity = activityWeakReference.get();
+
+            if (activity != null) {
+                Location location = result.getLastLocation();
+
+                if (location == null) {
+                    return;
+                }
+
+// Create a Toast which displays the new location's coordinates
+//                Toast.makeText(activity.getContext().getApplicationContext(), String.format(activity.getString(R.string.coordinates_format),
+//                        result.getLastLocation().getLatitude(),
+//                        result.getLastLocation().getLongitude()),
+//                        Toast.LENGTH_SHORT).show();
+
+                activity.tvAltitude.setText(String.format(activity.getString(R.string.altitude_format),result.getLastLocation().getAltitude()));
+                activity.tvSpeed.setText(String.format(activity.getString(R.string.speed_format),result.getLastLocation().getSpeed()*3.6));
+                activity.tvPostion.setText(String.format(activity.getString(R.string.coordinates_format),
+                        result.getLastLocation().getLatitude(),
+                        result.getLastLocation().getLongitude()
+                ));
+
+
+// Pass the new location to the Maps SDK's LocationComponent
+                if (activity.mapboxMap != null && result.getLastLocation() != null) {
+                    activity.mapboxMap.getLocationComponent().forceLocationUpdate(result.getLastLocation());
+                }
+            }
+        }
+
+        /**
+         * The LocationEngineCallback interface's method which fires when the device's location can't be captured
+         *
+         * @param exception the exception message
+         */
+        @Override
+        public void onFailure(@NonNull Exception exception) {
+            NavFragment activity = activityWeakReference.get();
+            if (activity != null) {
+                Toast.makeText(activity.getContext().getApplicationContext(), exception.getLocalizedMessage(),
+                        Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
 
 
 
@@ -142,7 +292,7 @@ public class NavFragment extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-       // mViewModel = ViewModelProviders.of(this).get(NavViewModel.class);
+        // mViewModel = ViewModelProviders.of(this).get(NavViewModel.class);
         // TODO: Use the ViewModel
     }
 
