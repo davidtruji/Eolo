@@ -71,9 +71,9 @@ public class NavFragment extends Fragment implements
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
 
-        tvAltitude = (TextView) root.findViewById(R.id.tv_left);
-        tvSpeed = (TextView) root.findViewById(R.id.tv_center);
-        tvCoodinates = (TextView) root.findViewById(R.id.tv_right);
+        tvAltitude = (TextView) root.findViewById(R.id.tvAltitude);
+        tvSpeed = (TextView) root.findViewById(R.id.tvSpeed);
+        tvCoodinates = (TextView) root.findViewById(R.id.tvCoordinates);
 
         return root;
     }
@@ -117,7 +117,7 @@ public class NavFragment extends Fragment implements
             locationComponent.setLocationComponentEnabled(true);
 
             // Set the component's camera mode
-            locationComponent.setCameraMode(CameraMode.TRACKING);
+            locationComponent.setCameraMode(CameraMode.TRACKING_GPS);
 
             // Set the component's render mode
             locationComponent.setRenderMode(RenderMode.COMPASS);
