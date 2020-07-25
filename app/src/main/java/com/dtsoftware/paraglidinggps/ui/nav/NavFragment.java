@@ -64,9 +64,6 @@ public class NavFragment extends Fragment implements
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
-
-
-
         Mapbox.getInstance(getContext(),getString(R.string.mapbox_access_token));
         View root = inflater.inflate(R.layout.nav_fragment, container, false);
 
@@ -78,7 +75,6 @@ public class NavFragment extends Fragment implements
         tvSpeed = (TextView) root.findViewById(R.id.tv_center);
         tvCoodinates = (TextView) root.findViewById(R.id.tv_right);
 
-
         return root;
     }
 
@@ -86,7 +82,7 @@ public class NavFragment extends Fragment implements
     public void onMapReady(@NonNull final MapboxMap mapboxMap) {
         this.mapboxMap = mapboxMap;
 
-        mapboxMap.setStyle(Style.TRAFFIC_NIGHT,
+        mapboxMap.setStyle(Style.OUTDOORS,
                 new Style.OnStyleLoaded() {
                     @Override
                     public void onStyleLoaded(@NonNull Style style) {
@@ -200,10 +196,11 @@ public class NavFragment extends Fragment implements
                     return;
                 }
 
+                // Información en pantalla
                 activity.tvAltitude.setText(String.format(activity.getString(R.string.altitude_format),result.getLastLocation().getAltitude()));
                 activity.tvSpeed.setText(String.format(activity.getString(R.string.speed_format),result.getLastLocation().getSpeed()));
                 activity.tvCoodinates.setText(String.format(activity.getString(R.string.coordinates_format),result.getLastLocation().getLatitude(),result.getLastLocation().getLongitude()));
-                
+
                 // Pass the new location to the Maps SDK's LocationComponent
                 if (activity.mapboxMap != null && result.getLastLocation() != null) {
                     activity.mapboxMap.getLocationComponent().forceLocationUpdate(result.getLastLocation());
