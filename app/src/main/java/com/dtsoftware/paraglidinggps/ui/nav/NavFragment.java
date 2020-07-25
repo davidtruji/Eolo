@@ -1,11 +1,15 @@
 package com.dtsoftware.paraglidinggps.ui.nav;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.content.Context;
 import android.location.Location;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -59,7 +63,10 @@ public class NavFragment extends Fragment implements
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
-        Mapbox.getInstance(getContext().getApplicationContext(),getString(R.string.mapbox_access_token));
+
+
+
+        Mapbox.getInstance(getContext(),getString(R.string.mapbox_access_token));
         View root = inflater.inflate(R.layout.nav_fragment, container, false);
 
         mapView = (MapView) root.findViewById(R.id.mapView);
@@ -90,28 +97,28 @@ public class NavFragment extends Fragment implements
      */
     @SuppressWarnings( {"MissingPermission"})
     private void enableLocationComponent(@NonNull Style loadedMapStyle) {
-// Check if permissions are enabled and if not request
+        // Check if permissions are enabled and if not request
         if (PermissionsManager.areLocationPermissionsGranted(getContext().getApplicationContext())) {
 
-// Get an instance of the component
+            // Get an instance of the component
             LocationComponent locationComponent = mapboxMap.getLocationComponent();
 
-// Set the LocationComponent activation options
+            // Set the LocationComponent activation options
             LocationComponentActivationOptions locationComponentActivationOptions =
                     LocationComponentActivationOptions.builder(getContext().getApplicationContext(), loadedMapStyle)
                             .useDefaultLocationEngine(false)
                             .build();
 
-// Activate with the LocationComponentActivationOptions object
+            // Activate with the LocationComponentActivationOptions object
             locationComponent.activateLocationComponent(locationComponentActivationOptions);
 
-// Enable to make component visible
+            // Enable to make component visible
             locationComponent.setLocationComponentEnabled(true);
 
-// Set the component's camera mode
+            // Set the component's camera mode
             locationComponent.setCameraMode(CameraMode.TRACKING);
 
-// Set the component's render mode
+            // Set the component's render mode
             locationComponent.setRenderMode(RenderMode.COMPASS);
 
             initLocationEngine();
@@ -181,20 +188,21 @@ public class NavFragment extends Fragment implements
         public void onSuccess(LocationEngineResult result) {
             NavFragment activity = activityWeakReference.get();
 
-            if (activity != null) {
+            if (activity != null && activity.getContext()!=null) {
                 Location location = result.getLastLocation();
 
                 if (location == null) {
                     return;
                 }
 
-// Create a Toast which displays the new location's coordinates TODO: 1. EL Toast no consigue un contexto válido
-                Toast.makeText(activity.getActivity(), String.format(activity.getString(R.string.coordinates_format),
+                // Create a Toast which displays the new location's coordinates
+                Toast.makeText(activity.getContext(), String.format(activity.getString(R.string.coordinates_format),
                         result.getLastLocation().getLatitude(),
                         result.getLastLocation().getLongitude()),
                         Toast.LENGTH_SHORT).show();
 
-// Pass the new location to the Maps SDK's LocationComponent
+
+                // Pass the new location to the Maps SDK's LocationComponent
                 if (activity.mapboxMap != null && result.getLastLocation() != null) {
                     activity.mapboxMap.getLocationComponent().forceLocationUpdate(result.getLastLocation());
                 }
@@ -210,12 +218,11 @@ public class NavFragment extends Fragment implements
         public void onFailure(@NonNull Exception exception) {
             NavFragment activity = activityWeakReference.get();
             if (activity != null) {
-                Toast.makeText(activity.getContext(), exception.getLocalizedMessage(),
+                Toast.makeText(activity.getActivity(), exception.getLocalizedMessage(),
                         Toast.LENGTH_SHORT).show();
             }
         }
     }
-
 
     @Override
     public void onStart() {
