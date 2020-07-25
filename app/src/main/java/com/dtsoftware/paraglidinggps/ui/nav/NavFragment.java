@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.dtsoftware.paraglidinggps.MainActivity;
@@ -51,7 +52,7 @@ public class NavFragment extends Fragment implements
     private LocationEngine locationEngine;
     private LocationChangeListeningActivityLocationCallback callback =
             new LocationChangeListeningActivityLocationCallback(this);
-
+    private TextView tvSpeed,tvCoodinates,tvAltitude;
 
     public NavFragment(){
 
@@ -72,6 +73,10 @@ public class NavFragment extends Fragment implements
         mapView = (MapView) root.findViewById(R.id.mapView);
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
+
+        tvAltitude = (TextView) root.findViewById(R.id.tv_left);
+        tvSpeed = (TextView) root.findViewById(R.id.tv_center);
+        tvCoodinates = (TextView) root.findViewById(R.id.tv_right);
 
 
         return root;
@@ -195,13 +200,10 @@ public class NavFragment extends Fragment implements
                     return;
                 }
 
-                // Create a Toast which displays the new location's coordinates
-                Toast.makeText(activity.getContext(), String.format(activity.getString(R.string.coordinates_format),
-                        result.getLastLocation().getLatitude(),
-                        result.getLastLocation().getLongitude()),
-                        Toast.LENGTH_SHORT).show();
-
-
+                activity.tvAltitude.setText(String.format(activity.getString(R.string.altitude_format),result.getLastLocation().getAltitude()));
+                activity.tvSpeed.setText(String.format(activity.getString(R.string.speed_format),result.getLastLocation().getSpeed()));
+                activity.tvCoodinates.setText(String.format(activity.getString(R.string.coordinates_format),result.getLastLocation().getLatitude(),result.getLastLocation().getLongitude()));
+                
                 // Pass the new location to the Maps SDK's LocationComponent
                 if (activity.mapboxMap != null && result.getLastLocation() != null) {
                     activity.mapboxMap.getLocationComponent().forceLocationUpdate(result.getLastLocation());
