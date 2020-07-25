@@ -23,7 +23,8 @@
             android:layout_height="wrap_content"
             android:text="50"
             android:textAlignment="center"
-            android:textSize="40sp" />
+            android:textSize="40sp"
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/tv_center_label"
@@ -52,7 +53,8 @@
                 android:layout_height="wrap_content"
                 android:text="0"
                 android:textAlignment="center"
-                android:textSize="24sp" />
+                android:textSize="24sp"
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/tv_left_label"
@@ -74,7 +76,8 @@
                 android:layout_height="wrap_content"
                 android:text="00.000 , 00.000"
                 android:textAlignment="center"
-                android:textSize="24sp" />
+                android:textSize="24sp"
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/tv_right_label"
@@ -86,13 +89,12 @@
 
     </LinearLayout>
 
-    <com.mapbox.mapboxsdk.maps.MapView
+        <com.mapbox.mapboxsdk.maps.MapView
         android:id="@+id/mapView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        mapbox:mapbox_cameraZoom="15">
-
+        mapbox:mapbox_cameraZoom="3">
     </com.mapbox.mapboxsdk.maps.MapView>
 
 </LinearLayout>

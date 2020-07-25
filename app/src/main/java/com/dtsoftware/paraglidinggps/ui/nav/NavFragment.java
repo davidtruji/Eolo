@@ -1,31 +1,18 @@
 package com.dtsoftware.paraglidinggps.ui.nav;
 
-import androidx.lifecycle.ViewModelProviders;
-
 import android.annotation.SuppressLint;
 import android.location.Location;
 import android.os.Bundle;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.dtsoftware.paraglidinggps.MainActivity;
 import com.dtsoftware.paraglidinggps.R;
-
-
-
-import android.annotation.SuppressLint;
-import android.location.Location;
-import android.os.Bundle;
-import android.widget.Toast;
-
 import com.mapbox.android.core.location.LocationEngine;
 import com.mapbox.android.core.location.LocationEngineCallback;
 import com.mapbox.android.core.location.LocationEngineProvider;
@@ -33,7 +20,6 @@ import com.mapbox.android.core.location.LocationEngineRequest;
 import com.mapbox.android.core.location.LocationEngineResult;
 import com.mapbox.android.core.permissions.PermissionsListener;
 import com.mapbox.android.core.permissions.PermissionsManager;
-
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.location.LocationComponent;
 import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions;
@@ -43,18 +29,14 @@ import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.maps.Style;
-import java.lang.ref.WeakReference;
-import java.util.List;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import java.lang.ref.WeakReference;
 import java.util.List;
 
 import static android.os.Looper.getMainLooper;
 
 
-public class NavFragment extends Fragment  implements
+public class NavFragment extends Fragment implements
         OnMapReadyCallback, PermissionsListener {
 
     private static final long DEFAULT_INTERVAL_IN_MILLISECONDS = 1000L;
@@ -65,36 +47,25 @@ public class NavFragment extends Fragment  implements
     private LocationEngine locationEngine;
     private LocationChangeListeningActivityLocationCallback callback =
             new LocationChangeListeningActivityLocationCallback(this);
-    private TextView tvSpeed,tvAltitude,tvPostion;
 
 
+    public NavFragment(){
 
-
-    public static NavFragment newInstance() {
-        return new NavFragment();
     }
+
 
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
-
-        // Mapbox access token is configured here. This needs to be called either in your application
-// object or in the same activity which contains the mapview.
-        Mapbox.getInstance(getContext().getApplicationContext(), getString(R.string.mapbox_access_token));
-
-
-// This contains the MapView in XML and needs to be called after the access token is configured.
+        Mapbox.getInstance(getContext().getApplicationContext(),getString(R.string.mapbox_access_token));
         View root = inflater.inflate(R.layout.nav_fragment, container, false);
 
-        mapView = root.findViewById(R.id.mapView);
-        tvAltitude = (TextView) root.findViewById(R.id.tv_left);
-        tvSpeed = (TextView) root.findViewById(R.id.tv_center);
-        tvPostion = (TextView) root.findViewById(R.id.tv_right);
-
+        mapView = (MapView) root.findViewById(R.id.mapView);
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
+
 
         return root;
     }
@@ -105,14 +76,13 @@ public class NavFragment extends Fragment  implements
 
         mapboxMap.setStyle(Style.TRAFFIC_NIGHT,
                 new Style.OnStyleLoaded() {
-                    @Override public void onStyleLoaded(@NonNull Style style) {
+                    @Override
+                    public void onStyleLoaded(@NonNull Style style) {
                         enableLocationComponent(style);
                     }
                 });
 
     }
-
-
 
 
     /**
@@ -151,6 +121,7 @@ public class NavFragment extends Fragment  implements
         }
     }
 
+
     /**
      * Set up the LocationEngine and the parameters for querying the device's location
      */
@@ -174,7 +145,7 @@ public class NavFragment extends Fragment  implements
 
     @Override
     public void onExplanationNeeded(List<String> permissionsToExplain) {
-        Toast.makeText(getContext().getApplicationContext(), R.string.user_location_permission_explanation,
+        Toast.makeText(getActivity(), R.string.user_location_permission_explanation,
                 Toast.LENGTH_LONG).show();
     }
 
@@ -188,7 +159,7 @@ public class NavFragment extends Fragment  implements
                 }
             });
         } else {
-            Toast.makeText(getContext().getApplicationContext(), R.string.user_location_permission_not_granted, Toast.LENGTH_LONG).show();
+            Toast.makeText(getActivity(), R.string.user_location_permission_not_granted, Toast.LENGTH_LONG).show();
         }
     }
 
@@ -217,19 +188,11 @@ public class NavFragment extends Fragment  implements
                     return;
                 }
 
-// Create a Toast which displays the new location's coordinates
-//                Toast.makeText(activity.getContext().getApplicationContext(), String.format(activity.getString(R.string.coordinates_format),
-//                        result.getLastLocation().getLatitude(),
-//                        result.getLastLocation().getLongitude()),
-//                        Toast.LENGTH_SHORT).show();
-
-                activity.tvAltitude.setText(String.format(activity.getString(R.string.altitude_format),result.getLastLocation().getAltitude()));
-                activity.tvSpeed.setText(String.format(activity.getString(R.string.speed_format),result.getLastLocation().getSpeed()*3.6));
-                activity.tvPostion.setText(String.format(activity.getString(R.string.coordinates_format),
+// Create a Toast which displays the new location's coordinates TODO: 1. EL Toast no consigue un contexto válido
+                Toast.makeText(activity.getActivity(), String.format(activity.getString(R.string.coordinates_format),
                         result.getLastLocation().getLatitude(),
-                        result.getLastLocation().getLongitude()
-                ));
-
+                        result.getLastLocation().getLongitude()),
+                        Toast.LENGTH_SHORT).show();
 
 // Pass the new location to the Maps SDK's LocationComponent
                 if (activity.mapboxMap != null && result.getLastLocation() != null) {
@@ -247,14 +210,18 @@ public class NavFragment extends Fragment  implements
         public void onFailure(@NonNull Exception exception) {
             NavFragment activity = activityWeakReference.get();
             if (activity != null) {
-                Toast.makeText(activity.getContext().getApplicationContext(), exception.getLocalizedMessage(),
+                Toast.makeText(activity.getContext(), exception.getLocalizedMessage(),
                         Toast.LENGTH_SHORT).show();
             }
         }
     }
 
 
-
+    @Override
+    public void onStart() {
+        super.onStart();
+        mapView.onStart();
+    }
 
 
     @Override
@@ -267,6 +234,12 @@ public class NavFragment extends Fragment  implements
     public void onPause() {
         super.onPause();
         mapView.onPause();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        mapView.onStop();
     }
 
     @Override
@@ -284,16 +257,9 @@ public class NavFragment extends Fragment  implements
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-
         mapView.onDestroy();
 
     }
 
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        // mViewModel = ViewModelProviders.of(this).get(NavViewModel.class);
-        // TODO: Use the ViewModel
-    }
 
 }
