@@ -10,7 +10,9 @@
     <string name="coordinates_format">%1$.3f , %2$.3f</string>
     <string name="speed_format">%.0f</string>
     <string name="altitude_format">%.0f</string>
+    <string name="bearing_format">%.0f</string>
     <string name="default_speed">0</string>
     <string name="default_altitude">0</string>
     <string name="default_coordinates">00.0000 , 00.0000</string>
+    <string name="default_bearing">0</string>
 </resources>

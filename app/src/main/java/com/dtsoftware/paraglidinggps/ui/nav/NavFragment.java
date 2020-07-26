@@ -1,23 +1,20 @@
 package com.dtsoftware.paraglidinggps.ui.nav;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.content.Context;
 import android.location.Location;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.dtsoftware.paraglidinggps.MainActivity;
 import com.dtsoftware.paraglidinggps.R;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.mapbox.android.core.location.LocationEngine;
 import com.mapbox.android.core.location.LocationEngineCallback;
 import com.mapbox.android.core.location.LocationEngineProvider;
@@ -52,7 +49,8 @@ public class NavFragment extends Fragment implements
     private LocationEngine locationEngine;
     private LocationChangeListeningActivityLocationCallback callback =
             new LocationChangeListeningActivityLocationCallback(this);
-    private TextView tvSpeed,tvCoodinates,tvAltitude;
+    private TextView tvSpeed,tvCoodinates,tvAltitude,tvBearing;
+    private FloatingActionButton fabCameraMode;
 
     public NavFragment(){
 
@@ -74,6 +72,16 @@ public class NavFragment extends Fragment implements
         tvAltitude = (TextView) root.findViewById(R.id.tvAltitude);
         tvSpeed = (TextView) root.findViewById(R.id.tvSpeed);
         tvCoodinates = (TextView) root.findViewById(R.id.tvCoordinates);
+        tvBearing = (TextView) root.findViewById(R.id.tvBearing);
+        fabCameraMode = (FloatingActionButton) root.findViewById(R.id.fabCameraMode);
+        fabCameraMode.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                int camMode =  mapboxMap.getLocationComponent().getCameraMode();
+                setCameraMode(camMode);
+            }
+        });
+
 
         return root;
     }
@@ -91,6 +99,26 @@ public class NavFragment extends Fragment implements
                 });
 
     }
+
+
+    public void setCameraMode(int currentMode){
+
+        if(currentMode==CameraMode.NONE){
+        mapboxMap.getLocationComponent().setCameraMode(CameraMode.TRACKING_GPS_NORTH);
+        fabCameraMode.setImageDrawable(getActivity().getDrawable(R.drawable.ic_baseline_explore_off_24));
+        }else if(currentMode == CameraMode.TRACKING_GPS_NORTH){
+            mapboxMap.getLocationComponent().setCameraMode(CameraMode.TRACKING_COMPASS);
+            fabCameraMode.setImageDrawable(getActivity().getDrawable(R.drawable.ic_baseline_explore_24));
+        }else if(currentMode == CameraMode.TRACKING_COMPASS){
+            mapboxMap.getLocationComponent().setCameraMode(CameraMode.TRACKING_GPS_NORTH);
+            fabCameraMode.setImageDrawable(getActivity().getDrawable(R.drawable.ic_baseline_explore_off_24));
+        }
+
+
+
+    }
+
+
 
 
     /**
@@ -117,10 +145,11 @@ public class NavFragment extends Fragment implements
             locationComponent.setLocationComponentEnabled(true);
 
             // Set the component's camera mode
-            locationComponent.setCameraMode(CameraMode.TRACKING_COMPASS);
+            locationComponent.setCameraMode(CameraMode.TRACKING_GPS_NORTH);
 
             // Set the component's render mode
-            locationComponent.setRenderMode(RenderMode.GPS);
+            locationComponent.setRenderMode(RenderMode.COMPASS);
+
 
             initLocationEngine();
         } else {
@@ -199,6 +228,7 @@ public class NavFragment extends Fragment implements
                 // Información en pantalla
                 activity.tvAltitude.setText(String.format(activity.getString(R.string.altitude_format),result.getLastLocation().getAltitude())+"m");
                 activity.tvSpeed.setText(String.format(activity.getString(R.string.speed_format),result.getLastLocation().getSpeed()*3.6)+"Km/h");// Velocidad en m/s * 3.6 = Km/h
+                activity.tvBearing.setText(String.format(activity.getString(R.string.bearing_format),result.getLastLocation().getBearing())+"°");// rumbo en grados
                 activity.tvCoodinates.setText(String.format(activity.getString(R.string.coordinates_format),result.getLastLocation().getLatitude(),result.getLastLocation().getLongitude()));
 
                 // Pass the new location to the Maps SDK's LocationComponent
