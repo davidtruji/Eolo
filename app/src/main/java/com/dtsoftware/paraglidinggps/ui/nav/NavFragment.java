@@ -117,10 +117,10 @@ public class NavFragment extends Fragment implements
             locationComponent.setLocationComponentEnabled(true);
 
             // Set the component's camera mode
-            locationComponent.setCameraMode(CameraMode.TRACKING_GPS);
+            locationComponent.setCameraMode(CameraMode.TRACKING_COMPASS);
 
             // Set the component's render mode
-            locationComponent.setRenderMode(RenderMode.COMPASS);
+            locationComponent.setRenderMode(RenderMode.GPS);
 
             initLocationEngine();
         } else {
@@ -197,8 +197,8 @@ public class NavFragment extends Fragment implements
                 }
 
                 // Información en pantalla
-                activity.tvAltitude.setText(String.format(activity.getString(R.string.altitude_format),result.getLastLocation().getAltitude()));
-                activity.tvSpeed.setText(String.format(activity.getString(R.string.speed_format),result.getLastLocation().getSpeed()));
+                activity.tvAltitude.setText(String.format(activity.getString(R.string.altitude_format),result.getLastLocation().getAltitude())+"m");
+                activity.tvSpeed.setText(String.format(activity.getString(R.string.speed_format),result.getLastLocation().getSpeed()*3.6)+"Km/h");// Velocidad en m/s * 3.6 = Km/h
                 activity.tvCoodinates.setText(String.format(activity.getString(R.string.coordinates_format),result.getLastLocation().getLatitude(),result.getLastLocation().getLongitude()));
 
                 // Pass the new location to the Maps SDK's LocationComponent
