@@ -8,12 +8,16 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.dtsoftware.paraglidinggps.MainActivity;
 import com.dtsoftware.paraglidinggps.R;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.mapbox.android.core.location.LocationEngine;
 import com.mapbox.android.core.location.LocationEngineCallback;
@@ -50,9 +54,14 @@ public class NavFragment extends Fragment implements
     private LocationChangeListeningActivityLocationCallback callback =
             new LocationChangeListeningActivityLocationCallback(this);
     private TextView tvSpeed,tvCoodinates,tvAltitude,tvBearing,tvDistance;
-    private FloatingActionButton fabCameraMode,fabLayers;
+    private FloatingActionButton fabCameraMode,fabLayers,fabPlay;
+    private BottomNavigationView bottomNavigationView;
+
+
     private float distance=0.0f;
     private Location prevLocation=null;
+    private boolean flying=false;
+
 
 
     public NavFragment(){
@@ -93,8 +102,34 @@ public class NavFragment extends Fragment implements
                 setStyle();
             }
         });
+        fabPlay = (FloatingActionButton) root.findViewById(R.id.fabPlay);
+        fabPlay.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                playStopFly();
+            }
+        });
 
         return root;
+    }
+
+    private void playStopFly() {
+
+        if(flying){// Usuario pulsó STOP
+            fabPlay.setImageDrawable(getActivity().getDrawable(R.drawable.play));
+            ((MainActivity) getActivity()).getSupportActionBar().show();
+            flying=false;
+            mapboxMap.getGesturesManager().getMoveGestureDetector().setEnabled(true);
+            mapboxMap.getGesturesManager().getRotateGestureDetector().setEnabled(true);
+        }else{// Usuario pulsó PLAY
+            fabPlay.setImageDrawable(getActivity().getDrawable(R.drawable.stop));
+            ((MainActivity) getActivity()).getSupportActionBar().hide();
+            this.flying=true;
+            mapboxMap.getGesturesManager().getMoveGestureDetector().setEnabled(false);
+            mapboxMap.getGesturesManager().getRotateGestureDetector().setEnabled(false);
+        }
+
+
     }
 
     private void setStyle() {

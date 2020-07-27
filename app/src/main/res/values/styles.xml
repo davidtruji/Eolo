@@ -18,4 +18,9 @@
         <item name="android:textStyle">bold</item>
     </style>
 
+    <style name="FabButtons">
+    <item name="backgroundTint">#FFFFFF</item>
+    </style>
+
+
 </resources>
