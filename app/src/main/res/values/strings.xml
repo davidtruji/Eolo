@@ -15,4 +15,7 @@
     <string name="default_altitude">0</string>
     <string name="default_coordinates">00.0000 , 00.0000</string>
     <string name="default_bearing">0</string>
+    <string name="meters_unit">(m)</string>
+    <string name="kmh_unit">(km/h)</string>
+    <string name="degrees_unit">°</string>
 </resources>

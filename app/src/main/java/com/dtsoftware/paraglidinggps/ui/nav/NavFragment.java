@@ -7,6 +7,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -50,7 +51,7 @@ public class NavFragment extends Fragment implements
     private LocationChangeListeningActivityLocationCallback callback =
             new LocationChangeListeningActivityLocationCallback(this);
     private TextView tvSpeed,tvCoodinates,tvAltitude,tvBearing;
-    private FloatingActionButton fabCameraMode;
+    private FloatingActionButton fabCameraMode,fabLayers;
 
     public NavFragment(){
 
@@ -77,13 +78,37 @@ public class NavFragment extends Fragment implements
         fabCameraMode.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                int camMode =  mapboxMap.getLocationComponent().getCameraMode();
-                setCameraMode(camMode);
+                setCameraMode();
+            }
+        });
+        fabLayers = (FloatingActionButton) root.findViewById(R.id.fabLayers);
+        fabLayers.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                setStyle();
             }
         });
 
 
         return root;
+    }
+
+    private void setStyle() {
+        String currentStyleUri=null;
+
+        if(mapboxMap.getStyle()!=null)
+            currentStyleUri=mapboxMap.getStyle().getUri();
+
+        if(currentStyleUri != null){
+            String newStyleUri=Style.OUTDOORS;
+            if(currentStyleUri.equals(Style.OUTDOORS)){
+                newStyleUri=Style.SATELLITE;
+            }else{
+                newStyleUri=Style.OUTDOORS;
+            }
+            this.mapboxMap.setStyle(newStyleUri);
+        }
+
     }
 
     @Override
@@ -101,20 +126,19 @@ public class NavFragment extends Fragment implements
     }
 
 
-    public void setCameraMode(int currentMode){
+    public void setCameraMode(){
+        int currentCameraMode =  mapboxMap.getLocationComponent().getCameraMode();
 
-        if(currentMode==CameraMode.NONE){
-        mapboxMap.getLocationComponent().setCameraMode(CameraMode.TRACKING_GPS_NORTH);
-        fabCameraMode.setImageDrawable(getActivity().getDrawable(R.drawable.ic_baseline_explore_off_24));
-        }else if(currentMode == CameraMode.TRACKING_GPS_NORTH){
+        if(currentCameraMode==CameraMode.NONE){
+            mapboxMap.getLocationComponent().setCameraMode(CameraMode.TRACKING_GPS_NORTH);
+            fabCameraMode.setImageDrawable(getActivity().getDrawable(R.drawable.ic_baseline_explore_off_24));
+        }else if(currentCameraMode == CameraMode.TRACKING_GPS_NORTH){
             mapboxMap.getLocationComponent().setCameraMode(CameraMode.TRACKING_COMPASS);
             fabCameraMode.setImageDrawable(getActivity().getDrawable(R.drawable.ic_baseline_explore_24));
-        }else if(currentMode == CameraMode.TRACKING_COMPASS){
+        }else if(currentCameraMode == CameraMode.TRACKING_COMPASS){
             mapboxMap.getLocationComponent().setCameraMode(CameraMode.TRACKING_GPS_NORTH);
             fabCameraMode.setImageDrawable(getActivity().getDrawable(R.drawable.ic_baseline_explore_off_24));
         }
-
-
 
     }
 
@@ -226,9 +250,9 @@ public class NavFragment extends Fragment implements
                 }
 
                 // Información en pantalla
-                activity.tvAltitude.setText(String.format(activity.getString(R.string.altitude_format),result.getLastLocation().getAltitude())+"m");
-                activity.tvSpeed.setText(String.format(activity.getString(R.string.speed_format),result.getLastLocation().getSpeed()*3.6)+"Km/h");// Velocidad en m/s * 3.6 = Km/h
-                activity.tvBearing.setText(String.format(activity.getString(R.string.bearing_format),result.getLastLocation().getBearing())+"°");// rumbo en grados
+                activity.tvAltitude.setText(String.format(activity.getString(R.string.altitude_format),result.getLastLocation().getAltitude()));
+                activity.tvSpeed.setText(String.format(activity.getString(R.string.speed_format),result.getLastLocation().getSpeed()*3.6));// Velocidad en m/s * 3.6 = Km/h
+                activity.tvBearing.setText(String.format(activity.getString(R.string.bearing_format),result.getLastLocation().getBearing()));// rumbo en grados
                 activity.tvCoodinates.setText(String.format(activity.getString(R.string.coordinates_format),result.getLastLocation().getLatitude(),result.getLastLocation().getLongitude()));
 
                 // Pass the new location to the Maps SDK's LocationComponent
