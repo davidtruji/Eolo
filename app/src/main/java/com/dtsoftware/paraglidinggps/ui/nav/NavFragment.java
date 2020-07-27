@@ -1,19 +1,17 @@
 package com.dtsoftware.paraglidinggps.ui.nav;
 
 import android.annotation.SuppressLint;
+import android.graphics.Paint;
 import android.location.Location;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.dtsoftware.paraglidinggps.R;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.mapbox.android.core.location.LocationEngine;
@@ -66,6 +64,7 @@ public class NavFragment extends Fragment implements
         Mapbox.getInstance(getContext(),getString(R.string.mapbox_access_token));
         View root = inflater.inflate(R.layout.nav_fragment, container, false);
 
+
         mapView = (MapView) root.findViewById(R.id.mapView);
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
@@ -89,25 +88,23 @@ public class NavFragment extends Fragment implements
             }
         });
 
-
         return root;
     }
 
     private void setStyle() {
         String currentStyleUri=null;
+        String newStyleUri=Style.OUTDOORS;
 
         if(mapboxMap.getStyle()!=null)
             currentStyleUri=mapboxMap.getStyle().getUri();
 
-        if(currentStyleUri != null){
-            String newStyleUri=Style.OUTDOORS;
-            if(currentStyleUri.equals(Style.OUTDOORS)){
-                newStyleUri=Style.SATELLITE;
-            }else{
-                newStyleUri=Style.OUTDOORS;
-            }
-            this.mapboxMap.setStyle(newStyleUri);
+        if(currentStyleUri.equals(Style.OUTDOORS)){
+            newStyleUri=Style.SATELLITE_STREETS;
+        }else{
+            newStyleUri=Style.OUTDOORS;
         }
+
+        this.mapboxMap.setStyle(newStyleUri);
 
     }
 
@@ -318,7 +315,6 @@ public class NavFragment extends Fragment implements
     public void onDestroyView() {
         super.onDestroyView();
         mapView.onDestroy();
-
     }
 
 
