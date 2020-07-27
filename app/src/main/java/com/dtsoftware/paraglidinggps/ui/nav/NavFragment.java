@@ -1,12 +1,13 @@
 package com.dtsoftware.paraglidinggps.ui.nav;
 
 import android.annotation.SuppressLint;
-import android.graphics.Paint;
 import android.location.Location;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -48,8 +49,11 @@ public class NavFragment extends Fragment implements
     private LocationEngine locationEngine;
     private LocationChangeListeningActivityLocationCallback callback =
             new LocationChangeListeningActivityLocationCallback(this);
-    private TextView tvSpeed,tvCoodinates,tvAltitude,tvBearing;
+    private TextView tvSpeed,tvCoodinates,tvAltitude,tvBearing,tvDistance;
     private FloatingActionButton fabCameraMode,fabLayers;
+    private float distance=0.0f;
+    private Location prevLocation=null;
+
 
     public NavFragment(){
 
@@ -73,6 +77,8 @@ public class NavFragment extends Fragment implements
         tvSpeed = (TextView) root.findViewById(R.id.tvSpeed);
         tvCoodinates = (TextView) root.findViewById(R.id.tvCoordinates);
         tvBearing = (TextView) root.findViewById(R.id.tvBearing);
+        tvDistance = (TextView) root.findViewById(R.id.tvDistance);
+
         fabCameraMode = (FloatingActionButton) root.findViewById(R.id.fabCameraMode);
         fabCameraMode.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -128,13 +134,13 @@ public class NavFragment extends Fragment implements
 
         if(currentCameraMode==CameraMode.NONE){
             mapboxMap.getLocationComponent().setCameraMode(CameraMode.TRACKING_GPS_NORTH);
-            fabCameraMode.setImageDrawable(getActivity().getDrawable(R.drawable.ic_baseline_explore_off_24));
+            fabCameraMode.setImageDrawable(getActivity().getDrawable(R.drawable.compass_off));
         }else if(currentCameraMode == CameraMode.TRACKING_GPS_NORTH){
             mapboxMap.getLocationComponent().setCameraMode(CameraMode.TRACKING_COMPASS);
-            fabCameraMode.setImageDrawable(getActivity().getDrawable(R.drawable.ic_baseline_explore_24));
+            fabCameraMode.setImageDrawable(getActivity().getDrawable(R.drawable.compass_on));
         }else if(currentCameraMode == CameraMode.TRACKING_COMPASS){
             mapboxMap.getLocationComponent().setCameraMode(CameraMode.TRACKING_GPS_NORTH);
-            fabCameraMode.setImageDrawable(getActivity().getDrawable(R.drawable.ic_baseline_explore_off_24));
+            fabCameraMode.setImageDrawable(getActivity().getDrawable(R.drawable.compass_off));
         }
 
     }
@@ -247,10 +253,14 @@ public class NavFragment extends Fragment implements
                 }
 
                 // Información en pantalla
-                activity.tvAltitude.setText(String.format(activity.getString(R.string.altitude_format),result.getLastLocation().getAltitude()));
+                activity.tvAltitude.setText(String.format(activity.getString(R.string.altitude_format),result.getLastLocation().getAltitude()));// Altitud en metros
                 activity.tvSpeed.setText(String.format(activity.getString(R.string.speed_format),result.getLastLocation().getSpeed()*3.6));// Velocidad en m/s * 3.6 = Km/h
                 activity.tvBearing.setText(String.format(activity.getString(R.string.bearing_format),result.getLastLocation().getBearing()));// rumbo en grados
-                activity.tvCoodinates.setText(String.format(activity.getString(R.string.coordinates_format),result.getLastLocation().getLatitude(),result.getLastLocation().getLongitude()));
+                activity.tvCoodinates.setText(String.format(activity.getString(R.string.coordinates_format),result.getLastLocation().getLatitude(),result.getLastLocation().getLongitude()));// Latitud y longitud
+
+                activity.updateDistance(result.getLastLocation());
+                activity.tvDistance.setText(String.format(activity.getString(R.string.distance_format),activity.distance));
+                activity.prevLocation=result.getLastLocation();
 
                 // Pass the new location to the Maps SDK's LocationComponent
                 if (activity.mapboxMap != null && result.getLastLocation() != null) {
@@ -258,6 +268,8 @@ public class NavFragment extends Fragment implements
                 }
             }
         }
+
+
 
         /**
          * The LocationEngineCallback interface's method which fires when the device's location can't be captured
@@ -273,6 +285,19 @@ public class NavFragment extends Fragment implements
             }
         }
     }
+
+
+    public void updateDistance(Location lastLocation){
+
+        if(prevLocation == null){
+            distance=0;
+        }else{
+            distance+=prevLocation.distanceTo(lastLocation)/1000;
+        }
+
+    }
+
+
 
     @Override
     public void onStart() {
