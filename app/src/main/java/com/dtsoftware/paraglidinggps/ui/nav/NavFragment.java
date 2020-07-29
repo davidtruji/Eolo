@@ -6,15 +6,11 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-
-import android.util.Log;
-import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.dtsoftware.paraglidinggps.MainActivity;
 import com.dtsoftware.paraglidinggps.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -58,10 +54,9 @@ public class NavFragment extends Fragment implements
     private BottomNavigationView bottomNavigationView;
 
 
-    private float distance=0.0f;
+    private Float distance=0.0f;
     private Location prevLocation=null;
     private boolean flying=false;
-
 
 
     public NavFragment(){
@@ -73,6 +68,7 @@ public class NavFragment extends Fragment implements
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+
 
         Mapbox.getInstance(getContext(),getString(R.string.mapbox_access_token));
         View root = inflater.inflate(R.layout.nav_fragment, container, false);
@@ -109,6 +105,7 @@ public class NavFragment extends Fragment implements
                 playStopFly();
             }
         });
+
 
         return root;
     }
@@ -325,7 +322,7 @@ public class NavFragment extends Fragment implements
     public void updateDistance(Location lastLocation){
 
         if(prevLocation == null){
-            distance=0;
+            distance=0f;
         }else{
             distance+=prevLocation.distanceTo(lastLocation)/1000;
         }

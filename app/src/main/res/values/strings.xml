@@ -30,4 +30,5 @@
     <string name="kmh_unit">Speed (km/h)</string>
     <string name="degrees_unit">Bearing (°)</string>
     <string name="distance_unit">Distance (Km)</string>
+
 </resources>
