@@ -1,22 +1,24 @@
 package com.dtsoftware.paraglidinggps;
 
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
+import com.dtsoftware.paraglidinggps.ui.LocationWork;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
 
+import java.util.concurrent.TimeUnit;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -46,17 +48,24 @@ public class MainActivity extends AppCompatActivity {
         btnStart = (Button) findViewById(R.id.btnStartService);
         btnStop = (Button) findViewById(R.id.btnStopService);
 
+        final PeriodicWorkRequest locationRequest = new PeriodicWorkRequest.Builder(LocationWork.class, 2, TimeUnit.SECONDS).build();
+
+
+        final Intent intent = new Intent(getApplicationContext(),LocationBackgroundService.class);
+
         btnStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startService(new Intent(MainActivity.this,LocationBackgroundService.class));
+                Log.i(getString(R.string.debug_tag),"UI Thread ID: "+Thread.currentThread().getId());
+                //WorkManager.getInstance(getApplicationContext()).enqueue(locationRequest);
+                startService(intent);
             }
         });
 
         btnStop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                stopService(new Intent(MainActivity.this,LocationBackgroundService.class));
+                stopService(intent);
             }
         });
         // Magic Stack-Overflow code to start the service
