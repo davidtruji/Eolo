@@ -5,9 +5,14 @@ import android.location.Location;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 import com.dtsoftware.paraglidinggps.R;
 import com.mapbox.android.core.location.LocationEngine;
@@ -37,8 +42,8 @@ public class NavFragment extends Fragment implements
         OnMapReadyCallback, PermissionsListener  {
 
 
-    private static final long DEFAULT_INTERVAL_IN_MILLISECONDS = 1000L;
-    private static final long DEFAULT_MAX_WAIT_TIME = DEFAULT_INTERVAL_IN_MILLISECONDS * 5;
+    private static final long DEFAULT_INTERVAL_IN_MILLISECONDS = 1000;
+    private static final long DEFAULT_MAX_WAIT_TIME = 0;
     private MapboxMap mapboxMap;
     private MapView mapView;
     private PermissionsManager permissionsManager;
@@ -46,6 +51,9 @@ public class NavFragment extends Fragment implements
     private LocationChangeListeningActivityLocationCallback callback =
             new LocationChangeListeningActivityLocationCallback(this);
 
+    private TextView tvDistance,tvSpeed,tvBearing,tvAltitude;
+    private Location prevLocation = null;
+    private float distance = 0;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -60,6 +68,12 @@ public class NavFragment extends Fragment implements
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
 
+        tvDistance = root.findViewById(R.id.tvDistance);
+        tvBearing = root.findViewById(R.id.tvBearing);
+        tvSpeed = root.findViewById(R.id.tvSpeed);
+        tvAltitude = root.findViewById(R.id.tvAltitude);
+
+
         return root;
     }
 
@@ -67,7 +81,7 @@ public class NavFragment extends Fragment implements
     public void onMapReady(@NonNull final MapboxMap mapboxMap) {
         this.mapboxMap = mapboxMap;
 
-        mapboxMap.setStyle(Style.TRAFFIC_NIGHT,
+        mapboxMap.setStyle(Style.OUTDOORS,
                 new Style.OnStyleLoaded() {
                     @Override public void onStyleLoaded(@NonNull Style style) {
                         enableLocationComponent(style);
@@ -177,6 +191,13 @@ public class NavFragment extends Fragment implements
                     return;
                 }
 
+                // TODO: Solo guardar distancia si se está en vuelo
+                activity.updateDistance(result.getLastLocation());
+
+                activity.updateUI(result.getLastLocation());
+
+
+
                 // Pass the new location to the Maps SDK's LocationComponent
                 if (activity.mapboxMap != null && result.getLastLocation() != null) {
                     activity.mapboxMap.getLocationComponent().forceLocationUpdate(result.getLastLocation());
@@ -197,6 +218,25 @@ public class NavFragment extends Fragment implements
                         Toast.LENGTH_SHORT).show();
             }
         }
+    }
+
+    private void updateUI(Location lastLocation) {
+        tvSpeed.setText(String.format(getString(R.string.speed_format),lastLocation.getSpeed()*3.6));
+        tvBearing.setText(String.format(getString(R.string.bearing_format),lastLocation.getBearing()));
+        tvAltitude.setText(String.format(getString(R.string.altitude_format),lastLocation.getAltitude()));
+    }
+
+    private void updateDistance(Location lastLocation) {
+
+        if(prevLocation == null){
+            distance = 0;
+        }else{
+            distance+=prevLocation.distanceTo(lastLocation)/1000;
+            tvDistance.setText(String.format(getString(R.string.distance_format),distance));
+        }
+
+        prevLocation = lastLocation;
+
     }
 
 
@@ -240,6 +280,10 @@ public class NavFragment extends Fragment implements
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        // Prevent leaks
+        if (locationEngine != null) {
+            locationEngine.removeLocationUpdates(callback);
+        }
         mapView.onDestroy();
     }
 }
