@@ -4,17 +4,12 @@ import android.annotation.SuppressLint;
 import android.location.Location;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 import android.widget.Toast;
-import com.dtsoftware.paraglidinggps.MainActivity;
 import com.dtsoftware.paraglidinggps.R;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.mapbox.android.core.location.LocationEngine;
 import com.mapbox.android.core.location.LocationEngineCallback;
 import com.mapbox.android.core.location.LocationEngineProvider;
@@ -39,7 +34,8 @@ import static android.os.Looper.getMainLooper;
 
 
 public class NavFragment extends Fragment implements
-        OnMapReadyCallback, PermissionsListener {
+        OnMapReadyCallback, PermissionsListener  {
+
 
     private static final long DEFAULT_INTERVAL_IN_MILLISECONDS = 1000L;
     private static final long DEFAULT_MAX_WAIT_TIME = DEFAULT_INTERVAL_IN_MILLISECONDS * 5;
@@ -49,136 +45,35 @@ public class NavFragment extends Fragment implements
     private LocationEngine locationEngine;
     private LocationChangeListeningActivityLocationCallback callback =
             new LocationChangeListeningActivityLocationCallback(this);
-    private TextView tvSpeed,tvCoodinates,tvAltitude,tvBearing,tvDistance;
-    private FloatingActionButton fabCameraMode,fabLayers,fabPlay;
-    private BottomNavigationView bottomNavigationView;
 
 
-    private Float distance=0.0f;
-    private Location prevLocation=null;
-    private boolean flying=false;
+    public View onCreateView(@NonNull LayoutInflater inflater,
+                             ViewGroup container, Bundle savedInstanceState) {
+        // Mapbox access token is configured here. This needs to be called either in your application
+        // object or in the same activity which contains the mapview.
+        Mapbox.getInstance(getContext(), getString(R.string.mapbox_access_token));
 
-
-    public NavFragment(){
-
-    }
-
-
-
-    @Nullable
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-
-
-        Mapbox.getInstance(getContext(),getString(R.string.mapbox_access_token));
+        // This contains the MapView in XML and needs to be called after the access token is configured.
         View root = inflater.inflate(R.layout.nav_fragment, container, false);
 
-
-        mapView = (MapView) root.findViewById(R.id.mapView);
+        mapView = root.findViewById(R.id.mapView);
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
 
-        tvAltitude = (TextView) root.findViewById(R.id.tvAltitude);
-        tvSpeed = (TextView) root.findViewById(R.id.tvSpeed);
-        tvCoodinates = (TextView) root.findViewById(R.id.tvCoordinates);
-        tvBearing = (TextView) root.findViewById(R.id.tvBearing);
-        tvDistance = (TextView) root.findViewById(R.id.tvDistance);
-
-        fabCameraMode = (FloatingActionButton) root.findViewById(R.id.fabCameraMode);
-        fabCameraMode.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                setCameraMode();
-            }
-        });
-        fabLayers = (FloatingActionButton) root.findViewById(R.id.fabLayers);
-        fabLayers.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                setStyle();
-            }
-        });
-        fabPlay = (FloatingActionButton) root.findViewById(R.id.fabPlay);
-        fabPlay.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                playStopFly();
-            }
-        });
-
-
         return root;
-    }
-
-    private void playStopFly() {
-
-        if(flying){// Usuario pulsó STOP
-            fabPlay.setImageDrawable(getActivity().getDrawable(R.drawable.play));
-            ((MainActivity) getActivity()).getSupportActionBar().show();
-            flying=false;
-            mapboxMap.getGesturesManager().getMoveGestureDetector().setEnabled(true);
-            mapboxMap.getGesturesManager().getRotateGestureDetector().setEnabled(true);
-        }else{// Usuario pulsó PLAY
-            fabPlay.setImageDrawable(getActivity().getDrawable(R.drawable.stop));
-            ((MainActivity) getActivity()).getSupportActionBar().hide();
-            this.flying=true;
-            mapboxMap.getGesturesManager().getMoveGestureDetector().setEnabled(false);
-            mapboxMap.getGesturesManager().getRotateGestureDetector().setEnabled(false);
-        }
-
-
-    }
-
-    private void setStyle() {
-        String currentStyleUri=null;
-        String newStyleUri=Style.OUTDOORS;
-
-        if(mapboxMap.getStyle()!=null)
-            currentStyleUri=mapboxMap.getStyle().getUri();
-
-        if(currentStyleUri.equals(Style.OUTDOORS)){
-            newStyleUri=Style.SATELLITE_STREETS;
-        }else{
-            newStyleUri=Style.OUTDOORS;
-        }
-
-        this.mapboxMap.setStyle(newStyleUri);
-
     }
 
     @Override
     public void onMapReady(@NonNull final MapboxMap mapboxMap) {
         this.mapboxMap = mapboxMap;
 
-        mapboxMap.setStyle(Style.OUTDOORS,
+        mapboxMap.setStyle(Style.TRAFFIC_NIGHT,
                 new Style.OnStyleLoaded() {
-                    @Override
-                    public void onStyleLoaded(@NonNull Style style) {
+                    @Override public void onStyleLoaded(@NonNull Style style) {
                         enableLocationComponent(style);
                     }
                 });
-
     }
-
-
-    public void setCameraMode(){
-        int currentCameraMode =  mapboxMap.getLocationComponent().getCameraMode();
-
-        if(currentCameraMode==CameraMode.NONE){
-            mapboxMap.getLocationComponent().setCameraMode(CameraMode.TRACKING_GPS_NORTH);
-            fabCameraMode.setImageDrawable(getActivity().getDrawable(R.drawable.compass_off));
-        }else if(currentCameraMode == CameraMode.TRACKING_GPS_NORTH){
-            mapboxMap.getLocationComponent().setCameraMode(CameraMode.TRACKING_COMPASS);
-            fabCameraMode.setImageDrawable(getActivity().getDrawable(R.drawable.compass_on));
-        }else if(currentCameraMode == CameraMode.TRACKING_COMPASS){
-            mapboxMap.getLocationComponent().setCameraMode(CameraMode.TRACKING_GPS_NORTH);
-            fabCameraMode.setImageDrawable(getActivity().getDrawable(R.drawable.compass_off));
-        }
-
-    }
-
-
-
 
     /**
      * Initialize the Maps SDK's LocationComponent
@@ -186,14 +81,14 @@ public class NavFragment extends Fragment implements
     @SuppressWarnings( {"MissingPermission"})
     private void enableLocationComponent(@NonNull Style loadedMapStyle) {
         // Check if permissions are enabled and if not request
-        if (PermissionsManager.areLocationPermissionsGranted(getContext().getApplicationContext())) {
+        if (PermissionsManager.areLocationPermissionsGranted(getContext())) {
 
             // Get an instance of the component
             LocationComponent locationComponent = mapboxMap.getLocationComponent();
 
             // Set the LocationComponent activation options
             LocationComponentActivationOptions locationComponentActivationOptions =
-                    LocationComponentActivationOptions.builder(getContext().getApplicationContext(), loadedMapStyle)
+                    LocationComponentActivationOptions.builder(getContext(), loadedMapStyle)
                             .useDefaultLocationEngine(false)
                             .build();
 
@@ -204,11 +99,10 @@ public class NavFragment extends Fragment implements
             locationComponent.setLocationComponentEnabled(true);
 
             // Set the component's camera mode
-            locationComponent.setCameraMode(CameraMode.TRACKING_GPS_NORTH);
+            locationComponent.setCameraMode(CameraMode.TRACKING);
 
             // Set the component's render mode
             locationComponent.setRenderMode(RenderMode.COMPASS);
-
 
             initLocationEngine();
         } else {
@@ -217,13 +111,12 @@ public class NavFragment extends Fragment implements
         }
     }
 
-
     /**
      * Set up the LocationEngine and the parameters for querying the device's location
      */
     @SuppressLint("MissingPermission")
     private void initLocationEngine() {
-        locationEngine = LocationEngineProvider.getBestLocationEngine(getContext().getApplicationContext());
+        locationEngine = LocationEngineProvider.getBestLocationEngine(getContext());
 
         LocationEngineRequest request = new LocationEngineRequest.Builder(DEFAULT_INTERVAL_IN_MILLISECONDS)
                 .setPriority(LocationEngineRequest.PRIORITY_HIGH_ACCURACY)
@@ -241,7 +134,7 @@ public class NavFragment extends Fragment implements
 
     @Override
     public void onExplanationNeeded(List<String> permissionsToExplain) {
-        Toast.makeText(getActivity(), R.string.user_location_permission_explanation,
+        Toast.makeText(getContext(), R.string.user_location_permission_explanation,
                 Toast.LENGTH_LONG).show();
     }
 
@@ -255,7 +148,7 @@ public class NavFragment extends Fragment implements
                 }
             });
         } else {
-            Toast.makeText(getActivity(), R.string.user_location_permission_not_granted, Toast.LENGTH_LONG).show();
+            Toast.makeText(getContext(), R.string.user_location_permission_not_granted, Toast.LENGTH_LONG).show();
         }
     }
 
@@ -277,22 +170,12 @@ public class NavFragment extends Fragment implements
         public void onSuccess(LocationEngineResult result) {
             NavFragment activity = activityWeakReference.get();
 
-            if (activity != null && activity.getContext()!=null) {
+            if (activity != null) {
                 Location location = result.getLastLocation();
 
                 if (location == null) {
                     return;
                 }
-
-                // Información en pantalla
-                activity.tvAltitude.setText(String.format(activity.getString(R.string.altitude_format),result.getLastLocation().getAltitude()));// Altitud en metros
-                activity.tvSpeed.setText(String.format(activity.getString(R.string.speed_format),result.getLastLocation().getSpeed()*3.6));// Velocidad en m/s * 3.6 = Km/h
-                activity.tvBearing.setText(String.format(activity.getString(R.string.bearing_format),result.getLastLocation().getBearing()));// rumbo en grados
-                activity.tvCoodinates.setText(String.format(activity.getString(R.string.coordinates_format),result.getLastLocation().getLatitude(),result.getLastLocation().getLongitude()));// Latitud y longitud
-
-                activity.updateDistance(result.getLastLocation());
-                activity.tvDistance.setText(String.format(activity.getString(R.string.distance_format),activity.distance));
-                activity.prevLocation=result.getLastLocation();
 
                 // Pass the new location to the Maps SDK's LocationComponent
                 if (activity.mapboxMap != null && result.getLastLocation() != null) {
@@ -300,8 +183,6 @@ public class NavFragment extends Fragment implements
                 }
             }
         }
-
-
 
         /**
          * The LocationEngineCallback interface's method which fires when the device's location can't be captured
@@ -312,23 +193,11 @@ public class NavFragment extends Fragment implements
         public void onFailure(@NonNull Exception exception) {
             NavFragment activity = activityWeakReference.get();
             if (activity != null) {
-                Toast.makeText(activity.getActivity(), exception.getLocalizedMessage(),
+                Toast.makeText(activity.getContext(), exception.getLocalizedMessage(),
                         Toast.LENGTH_SHORT).show();
             }
         }
     }
-
-
-    public void updateDistance(Location lastLocation){
-
-        if(prevLocation == null){
-            distance=0f;
-        }else{
-            distance+=prevLocation.distanceTo(lastLocation)/1000;
-        }
-
-    }
-
 
 
     @Override
@@ -357,7 +226,7 @@ public class NavFragment extends Fragment implements
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
+    public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         mapView.onSaveInstanceState(outState);
     }
@@ -373,6 +242,4 @@ public class NavFragment extends Fragment implements
         super.onDestroyView();
         mapView.onDestroy();
     }
-
-
 }
