@@ -8,18 +8,24 @@
     </style>
 
     <style name="OnScreenInfo">
-        <item name="android:textColor">#000000</item>
-        <item name="android:textSize">50sp</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textSize">35sp</item>
         <item name="android:textStyle">bold</item>
     </style>
 
     <style name="OnScreenInfoUnits">
-        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textSize">10sp</item>
         <item name="android:textStyle">bold</item>
     </style>
 
     <style name="FabButtons">
     <item name="backgroundTint">#FFFFFF</item>
+    </style>
+    
+    <style name="infoBlock">
+        <item name="android:background">@drawable/info_block_background</item>
+        <item name="android:layout_margin">8dp</item>
     </style>
 
 

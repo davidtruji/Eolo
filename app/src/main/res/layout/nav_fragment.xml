@@ -50,8 +50,10 @@
 
             <LinearLayout
                 android:id="@+id/bearingBlock"
+                style="@style/infoBlock"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:background="@drawable/info_block_background"
                 android:orientation="vertical"
                 mapbox:layout_constraintEnd_toEndOf="parent"
                 mapbox:layout_constraintStart_toStartOf="parent"
@@ -77,6 +79,7 @@
 
             <LinearLayout
                 android:id="@+id/speedBlock"
+                style="@style/infoBlock"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -104,11 +107,12 @@
 
             <LinearLayout
                 android:id="@+id/timeBlock"
+                style="@style/infoBlock"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 mapbox:layout_constraintBottom_toBottomOf="parent"
-                mapbox:layout_constraintStart_toStartOf="parent">
+                mapbox:layout_constraintEnd_toEndOf="parent">
 
                 <Chronometer
                     android:id="@+id/tvChronometer"
@@ -128,11 +132,13 @@
 
             <LinearLayout
                 android:id="@+id/distanceBlock"
+                style="@style/infoBlock"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:orientation="vertical"
                 mapbox:layout_constraintBottom_toBottomOf="parent"
+                mapbox:layout_constraintStart_toStartOf="parent"
                 mapbox:layout_constraintTop_toTopOf="parent">
 
                 <TextView
@@ -155,6 +161,7 @@
 
             <LinearLayout
                 android:id="@+id/altitudeBlock"
+                style="@style/infoBlock"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
