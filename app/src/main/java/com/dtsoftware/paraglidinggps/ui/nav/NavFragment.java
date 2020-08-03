@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -82,8 +83,6 @@ public class NavFragment extends Fragment implements
         tvAltitude = root.findViewById(R.id.tvAltitude);
         tvChronometer = root.findViewById(R.id.tvChronometer);
 
-        tvChronometer.start();
-
 
         fabStartFly = root.findViewById(R.id.fabPlay);
 
@@ -98,11 +97,15 @@ public class NavFragment extends Fragment implements
                     fabStartFly.setImageDrawable(getActivity().getDrawable(R.drawable.play));
                     flying=false;
                     clearUi();
+                    tvChronometer.setBase(SystemClock.elapsedRealtime());
+                    tvChronometer.stop();
                     Log.i(getString(R.string.debug_tag),"Vuelo finalizado");
                 }else{// Usuario pulsó PLAY
                     getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);// Evitar que la pantalla se apague sola
                     fabStartFly.setImageDrawable(getActivity().getDrawable(R.drawable.stop));
                     flying=true;
+                    tvChronometer.setBase(SystemClock.elapsedRealtime());
+                    tvChronometer.start();
                     Log.i(getString(R.string.debug_tag),"Vuelo Iniciado");
                 }
 
