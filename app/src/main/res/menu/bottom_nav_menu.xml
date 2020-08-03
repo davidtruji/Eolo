@@ -7,20 +7,20 @@
         android:title="@string/title_nav" />
 
     <item
-        android:id="@+id/navigation_dashboard"
+        android:id="@+id/navigation_route"
         android:icon="@drawable/route"
         android:title="@string/title_route"
         android:enabled="true"/>
 
     <item
-        android:id="@+id/navigation_home"
+        android:id="@+id/navigation_flights"
         android:icon="@drawable/flights"
         android:title="@string/title_flights"
         android:enabled="true"
         />
 
     <item
-        android:id="@+id/navigation_notifications"
+        android:id="@+id/navigation_waypoints"
         android:icon="@drawable/waypoint"
         android:title="@string/title_waypoints"
         android:enabled="true"/>

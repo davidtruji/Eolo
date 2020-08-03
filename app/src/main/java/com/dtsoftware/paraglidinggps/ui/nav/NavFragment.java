@@ -82,7 +82,7 @@ public class NavFragment extends Fragment implements
         fabStartFly.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                //TODO: Modularizar iniciarVuelo/FinalizarVuelo
                 if(flying){// Usuario pulsó STOP
                     getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);// Liberar la pantalla de nuevo
                     fabStartFly.setImageDrawable(getActivity().getDrawable(R.drawable.play));
@@ -217,14 +217,11 @@ public class NavFragment extends Fragment implements
                     return;
                 }
 
-                // TODO: Solo guardar distancia si se está en vuelo
-                //activity.updateDistance(result.getLastLocation());
 
                 if(activity.flying)
                     activity.updateUI(result.getLastLocation());
 
-
-
+                
                 // Pass the new location to the Maps SDK's LocationComponent
                 if (activity.mapboxMap != null && result.getLastLocation() != null) {
                     activity.mapboxMap.getLocationComponent().forceLocationUpdate(result.getLastLocation());
