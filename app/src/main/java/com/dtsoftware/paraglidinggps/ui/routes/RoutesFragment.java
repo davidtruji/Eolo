@@ -32,7 +32,6 @@ public class RoutesFragment extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         mViewModel = ViewModelProviders.of(this).get(RoutesViewModel.class);
-        // TODO: Use the ViewModel
     }
 
 }

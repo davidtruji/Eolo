@@ -26,7 +26,6 @@ public class LocationBackgroundService extends Service {
     Runnable locationRunnable = new Runnable() {
         @Override
         public void run() {
-            //TODO: Implementar el runnable que obtiene la posicion del usuario
             Log.i(getString(R.string.debug_tag), "LocationRunnable Thread ID: " + Thread.currentThread().getId());
 
 
@@ -44,7 +43,6 @@ public class LocationBackgroundService extends Service {
     };
 
 
-//TODO: Comunicar los cambios a la UI
 
     @Nullable
     @Override

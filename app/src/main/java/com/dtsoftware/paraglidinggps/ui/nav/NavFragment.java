@@ -18,6 +18,8 @@ import android.view.WindowManager;
 import android.widget.Chronometer;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.dtsoftware.paraglidinggps.MainActivity;
 import com.dtsoftware.paraglidinggps.R;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.mapbox.android.core.location.LocationEngine;
@@ -56,7 +58,6 @@ public class NavFragment extends Fragment implements
     private LocationChangeListeningActivityLocationCallback callback =
             new LocationChangeListeningActivityLocationCallback(this);
 
-    // TODO: añadir el tiempo de vuelo
     private TextView tvDistance,tvSpeed,tvBearing,tvAltitude;
     private Chronometer tvChronometer;
     private Location prevLocation = null;
@@ -93,6 +94,7 @@ public class NavFragment extends Fragment implements
             public void onClick(View view) {
                 //TODO: Modularizar iniciarVuelo/FinalizarVuelo
                 if(flying){// Usuario pulsó STOP
+                    ((MainActivity)getActivity()).showSystemUI();
                     getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);// Liberar la pantalla de nuevo
                     fabStartFly.setImageDrawable(getActivity().getDrawable(R.drawable.play));
                     flying=false;
@@ -101,6 +103,7 @@ public class NavFragment extends Fragment implements
                     tvChronometer.stop();
                     Log.i(getString(R.string.debug_tag),"Vuelo finalizado");
                 }else{// Usuario pulsó PLAY
+                    ((MainActivity)getActivity()).hideSystemUI();
                     getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);// Evitar que la pantalla se apague sola
                     fabStartFly.setImageDrawable(getActivity().getDrawable(R.drawable.stop));
                     flying=true;
@@ -234,7 +237,7 @@ public class NavFragment extends Fragment implements
                 if(activity.flying)
                     activity.updateUI(result.getLastLocation());
 
-                
+
                 // Pass the new location to the Maps SDK's LocationComponent
                 if (activity.mapboxMap != null && result.getLastLocation() != null) {
                     activity.mapboxMap.getLocationComponent().forceLocationUpdate(result.getLastLocation());
@@ -286,6 +289,8 @@ public class NavFragment extends Fragment implements
     }
 
 
+
+
     @Override
     public void onStart() {
         super.onStart();
@@ -332,4 +337,13 @@ public class NavFragment extends Fragment implements
         }
         mapView.onDestroy();
     }
+
+
+
+
+
+
+
+
+
 }

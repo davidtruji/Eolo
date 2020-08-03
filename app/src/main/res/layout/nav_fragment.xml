@@ -12,7 +12,7 @@
     mapbox:layout_constraintTop_toTopOf="parent"
     tools:context=".ui.nav.NavFragment">
 
-
+<!--TODO: Mejorar el Layout-->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
