@@ -58,7 +58,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
-            android:baselineAligned="false"
             android:orientation="horizontal">
 
             <LinearLayout
@@ -139,7 +138,8 @@
         <FrameLayout
 
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="0dp"
+            android:layout_weight="1">
 
 
             <com.mapbox.mapboxsdk.maps.MapView
@@ -162,14 +162,46 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
                     android:clickable="true"
+                    android:focusable="true"
                     android:src="@drawable/play"
                     mapbox:layout_constraintBottom_toBottomOf="parent"
                     mapbox:layout_constraintEnd_toEndOf="parent"
-                    mapbox:layout_constraintStart_toStartOf="parent"
-                    android:focusable="true" />
+                    mapbox:layout_constraintStart_toStartOf="parent" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
         </FrameLayout>
+
+        <LinearLayout
+            android:id="@+id/infoF3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:id="@+id/timeBlock"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                android:orientation="vertical">
+
+                <Chronometer
+                    android:id="@+id/tvChronometer"
+                    style="@style/OnScreenInfo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="0:00"
+                    android:textAlignment="center" />
+
+                <TextView
+                    android:id="@+id/tvTimeLabel"
+                    style="@style/OnScreenInfoUnits"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Time"
+                    android:textAlignment="center" />
+            </LinearLayout>
+        </LinearLayout>
+
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,4 +1,4 @@
-package com.dtsoftware.paraglidinggps.ui.waypoints;
+package com.dtsoftware.paraglidinggps.ui.flights;
 
 import androidx.lifecycle.ViewModelProviders;
 
@@ -14,24 +14,24 @@ import android.view.ViewGroup;
 
 import com.dtsoftware.paraglidinggps.R;
 
-public class Waypoints extends Fragment {
+public class FlightsFragment extends Fragment {
 
-    private WaypointsViewModel mViewModel;
+    private FlightsViewModel mViewModel;
 
-    public static Waypoints newInstance() {
-        return new Waypoints();
+    public static FlightsFragment newInstance() {
+        return new FlightsFragment();
     }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.waypoints_fragment, container, false);
+        return inflater.inflate(R.layout.flights_fragment, container, false);
     }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        mViewModel = ViewModelProviders.of(this).get(WaypointsViewModel.class);
+        mViewModel = ViewModelProviders.of(this).get(FlightsViewModel.class);
         // TODO: Use the ViewModel
     }
 

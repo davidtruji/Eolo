@@ -14,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.Chronometer;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.dtsoftware.paraglidinggps.R;
@@ -54,7 +55,9 @@ public class NavFragment extends Fragment implements
     private LocationChangeListeningActivityLocationCallback callback =
             new LocationChangeListeningActivityLocationCallback(this);
 
+    // TODO: añadir el tiempo de vuelo
     private TextView tvDistance,tvSpeed,tvBearing,tvAltitude;
+    private Chronometer tvChronometer;
     private Location prevLocation = null;
     private float distance = 0;
     private FloatingActionButton fabStartFly;
@@ -77,7 +80,14 @@ public class NavFragment extends Fragment implements
         tvBearing = root.findViewById(R.id.tvBearing);
         tvSpeed = root.findViewById(R.id.tvSpeed);
         tvAltitude = root.findViewById(R.id.tvAltitude);
+        tvChronometer = root.findViewById(R.id.tvChronometer);
+
+        tvChronometer.start();
+
+
         fabStartFly = root.findViewById(R.id.fabPlay);
+
+
 
         fabStartFly.setOnClickListener(new View.OnClickListener() {
             @Override
