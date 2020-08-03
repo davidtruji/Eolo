@@ -9,12 +9,15 @@ import androidx.fragment.app.Fragment;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.dtsoftware.paraglidinggps.R;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.mapbox.android.core.location.LocationEngine;
 import com.mapbox.android.core.location.LocationEngineCallback;
 import com.mapbox.android.core.location.LocationEngineProvider;
@@ -54,6 +57,8 @@ public class NavFragment extends Fragment implements
     private TextView tvDistance,tvSpeed,tvBearing,tvAltitude;
     private Location prevLocation = null;
     private float distance = 0;
+    private FloatingActionButton fabStartFly;
+    private boolean flying = false;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -72,7 +77,28 @@ public class NavFragment extends Fragment implements
         tvBearing = root.findViewById(R.id.tvBearing);
         tvSpeed = root.findViewById(R.id.tvSpeed);
         tvAltitude = root.findViewById(R.id.tvAltitude);
+        fabStartFly = root.findViewById(R.id.fabPlay);
 
+        fabStartFly.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                if(flying){// Usuario pulsó STOP
+                    getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);// Liberar la pantalla de nuevo
+                    fabStartFly.setImageDrawable(getActivity().getDrawable(R.drawable.play));
+                    flying=false;
+                    clearUi();
+                    Log.i(getString(R.string.debug_tag),"Vuelo finalizado");
+                }else{// Usuario pulsó PLAY
+                    getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);// Evitar que la pantalla se apague sola
+                    fabStartFly.setImageDrawable(getActivity().getDrawable(R.drawable.stop));
+                    flying=true;
+                    Log.i(getString(R.string.debug_tag),"Vuelo Iniciado");
+                }
+
+
+            }
+        });
 
         return root;
     }
@@ -192,9 +218,10 @@ public class NavFragment extends Fragment implements
                 }
 
                 // TODO: Solo guardar distancia si se está en vuelo
-                activity.updateDistance(result.getLastLocation());
+                //activity.updateDistance(result.getLastLocation());
 
-                activity.updateUI(result.getLastLocation());
+                if(activity.flying)
+                    activity.updateUI(result.getLastLocation());
 
 
 
@@ -221,9 +248,18 @@ public class NavFragment extends Fragment implements
     }
 
     private void updateUI(Location lastLocation) {
+        updateDistance(lastLocation);
         tvSpeed.setText(String.format(getString(R.string.speed_format),lastLocation.getSpeed()*3.6));
         tvBearing.setText(String.format(getString(R.string.bearing_format),lastLocation.getBearing()));
         tvAltitude.setText(String.format(getString(R.string.altitude_format),lastLocation.getAltitude()));
+    }
+
+    private void clearUi(){
+        distance=0;
+        tvDistance.setText(getString(R.string.default_distance));
+        tvSpeed.setText(getString(R.string.default_speed));
+        tvAltitude.setText(getString(R.string.default_altitude));
+        tvBearing.setText(getString(R.string.default_bearing));
     }
 
     private void updateDistance(Location lastLocation) {
