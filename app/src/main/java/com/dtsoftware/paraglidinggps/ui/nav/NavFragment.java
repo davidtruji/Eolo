@@ -21,6 +21,7 @@ import android.widget.Toast;
 
 import com.dtsoftware.paraglidinggps.MainActivity;
 import com.dtsoftware.paraglidinggps.R;
+import com.dtsoftware.paraglidinggps.Utils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.mapbox.android.core.location.LocationEngine;
 import com.mapbox.android.core.location.LocationEngineCallback;
@@ -58,7 +59,7 @@ public class NavFragment extends Fragment implements
     private LocationChangeListeningActivityLocationCallback callback =
             new LocationChangeListeningActivityLocationCallback(this);
 
-    private TextView tvDistance,tvSpeed,tvBearing,tvAltitude;
+    private TextView tvDistance,tvSpeed,tvBearing,tvBearingLet,tvAltitude;
     private Chronometer tvChronometer;
     private Location prevLocation = null;
     private float distance = 0;
@@ -80,6 +81,7 @@ public class NavFragment extends Fragment implements
 
         tvDistance = root.findViewById(R.id.tvDistance);
         tvBearing = root.findViewById(R.id.tvBearing);
+        tvBearingLet = root.findViewById(R.id.tvBearingLetter);
         tvSpeed = root.findViewById(R.id.tvSpeed);
         tvAltitude = root.findViewById(R.id.tvAltitude);
         tvChronometer = root.findViewById(R.id.tvChronometer);
@@ -263,7 +265,8 @@ public class NavFragment extends Fragment implements
     private void updateUI(Location lastLocation) {
         updateDistance(lastLocation);
         tvSpeed.setText(String.format(getString(R.string.speed_format),lastLocation.getSpeed()*3.6));
-        tvBearing.setText(String.format(getString(R.string.bearing_format),lastLocation.getBearing()));
+        tvBearingLet.setText(Utils.degreesToBearing(lastLocation.getBearing()));
+        tvBearing.setText(String.format(getString(R.string.bearing_format),lastLocation.getBearing())+" "+getString(R.string.degrees_unit));
         tvAltitude.setText(String.format(getString(R.string.altitude_format),lastLocation.getAltitude()));
     }
 

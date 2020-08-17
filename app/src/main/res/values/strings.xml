@@ -13,12 +13,12 @@
     <string name="mapbox_access_token">pk.eyJ1IjoiZGF2aWR0cnVqaSIsImEiOiJja2N5eHk1azQwZWNwMnVwNGdhdmI0NjFjIn0.fmvbTZB2ja54sltI3znqZA</string>
     <string name="user_location_permission_explanation">Location access needed</string>
     <string name="user_location_permission_not_granted">No location access</string>
-    <string name="coordinates_format">%1$.3f , %2$.3f</string>
 
     <string name="speed_format">%.0f</string>
     <string name="altitude_format">%.0f</string>
     <string name="bearing_format">%.0f</string>
     <string name="distance_format">%.1f</string>
+    <string name="coordinates_format">%1$.3f , %2$.3f</string>
 
 
     <string name="default_speed">0</string>
@@ -29,7 +29,18 @@
 
     <string name="meters_unit">Altitude (m)</string>
     <string name="kmh_unit">Speed (km/h)</string>
-    <string name="degrees_unit">Bearing (°)</string>
+    <string name="degrees_unit">(°)</string>
     <string name="distance_unit">Distance (Km)</string>
+
+
+    <string name="north">N</string>
+    <string name="northEast">NE</string>
+    <string name="east">E</string>
+    <string name="southEast">SE</string>
+    <string name="south">S</string>
+    <string name="southWest">SW</string>
+    <string name="west">W</string>
+    <string name="northWest">NW</string>
+
 
 </resources>
