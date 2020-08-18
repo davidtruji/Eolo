@@ -43,4 +43,8 @@
     <string name="northWest">NW</string>
 
 
+    <string name="tracking_compass_snack">Tracking device compass</string>
+    <string name="tracking_gps_north_snack">GPS North Blocked</string>
+
+
 </resources>

@@ -24,6 +24,7 @@ import com.dtsoftware.paraglidinggps.MainActivity;
 import com.dtsoftware.paraglidinggps.R;
 import com.dtsoftware.paraglidinggps.Utils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 import com.mapbox.android.core.location.LocationEngine;
 import com.mapbox.android.core.location.LocationEngineCallback;
 import com.mapbox.android.core.location.LocationEngineProvider;
@@ -32,8 +33,11 @@ import com.mapbox.android.core.location.LocationEngineResult;
 import com.mapbox.android.core.permissions.PermissionsListener;
 import com.mapbox.android.core.permissions.PermissionsManager;
 import com.mapbox.mapboxsdk.Mapbox;
+import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.location.LocationComponent;
 import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions;
+import com.mapbox.mapboxsdk.location.OnCameraTrackingChangedListener;
+import com.mapbox.mapboxsdk.location.OnLocationCameraTransitionListener;
 import com.mapbox.mapboxsdk.location.modes.CameraMode;
 import com.mapbox.mapboxsdk.location.modes.RenderMode;
 import com.mapbox.mapboxsdk.maps.MapView;
@@ -48,7 +52,7 @@ import static android.os.Looper.getMainLooper;
 
 
 public class NavFragment extends Fragment implements
-        OnMapReadyCallback, PermissionsListener, SensorEventListener {
+        OnMapReadyCallback, PermissionsListener, OnCameraTrackingChangedListener {
 
 
     private static final long DEFAULT_INTERVAL_IN_MILLISECONDS = 1000;
@@ -92,6 +96,7 @@ public class NavFragment extends Fragment implements
 
         fabStartFly = root.findViewById(R.id.fabPlay);
         fabLayers = root.findViewById(R.id.fabLayers);
+        fabCompass = root.findViewById(R.id.fabCompass);
 
         fabStartFly.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -111,13 +116,19 @@ public class NavFragment extends Fragment implements
             }
         });
 
+        fabCompass.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                changeCameraMode();
+            }
+        });
+
         return root;
     }
 
     @Override
     public void onMapReady(@NonNull final MapboxMap mapboxMap) {
         this.mapboxMap = mapboxMap;
-        // TODO: Botón de capas del mapa
         mapboxMap.setStyle(Style.OUTDOORS,
                 new Style.OnStyleLoaded() {
                     @Override
@@ -150,15 +161,16 @@ public class NavFragment extends Fragment implements
             // Enable to make component visible
             locationComponent.setLocationComponentEnabled(true);
 
-            // Set the component's camera mode
-            locationComponent.setCameraMode(CameraMode.TRACKING_COMPASS);
-
-            // TODO: Cambiar angulo y zoom de camara cuando se empieza el vuelo
-            // TODO: Botones para cambiar el modo de camara en tiempo de ejecución
-
+            // Modo por defecto de la cámara al iniciar la app
+            locationComponent.setCameraMode(CameraMode.TRACKING_GPS_NORTH);
+            locationComponent.zoomWhileTracking(14);
+            locationComponent.tiltWhileTracking(0);
 
             // Set the component's render mode
             locationComponent.setRenderMode(RenderMode.COMPASS);
+
+            // Añado el Listener que vigila el estado de la cámara
+            locationComponent.addOnCameraTrackingChangedListener(this);
 
             initLocationEngine();
         } else {
@@ -206,17 +218,6 @@ public class NavFragment extends Fragment implements
         } else {
             Toast.makeText(getContext(), R.string.user_location_permission_not_granted, Toast.LENGTH_LONG).show();
         }
-    }
-
-    @Override
-    public void onSensorChanged(SensorEvent sensorEvent) {
-        //  tvBearingLet.setText(Float.toString(Math.round(sensorEvent.values[0])));
-
-    }
-
-    @Override
-    public void onAccuracyChanged(Sensor sensor, int i) {
-
     }
 
     private static class LocationChangeListeningActivityLocationCallback
@@ -339,6 +340,52 @@ public class NavFragment extends Fragment implements
             mapboxMap.setStyle(Style.OUTDOORS);
         else
             mapboxMap.setStyle(Style.SATELLITE_STREETS);
+    }
+
+
+    private void changeCameraMode() {
+        LocationComponent locationComponent = mapboxMap.getLocationComponent();
+
+        if (locationComponent.getCameraMode() == CameraMode.TRACKING_COMPASS) {
+            locationComponent.setCameraMode(CameraMode.TRACKING_GPS_NORTH);
+            Log.i(getString(R.string.debug_tag), "Modo de cámara cambia de TRACKING_COMPASS a TRACKING_GPS_NORTH");
+            Snackbar.make(getView(), getString(R.string.tracking_gps_north_snack), Snackbar.LENGTH_SHORT)
+                    .show();
+        } else if (locationComponent.getCameraMode() == CameraMode.TRACKING_GPS_NORTH) {
+            locationComponent.setCameraMode(CameraMode.TRACKING_COMPASS);
+            Log.i(getString(R.string.debug_tag), "Modo de cámara cambia de TRACKING_GPS_NORTH a TRACKING_COMPASS");
+            Snackbar.make(getView(), getString(R.string.tracking_compass_snack), Snackbar.LENGTH_SHORT)
+                    .show();
+        } else {
+            locationComponent.setCameraMode(CameraMode.TRACKING_GPS_NORTH);
+            Log.i(getString(R.string.debug_tag), "Modo de cámara cambia de NONE a TRACKING_GPS_NORTH");
+            Snackbar.make(getView(), getString(R.string.tracking_gps_north_snack), Snackbar.LENGTH_SHORT)
+                    .show();
+        }
+
+    }
+
+
+    @Override
+    public void onCameraTrackingDismissed() {
+        fabCompass.setImageDrawable(getActivity().getDrawable(R.drawable.ic_baseline_my_location_24));
+    }
+
+    @Override
+    public void onCameraTrackingChanged(int currentMode) {
+
+        switch (currentMode) {
+            case CameraMode.TRACKING_COMPASS:
+                fabCompass.setImageDrawable(getActivity().getDrawable(R.drawable.compass_on));
+                break;
+
+            case CameraMode.TRACKING_GPS_NORTH:
+                fabCompass.setImageDrawable(getActivity().getDrawable(R.drawable.compass_off));
+                break;
+            default:
+        }
+
+
     }
 
 
