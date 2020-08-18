@@ -359,8 +359,9 @@ public class NavFragment extends Fragment implements
         } else {
             locationComponent.setCameraMode(CameraMode.TRACKING_GPS_NORTH);
             Log.i(getString(R.string.debug_tag), "Modo de cámara cambia de NONE a TRACKING_GPS_NORTH");
-            Snackbar.make(getView(), getString(R.string.tracking_gps_north_snack), Snackbar.LENGTH_SHORT)
-                    .show();
+            Snackbar snackbar = Snackbar.make(getView().getRootView(), getString(R.string.tracking_gps_north_snack), Snackbar.LENGTH_SHORT);
+            snackbar.setAnchorView(getActivity().findViewById(R.id.nav_view));
+            snackbar.show();
         }
 
     }

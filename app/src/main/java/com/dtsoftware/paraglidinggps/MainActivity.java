@@ -11,6 +11,7 @@ import com.dtsoftware.paraglidinggps.ui.routes.RoutesFragment;
 import com.dtsoftware.paraglidinggps.ui.waypoints.WaypointsFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomnavigation.LabelVisibilityMode;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
@@ -20,7 +21,7 @@ import androidx.fragment.app.FragmentManager;
 public class MainActivity extends AppCompatActivity {
 
 
-    Fragment fragmentNav= new NavFragment();
+    Fragment fragmentNav = new NavFragment();
     Fragment fragmentWaypoints;
     Fragment fragmentFlights;
     Fragment fragmentRoutes;
@@ -43,41 +44,41 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-        Log.i(getString(R.string.debug_tag),"Creado el NavFragment");
-        fm.beginTransaction().add(R.id.nav_host_fragment,fragmentNav).commit();
+        Log.i(getString(R.string.debug_tag), "Creado el NavFragment");
+        fm.beginTransaction().add(R.id.nav_host_fragment, fragmentNav).commit();
 
 
         navView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                switch (item.getItemId()){
+                switch (item.getItemId()) {
                     case R.id.navigation_nav:
                         fm.beginTransaction().hide(activeFragment).show(fragmentNav).commit();
                         activeFragment = fragmentNav;
                         break;
                     case R.id.navigation_waypoints:
-                        if(fragmentWaypoints == null){
-                            Log.i(getString(R.string.debug_tag),"Creado el WaypointsFragment");
+                        if (fragmentWaypoints == null) {
+                            Log.i(getString(R.string.debug_tag), "Creado el WaypointsFragment");
                             fragmentWaypoints = new WaypointsFragment();
-                            fm.beginTransaction().add(R.id.nav_host_fragment,fragmentWaypoints).commit();
+                            fm.beginTransaction().add(R.id.nav_host_fragment, fragmentWaypoints).commit();
                         }
                         fm.beginTransaction().hide(activeFragment).show(fragmentWaypoints).commit();
                         activeFragment = fragmentWaypoints;
                         break;
                     case R.id.navigation_flights:
-                        if(fragmentFlights == null){
-                            Log.i(getString(R.string.debug_tag),"Creado el FlightsFragment");
+                        if (fragmentFlights == null) {
+                            Log.i(getString(R.string.debug_tag), "Creado el FlightsFragment");
                             fragmentFlights = new FlightsFragment();
-                            fm.beginTransaction().add(R.id.nav_host_fragment,fragmentFlights).commit();
+                            fm.beginTransaction().add(R.id.nav_host_fragment, fragmentFlights).commit();
                         }
                         fm.beginTransaction().hide(activeFragment).show(fragmentFlights).commit();
                         activeFragment = fragmentFlights;
                         break;
                     case R.id.navigation_route:
-                        if(fragmentRoutes == null){
-                            Log.i(getString(R.string.debug_tag),"Creado el RoutesFragment");
+                        if (fragmentRoutes == null) {
+                            Log.i(getString(R.string.debug_tag), "Creado el RoutesFragment");
                             fragmentRoutes = new RoutesFragment();
-                            fm.beginTransaction().add(R.id.nav_host_fragment,fragmentRoutes).commit();
+                            fm.beginTransaction().add(R.id.nav_host_fragment, fragmentRoutes).commit();
                         }
                         fm.beginTransaction().hide(activeFragment).show(fragmentRoutes).commit();
                         activeFragment = fragmentRoutes;
@@ -89,7 +90,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
     }
-
 
 
     public void hideSystemUI() {
@@ -106,8 +106,8 @@ public class MainActivity extends AppCompatActivity {
                         | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                         // Hide the nav bar and status bar
                         | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_FULLSCREEN);
-
+                // View.SYSTEM_UI_FLAG_FULLSCREEN);
+        );
 
     }
 
@@ -116,20 +116,9 @@ public class MainActivity extends AppCompatActivity {
         View decorView = getWindow().getDecorView();
         decorView.setSystemUiVisibility(
                 View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                        |View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                        |View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
     }
-
-
-
-
-
-
-
-
-
-
-
 
 
 }
