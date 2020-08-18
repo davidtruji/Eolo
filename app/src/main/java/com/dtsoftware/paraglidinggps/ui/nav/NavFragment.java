@@ -6,8 +6,10 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.location.Location;
 import android.os.Bundle;
+
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -42,7 +44,6 @@ import com.mapbox.mapboxsdk.maps.Style;
 import java.lang.ref.WeakReference;
 import java.util.List;
 
-import static android.content.Context.SENSOR_SERVICE;
 import static android.os.Looper.getMainLooper;
 
 
@@ -52,6 +53,7 @@ public class NavFragment extends Fragment implements
 
     private static final long DEFAULT_INTERVAL_IN_MILLISECONDS = 1000;
     private static final long DEFAULT_MAX_WAIT_TIME = 0;
+
     private MapboxMap mapboxMap;
     private MapView mapView;
     private PermissionsManager permissionsManager;
@@ -63,7 +65,7 @@ public class NavFragment extends Fragment implements
     private Chronometer tvChronometer;
     private Location prevLocation = null;
     private float distance = 0;
-    private FloatingActionButton fabStartFly;
+    private FloatingActionButton fabStartFly, fabLayers, fabCompass;
     private boolean flying = false;
 
 
@@ -89,7 +91,7 @@ public class NavFragment extends Fragment implements
 
 
         fabStartFly = root.findViewById(R.id.fabPlay);
-
+        fabLayers = root.findViewById(R.id.fabLayers);
 
         fabStartFly.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -99,6 +101,13 @@ public class NavFragment extends Fragment implements
                 } else {// Usuario pulsó PLAY
                     startFly();
                 }
+            }
+        });
+
+        fabLayers.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                changeCurrentMapLayer();
             }
         });
 
@@ -322,6 +331,14 @@ public class NavFragment extends Fragment implements
         tvChronometer.setBase(SystemClock.elapsedRealtime());
         tvChronometer.stop();
         Log.i(getString(R.string.debug_tag), "Vuelo finalizado");
+    }
+
+
+    private void changeCurrentMapLayer() {
+        if (mapboxMap.getStyle().getUri().equalsIgnoreCase(Style.SATELLITE_STREETS))
+            mapboxMap.setStyle(Style.OUTDOORS);
+        else
+            mapboxMap.setStyle(Style.SATELLITE_STREETS);
     }
 
 
