@@ -8,14 +8,14 @@
     </style>
 
     <style name="OnScreenInfo">
-        <item name="android:textColor">@color/white</item>
+        <item name="android:textColor">@color/black</item>
         <item name="android:textSize">35sp</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textAlignment">center</item>
     </style>
 
     <style name="OnScreenInfoUnits">
-        <item name="android:textColor">@color/white</item>
+        <item name="android:textColor">@color/black</item>
         <item name="android:textSize">10sp</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textAlignment">center</item>
@@ -24,10 +24,21 @@
     <style name="FabButtons">
     <item name="backgroundTint">#FFFFFF</item>
     </style>
-    
+
+    <style name="HorizontalDivider">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">@dimen/divider_width</item>
+        <item name="android:background">@color/black</item>
+    </style>
+
+    <style name="VerticalDivider">
+        <item name="android:layout_width">@dimen/divider_width</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:background">@color/black</item>
+    </style>
+
     <style name="infoBlock">
         <item name="android:background">@drawable/info_block_background</item>
-        <item name="android:layout_margin">8dp</item>
     </style>
 
 

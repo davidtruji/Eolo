@@ -4,16 +4,10 @@ import android.annotation.SuppressLint;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
 import android.location.Location;
 import android.os.Bundle;
-
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-
-import android.os.Handler;
-import android.os.HandlerThread;
-import android.os.Looper;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -73,7 +67,6 @@ public class NavFragment extends Fragment implements
     private boolean flying = false;
 
 
-    //TODO: Implementar Brujula del dispositivo
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         // Mapbox access token is configured here. This needs to be called either in your application
@@ -101,14 +94,11 @@ public class NavFragment extends Fragment implements
         fabStartFly.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //TODO: Modularizar iniciarVuelo/FinalizarVuelo
                 if (flying) {// Usuario pulsó STOP
-
+                    stopFly();
                 } else {// Usuario pulsó PLAY
-
+                    startFly();
                 }
-
-
             }
         });
 
@@ -118,7 +108,7 @@ public class NavFragment extends Fragment implements
     @Override
     public void onMapReady(@NonNull final MapboxMap mapboxMap) {
         this.mapboxMap = mapboxMap;
-
+        // TODO: Botón de capas del mapa
         mapboxMap.setStyle(Style.OUTDOORS,
                 new Style.OnStyleLoaded() {
                     @Override
@@ -153,6 +143,9 @@ public class NavFragment extends Fragment implements
 
             // Set the component's camera mode
             locationComponent.setCameraMode(CameraMode.TRACKING_COMPASS);
+
+            // TODO: Cambiar angulo y zoom de camara cuando se empieza el vuelo
+            // TODO: Botones para cambiar el modo de camara en tiempo de ejecución
 
 
             // Set the component's render mode
@@ -271,19 +264,20 @@ public class NavFragment extends Fragment implements
 
     private void updateOnScreenInfo(Location lastLocation) {
 
-        tvSpeed.setText(String.format(getString(R.string.speed_format), lastLocation.getSpeed() * 3.6)); // Velocidad en Km/h (m/s * 3.6)
-
-
         Float heading = (mapboxMap.getLocationComponent().getCompassEngine().getLastHeading() + 360) % 360;
 
-        tvBearingLet.setText(Utils.degreesToBearing(heading));
+        tvBearingLet.setText(Utils.degreesToBearing(heading)); // Rumbo escrito en letras
 
-        tvBearing.setText(String.format(getString(R.string.bearing_format), heading) + " " + getString(R.string.degrees_unit));
+        tvBearing.setText(String.format(getString(R.string.bearing_format), heading) + " " + getString(R.string.degrees_unit)); // Rumbo en grados
 
         tvAltitude.setText(String.format(getString(R.string.altitude_format), lastLocation.getAltitude())); // Altitud (m)
 
-        if (flying)
+        tvSpeed.setText(String.format(getString(R.string.speed_format), lastLocation.getSpeed() * 3.6)); // Velocidad en Km/h (m/s * 3.6)
+
+        if (flying) {
             updateDistance(lastLocation); // Distancia del vuelo (Km)
+        }
+
 
     }
 

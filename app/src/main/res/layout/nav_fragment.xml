@@ -12,52 +12,30 @@
     mapbox:layout_constraintTop_toTopOf="parent"
     tools:context=".ui.nav.NavFragment">
 
-    <FrameLayout
-
-        android:layout_width="0dp"
+    <LinearLayout
+        android:id="@+id/verticalLayout"
+        android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:orientation="vertical"
         mapbox:layout_constraintBottom_toBottomOf="parent"
         mapbox:layout_constraintEnd_toEndOf="parent"
         mapbox:layout_constraintStart_toStartOf="parent"
         mapbox:layout_constraintTop_toTopOf="parent">
 
-
-        <com.mapbox.mapboxsdk.maps.MapView
-            android:id="@+id/mapView"
+        <LinearLayout
+            android:id="@+id/infoRow1"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            mapbox:mapbox_cameraZoom="14">
-
-        </com.mapbox.mapboxsdk.maps.MapView>
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/screenInfo_layout"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/fabPlay"
-                style="@style/FabButtons"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:clickable="true"
-                android:focusable="true"
-                android:src="@drawable/play"
-                mapbox:layout_constraintBottom_toBottomOf="parent"
-                mapbox:layout_constraintEnd_toEndOf="parent"
-                mapbox:layout_constraintStart_toStartOf="parent" />
+            android:layout_height="wrap_content"
+            android:baselineAligned="false"
+            android:orientation="horizontal">
 
             <LinearLayout
                 android:id="@+id/bearingBlock"
                 style="@style/infoBlock"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/info_block_background"
-                android:orientation="vertical"
-                mapbox:layout_constraintEnd_toEndOf="parent"
-                mapbox:layout_constraintStart_toStartOf="parent"
-                mapbox:layout_constraintTop_toTopOf="parent">
+                android:layout_weight="2"
+                android:orientation="vertical">
 
                 <TextView
                     android:id="@+id/tvBearingLetter"
@@ -76,14 +54,43 @@
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/timeBlock"
+                style="@style/infoBlock"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <Chronometer
+                    android:id="@+id/tvChronometer"
+                    style="@style/OnScreenInfo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    android:id="@+id/tvTimeLabel"
+                    style="@style/OnScreenInfoUnits"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Time" />
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/infoRow2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:baselineAligned="false"
+            android:orientation="horizontal">
+
+            <LinearLayout
                 android:id="@+id/speedBlock"
                 style="@style/infoBlock"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:orientation="vertical"
-                mapbox:layout_constraintStart_toStartOf="parent"
-                mapbox:layout_constraintTop_toTopOf="parent">
+                android:orientation="vertical">
 
                 <TextView
                     android:id="@+id/tvSpeed"
@@ -101,63 +108,12 @@
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/timeBlock"
-                style="@style/infoBlock"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                mapbox:layout_constraintBottom_toBottomOf="parent"
-                mapbox:layout_constraintEnd_toEndOf="parent">
-
-                <Chronometer
-                    android:id="@+id/tvChronometer"
-                    style="@style/OnScreenInfo"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
-
-                <TextView
-                    android:id="@+id/tvTimeLabel"
-                    style="@style/OnScreenInfoUnits"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Time" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/distanceBlock"
-                style="@style/infoBlock"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical"
-                mapbox:layout_constraintBottom_toBottomOf="parent"
-                mapbox:layout_constraintStart_toStartOf="parent"
-                mapbox:layout_constraintTop_toTopOf="parent">
-
-                <TextView
-                    android:id="@+id/tvDistance"
-                    style="@style/OnScreenInfo"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/default_distance" />
-
-                <TextView
-                    android:id="@+id/tvDistanceUnits"
-                    style="@style/OnScreenInfoUnits"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/distance_unit" />
-            </LinearLayout>
-
-            <LinearLayout
                 android:id="@+id/altitudeBlock"
                 style="@style/infoBlock"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:orientation="vertical"
-                mapbox:layout_constraintEnd_toEndOf="parent"
-                mapbox:layout_constraintTop_toTopOf="parent">
+                android:orientation="vertical">
 
                 <TextView
                     android:id="@+id/tvAltitude"
@@ -174,8 +130,105 @@
                     android:text="@string/meters_unit" />
             </LinearLayout>
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
+            <LinearLayout
+                android:id="@+id/distanceBlock"
+                style="@style/infoBlock"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
 
-    </FrameLayout>
+                <TextView
+                    android:id="@+id/tvDistance"
+                    style="@style/OnScreenInfo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/default_distance" />
+
+                <TextView
+                    android:id="@+id/tvDistanceUnits"
+                    style="@style/OnScreenInfoUnits"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/distance_unit" />
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <View
+            android:id="@+id/divider"
+            style="@style/HorizontalDivider"
+            android:layout_width="match_parent"
+            android:layout_height="1dp" />
+
+        <FrameLayout
+
+            android:id="@+id/frameLayout"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            mapbox:layout_constraintBottom_toBottomOf="parent"
+            mapbox:layout_constraintEnd_toEndOf="parent"
+            mapbox:layout_constraintStart_toStartOf="parent"
+            mapbox:layout_constraintTop_toTopOf="parent">
+
+
+            <com.mapbox.mapboxsdk.maps.MapView
+                android:id="@+id/mapView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                mapbox:mapbox_cameraZoom="14">
+
+            </com.mapbox.mapboxsdk.maps.MapView>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/screenInfo_layout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/floatingActionButton2"
+                    style="@style/FabButtons"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginBottom="8dp"
+                    android:clickable="true"
+                    android:src="@drawable/compass_off"
+                    mapbox:layout_constraintBottom_toTopOf="@+id/fabLayers"
+                    mapbox:layout_constraintEnd_toEndOf="parent"
+                    android:focusable="true" />
+
+                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/fabLayers"
+                    style="@style/FabButtons"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginBottom="8dp"
+                    android:clickable="true"
+                    android:src="@drawable/layers"
+                    mapbox:layout_constraintBottom_toBottomOf="parent"
+                    mapbox:layout_constraintEnd_toEndOf="parent"
+                    android:focusable="true" />
+
+                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/fabPlay"
+                    style="@style/FabButtons"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:src="@drawable/play"
+                    mapbox:layout_constraintBottom_toBottomOf="parent"
+                    mapbox:layout_constraintEnd_toEndOf="parent"
+                    mapbox:layout_constraintStart_toStartOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </FrameLayout>
+
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
