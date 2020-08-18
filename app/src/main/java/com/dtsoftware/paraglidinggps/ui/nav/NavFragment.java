@@ -1,8 +1,13 @@
 package com.dtsoftware.paraglidinggps.ui.nav;
 
 import android.annotation.SuppressLint;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.location.Location;
 import android.os.Bundle;
+
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
@@ -43,11 +48,12 @@ import com.mapbox.mapboxsdk.maps.Style;
 import java.lang.ref.WeakReference;
 import java.util.List;
 
+import static android.content.Context.SENSOR_SERVICE;
 import static android.os.Looper.getMainLooper;
 
 
 public class NavFragment extends Fragment implements
-        OnMapReadyCallback, PermissionsListener  {
+        OnMapReadyCallback, PermissionsListener, SensorEventListener {
 
 
     private static final long DEFAULT_INTERVAL_IN_MILLISECONDS = 1000;
@@ -59,13 +65,15 @@ public class NavFragment extends Fragment implements
     private LocationChangeListeningActivityLocationCallback callback =
             new LocationChangeListeningActivityLocationCallback(this);
 
-    private TextView tvDistance,tvSpeed,tvBearing,tvBearingLet,tvAltitude;
+    private TextView tvDistance, tvSpeed, tvBearing, tvBearingLet, tvAltitude;
     private Chronometer tvChronometer;
     private Location prevLocation = null;
     private float distance = 0;
     private FloatingActionButton fabStartFly;
     private boolean flying = false;
 
+
+    //TODO: Implementar Brujula del dispositivo
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         // Mapbox access token is configured here. This needs to be called either in your application
@@ -90,28 +98,14 @@ public class NavFragment extends Fragment implements
         fabStartFly = root.findViewById(R.id.fabPlay);
 
 
-
         fabStartFly.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 //TODO: Modularizar iniciarVuelo/FinalizarVuelo
-                if(flying){// Usuario pulsó STOP
-                    ((MainActivity)getActivity()).showSystemUI();
-                    getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);// Liberar la pantalla de nuevo
-                    fabStartFly.setImageDrawable(getActivity().getDrawable(R.drawable.play));
-                    flying=false;
-                    clearUi();
-                    tvChronometer.setBase(SystemClock.elapsedRealtime());
-                    tvChronometer.stop();
-                    Log.i(getString(R.string.debug_tag),"Vuelo finalizado");
-                }else{// Usuario pulsó PLAY
-                    ((MainActivity)getActivity()).hideSystemUI();
-                    getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);// Evitar que la pantalla se apague sola
-                    fabStartFly.setImageDrawable(getActivity().getDrawable(R.drawable.stop));
-                    flying=true;
-                    tvChronometer.setBase(SystemClock.elapsedRealtime());
-                    tvChronometer.start();
-                    Log.i(getString(R.string.debug_tag),"Vuelo Iniciado");
+                if (flying) {// Usuario pulsó STOP
+
+                } else {// Usuario pulsó PLAY
+
                 }
 
 
@@ -127,7 +121,8 @@ public class NavFragment extends Fragment implements
 
         mapboxMap.setStyle(Style.OUTDOORS,
                 new Style.OnStyleLoaded() {
-                    @Override public void onStyleLoaded(@NonNull Style style) {
+                    @Override
+                    public void onStyleLoaded(@NonNull Style style) {
                         enableLocationComponent(style);
                     }
                 });
@@ -136,7 +131,7 @@ public class NavFragment extends Fragment implements
     /**
      * Initialize the Maps SDK's LocationComponent
      */
-    @SuppressWarnings( {"MissingPermission"})
+    @SuppressWarnings({"MissingPermission"})
     private void enableLocationComponent(@NonNull Style loadedMapStyle) {
         // Check if permissions are enabled and if not request
         if (PermissionsManager.areLocationPermissionsGranted(getContext())) {
@@ -157,7 +152,8 @@ public class NavFragment extends Fragment implements
             locationComponent.setLocationComponentEnabled(true);
 
             // Set the component's camera mode
-            locationComponent.setCameraMode(CameraMode.TRACKING);
+            locationComponent.setCameraMode(CameraMode.TRACKING_COMPASS);
+
 
             // Set the component's render mode
             locationComponent.setRenderMode(RenderMode.COMPASS);
@@ -210,6 +206,17 @@ public class NavFragment extends Fragment implements
         }
     }
 
+    @Override
+    public void onSensorChanged(SensorEvent sensorEvent) {
+        //  tvBearingLet.setText(Float.toString(Math.round(sensorEvent.values[0])));
+
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int i) {
+
+    }
+
     private static class LocationChangeListeningActivityLocationCallback
             implements LocationEngineCallback<LocationEngineResult> {
 
@@ -236,8 +243,8 @@ public class NavFragment extends Fragment implements
                 }
 
 
-                if(activity.flying)
-                    activity.updateUI(result.getLastLocation());
+                // Actualiza la información del HUD, Velocidad, Altura etc
+                activity.updateOnScreenInfo(result.getLastLocation());
 
 
                 // Pass the new location to the Maps SDK's LocationComponent
@@ -262,16 +269,26 @@ public class NavFragment extends Fragment implements
         }
     }
 
-    private void updateUI(Location lastLocation) {
-        updateDistance(lastLocation);
-        tvSpeed.setText(String.format(getString(R.string.speed_format),lastLocation.getSpeed()*3.6));
-        tvBearingLet.setText(Utils.degreesToBearing(lastLocation.getBearing()));
-        tvBearing.setText(String.format(getString(R.string.bearing_format),lastLocation.getBearing())+" "+getString(R.string.degrees_unit));
-        tvAltitude.setText(String.format(getString(R.string.altitude_format),lastLocation.getAltitude()));
+    private void updateOnScreenInfo(Location lastLocation) {
+
+        tvSpeed.setText(String.format(getString(R.string.speed_format), lastLocation.getSpeed() * 3.6)); // Velocidad en Km/h (m/s * 3.6)
+
+
+        Float heading = (mapboxMap.getLocationComponent().getCompassEngine().getLastHeading() + 360) % 360;
+
+        tvBearingLet.setText(Utils.degreesToBearing(heading));
+
+        tvBearing.setText(String.format(getString(R.string.bearing_format), heading) + " " + getString(R.string.degrees_unit));
+
+        tvAltitude.setText(String.format(getString(R.string.altitude_format), lastLocation.getAltitude())); // Altitud (m)
+
+        if (flying)
+            updateDistance(lastLocation); // Distancia del vuelo (Km)
+
     }
 
-    private void clearUi(){
-        distance=0;
+    private void resetOnScreenInfo() {
+        distance = 0;
         tvDistance.setText(getString(R.string.default_distance));
         tvSpeed.setText(getString(R.string.default_speed));
         tvAltitude.setText(getString(R.string.default_altitude));
@@ -280,18 +297,38 @@ public class NavFragment extends Fragment implements
 
     private void updateDistance(Location lastLocation) {
 
-        if(prevLocation == null){
+        if (prevLocation == null) {
             distance = 0;
-        }else{
-            distance+=prevLocation.distanceTo(lastLocation)/1000;
-            tvDistance.setText(String.format(getString(R.string.distance_format),distance));
+        } else {
+            distance += prevLocation.distanceTo(lastLocation) / 1000;
+            tvDistance.setText(String.format(getString(R.string.distance_format), distance));
         }
 
         prevLocation = lastLocation;
 
     }
 
+    private void startFly() {
+        ((MainActivity) getActivity()).hideSystemUI();
+        getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);// Evitar que la pantalla se apague sola
+        fabStartFly.setImageDrawable(getActivity().getDrawable(R.drawable.stop));
+        flying = true;
+        tvChronometer.setBase(SystemClock.elapsedRealtime());
+        tvChronometer.start();
+        Log.i(getString(R.string.debug_tag), "Vuelo Iniciado");
+    }
 
+
+    private void stopFly() {
+        ((MainActivity) getActivity()).showSystemUI();
+        getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);// Permitir apagar la pantalla de nuevo
+        fabStartFly.setImageDrawable(getActivity().getDrawable(R.drawable.play));
+        flying = false;
+        resetOnScreenInfo();
+        tvChronometer.setBase(SystemClock.elapsedRealtime());
+        tvChronometer.stop();
+        Log.i(getString(R.string.debug_tag), "Vuelo finalizado");
+    }
 
 
     @Override
@@ -340,13 +377,6 @@ public class NavFragment extends Fragment implements
         }
         mapView.onDestroy();
     }
-
-
-
-
-
-
-
 
 
 }

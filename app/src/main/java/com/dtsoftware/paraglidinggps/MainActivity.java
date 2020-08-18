@@ -19,6 +19,7 @@ import androidx.fragment.app.FragmentManager;
 
 public class MainActivity extends AppCompatActivity {
 
+
     Fragment fragmentNav= new NavFragment();
     Fragment fragmentWaypoints;
     Fragment fragmentFlights;
