@@ -13,11 +13,6 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         >
-        <service
-            android:name=".LocationBackgroundService"
-            android:exported="false"
-            android:foregroundServiceType="location">
-        </service>
 
         <activity
             android:name=".MainActivity"

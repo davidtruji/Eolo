@@ -5,6 +5,8 @@ import android.location.Location;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
+
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -14,9 +16,12 @@ import android.view.WindowManager;
 import android.widget.Chronometer;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.dtsoftware.paraglidinggps.Flight;
 import com.dtsoftware.paraglidinggps.MainActivity;
 import com.dtsoftware.paraglidinggps.R;
 import com.dtsoftware.paraglidinggps.Utils;
+import com.dtsoftware.paraglidinggps.ui.flights.FlightsViewModel;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.mapbox.android.core.location.LocationEngine;
@@ -39,6 +44,7 @@ import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.maps.Style;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 import java.lang.ref.WeakReference;
+import java.util.Date;
 import java.util.List;
 
 import static android.os.Looper.getMainLooper;
@@ -79,6 +85,7 @@ public class NavFragment extends Fragment implements
         //TODO: Almacenar vuelos y visualizarlos
         //TODO: Almacenar altura del despegue y altura máxima
         //TODO: Arreglar bug del layout del Snackbar
+        //TODO: Añadir funcionalidad de guardar los vuelos en el libro de vuelo
 
         mapView = root.findViewById(R.id.mapView);
         mapView.onCreate(savedInstanceState);
@@ -332,6 +339,13 @@ public class NavFragment extends Fragment implements
         tvChronometer.setBase(SystemClock.elapsedRealtime());
         tvChronometer.stop();
         Log.i(getString(R.string.debug_tag), "Vuelo finalizado");
+
+        //TODO: Arreglar ViewModel guardado de vuelos
+
+        FlightsViewModel flightsViewModel = new ViewModelProvider(this).get(FlightsViewModel.class);
+        flightsViewModel.insert(new Flight(10f,1));
+
+
     }
 
 
