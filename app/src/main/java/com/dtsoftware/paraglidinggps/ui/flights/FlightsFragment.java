@@ -9,6 +9,8 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,7 +25,6 @@ import java.util.List;
 public class FlightsFragment extends Fragment {
 
     private FlightsViewModel flightsViewModel;
-    private TextView tvFlights;
 
 
     public static FlightsFragment newInstance() {
@@ -35,8 +36,11 @@ public class FlightsFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
 
         View root = inflater.inflate(R.layout.flights_fragment, container, false);
-        tvFlights = root.findViewById(R.id.tvFlights);
 
+        RecyclerView recyclerView = root.findViewById(R.id.rvFlights);
+        final FlightListAdapter adapter = new FlightListAdapter(root.getContext());
+        recyclerView.setAdapter(adapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(root.getContext()));
 
         flightsViewModel = new ViewModelProvider(this).get(FlightsViewModel.class);
 
@@ -44,10 +48,7 @@ public class FlightsFragment extends Fragment {
             @Override
             public void onChanged(@Nullable final List<Flight> flights) {
                 // Update the cached copy of the words in the adapter.
-                //adapter.setWords(words);//TODO: Añadir palabritas
-                tvFlights.clearComposingText();
-                for(Flight f : flights)
-                    tvFlights.append(f.toString()+"\n");
+                adapter.setFlights(flights);//TODO: Añadir vuelitos
             }
         });
 

@@ -3,6 +3,7 @@ package com.dtsoftware.paraglidinggps.ui.nav;
 import android.annotation.SuppressLint;
 import android.location.Location;
 import android.os.Bundle;
+
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
@@ -43,7 +44,9 @@ import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.maps.Style;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
+
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -53,10 +56,11 @@ import static android.os.Looper.getMainLooper;
 public class NavFragment extends Fragment implements
         OnMapReadyCallback, PermissionsListener, OnCameraTrackingChangedListener {
 
-
+    // Constantes
     private static final long DEFAULT_INTERVAL_IN_MILLISECONDS = 1000;
     private static final long DEFAULT_MAX_WAIT_TIME = 0;
 
+    // Mapbox variables
     private MapboxMap mapboxMap;
     private MapView mapView;
     private PermissionsManager permissionsManager;
@@ -64,13 +68,16 @@ public class NavFragment extends Fragment implements
     private LocationChangeListeningActivityLocationCallback callback =
             new LocationChangeListeningActivityLocationCallback(this);
 
+    // Variables UI
     private TextView tvDistance, tvSpeed, tvBearing, tvBearingLet, tvAltitude;
     private Chronometer tvChronometer;
+    private FloatingActionButton fabStartFly, fabLayers, fabCompass;
+
+    // Variables de vuelo
+    private boolean flying = false;
     private Location prevLocation = null;
     private float distance = 0;
-    private FloatingActionButton fabStartFly, fabLayers, fabCompass;
-    private boolean flying = false;
-
+    private ArrayList<Location> route = new ArrayList<>();
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -254,7 +261,7 @@ public class NavFragment extends Fragment implements
 
 
                 // Actualiza la información del HUD, Velocidad, Altura etc
-                activity.updateOnScreenInfo(result.getLastLocation());
+                activity.updateFlightInfo(result.getLastLocation());
 
 
                 // Pass the new location to the Maps SDK's LocationComponent
@@ -279,7 +286,7 @@ public class NavFragment extends Fragment implements
         }
     }
 
-    private void updateOnScreenInfo(Location lastLocation) {
+    private void updateFlightInfo(Location lastLocation) {
 
         Float heading = (mapboxMap.getLocationComponent().getCompassEngine().getLastHeading() + 360) % 360;
 
@@ -293,6 +300,7 @@ public class NavFragment extends Fragment implements
 
         if (flying) {
             updateDistance(lastLocation); // Distancia del vuelo (Km)
+            route.add(lastLocation);
         }
 
 
@@ -314,12 +322,12 @@ public class NavFragment extends Fragment implements
             distance += prevLocation.distanceTo(lastLocation) / 1000;
             tvDistance.setText(String.format(getString(R.string.distance_format), distance));
         }
-
         prevLocation = lastLocation;
-
     }
 
     private void startFly() {
+        route.clear();
+
         ((MainActivity) getActivity()).hideSystemUI();
         getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);// Evitar que la pantalla se apague sola
         fabStartFly.setImageDrawable(getActivity().getDrawable(R.drawable.stop));
@@ -331,21 +339,19 @@ public class NavFragment extends Fragment implements
 
 
     private void stopFly() {
+        flying = false;
+        resetOnScreenInfo();
         ((MainActivity) getActivity()).showSystemUI();
         getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);// Permitir apagar la pantalla de nuevo
         fabStartFly.setImageDrawable(getActivity().getDrawable(R.drawable.play));
-        flying = false;
-        resetOnScreenInfo();
         tvChronometer.setBase(SystemClock.elapsedRealtime());
         tvChronometer.stop();
-        Log.i(getString(R.string.debug_tag), "Vuelo finalizado");
 
-        //TODO: Arreglar ViewModel guardado de vuelos
+        Log.i(getString(R.string.debug_tag), "Vuelo finalizado: "+"distancia: "+Utils.getRouteDistance(route)+"m"+" duracion: "+Utils.getRouteDuration(route)+"\"");
 
+        //TODO: Crear vuelos en tiempo de ejecución con datos reales *
         FlightsViewModel flightsViewModel = new ViewModelProvider(this).get(FlightsViewModel.class);
-        flightsViewModel.insert(new Flight(10f,1));
-
-
+        flightsViewModel.insert(new Flight("Test Flight", route));
     }
 
 

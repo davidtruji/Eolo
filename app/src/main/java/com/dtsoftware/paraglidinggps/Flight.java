@@ -1,10 +1,13 @@
 package com.dtsoftware.paraglidinggps;
 
-import androidx.annotation.NonNull;
+import android.location.Location;
+
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
-import java.util.Date;
+import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
+
 
 @Entity(tableName = "flight_table")
 public class Flight {
@@ -12,26 +15,32 @@ public class Flight {
     @PrimaryKey(autoGenerate = true)
     private int id;
 
-    private Float distance;
+    private Float distance; // Distancia en Km
 
-   // private Date date;
+    private Long time; // TimeStamp con la fecha y hora del vuelo
 
-    private Integer duration;
+    private ArrayList<Location> route; // Lista de todas las ubicaciones
+
+    private Long duration; //Duración en minutos del vuelo
+
+    private Integer maxAltitude; // Altitud máxima en metros
+
+    private Integer minAltitude; // Altitud mínima en metros
+
+    private String locationName; // Nombre de la localización del vuelo
+
+    //TODO: Añadir más campos útiles a cada vuelo guardado
 
 
-    public Flight(Float distance, Integer duration) {
-        this.distance = distance;
-        //this.date = date;
-        this.duration = duration;
-    }
-
-
-    public Float getDistance() {
-        return distance;
-    }
-
-    public void setDistance(Float distance) {
-        this.distance = distance;
+    public Flight(String locationName,ArrayList<Location> route) {
+        this.route = route;
+        this.locationName = locationName;
+        this.distance = Utils.getRouteDistance(route);
+        this.time = 0L;
+        this.duration = Utils.getRouteDuration(route);
+        this.maxAltitude = 999;
+        this.minAltitude = -1;
+        //TODO: Usar métodos para extraer el resto de campos de manera correcta! sin usar parametros
     }
 
     public int getId() {
@@ -42,22 +51,59 @@ public class Flight {
         this.id = id;
     }
 
+    public Float getDistance() {
+        return distance;
+    }
 
-    public Integer getDuration() {
+    public void setDistance(Float distance) {
+        this.distance = distance;
+    }
+
+    public Long getTime() {
+        return time;
+    }
+
+    public void setTime(Long time) {
+        this.time = time;
+    }
+
+    public ArrayList<Location> getRoute() {
+        return route;
+    }
+
+    public void setRoute(ArrayList<Location> route) {
+        this.route = route;
+    }
+
+    public Long getDuration() {
         return duration;
     }
 
-    public void setDuration(Integer duration) {
+    public void setDuration(Long duration) {
         this.duration = duration;
     }
 
-    @Override
-    public String toString() {
-        return "Flight{" +
-                "id=" + id +
-                ", distance=" + distance +
-                ", duration=" + duration +
-                '}';
+    public Integer getMaxAltitude() {
+        return maxAltitude;
     }
 
+    public void setMaxAltitude(Integer maxAltitude) {
+        this.maxAltitude = maxAltitude;
+    }
+
+    public Integer getMinAltitude() {
+        return minAltitude;
+    }
+
+    public void setMinAltitude(Integer minAltitude) {
+        this.minAltitude = minAltitude;
+    }
+
+    public String getLocationName() {
+        return locationName;
+    }
+
+    public void setLocationName(String locationName) {
+        this.locationName = locationName;
+    }
 }

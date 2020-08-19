@@ -50,7 +50,6 @@ public class MainActivity extends AppCompatActivity {
         Log.i(getString(R.string.debug_tag), "Creado el NavFragment");
         fm.beginTransaction().add(R.id.nav_host_fragment, fragmentNav).commit();
 
-
         navView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {

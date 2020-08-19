@@ -1,5 +1,10 @@
 package com.dtsoftware.paraglidinggps;
 
+import android.location.Location;
+
+import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
+
 public class Utils {
 
 
@@ -41,6 +46,33 @@ public class Utils {
             return NORTH_WEST;
         }
 
+    }
+
+
+    public static Float getRouteDistance(ArrayList<Location> route) {
+        Float distance = 0f; // Distancia en metros de la ruta
+        Location prevLocation = null;
+
+        for (Location location : route) {
+
+            if (prevLocation != null)
+                distance += prevLocation.distanceTo(location);
+
+            prevLocation = location;
+        }
+
+        return distance;
+    }
+
+
+    public static Long getRouteDuration(ArrayList<Location> route) {
+        Long duration, initTime, finTime;
+
+        initTime = route.get(0).getTime();
+        finTime = route.get(route.size() - 1).getTime();
+        duration = TimeUnit.MILLISECONDS.toSeconds(finTime - initTime);
+
+        return duration;
     }
 
 
