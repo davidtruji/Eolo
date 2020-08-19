@@ -1,15 +1,10 @@
 package com.dtsoftware.paraglidinggps.ui.nav;
 
 import android.annotation.SuppressLint;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
 import android.location.Location;
 import android.os.Bundle;
-
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -19,7 +14,6 @@ import android.view.WindowManager;
 import android.widget.Chronometer;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.dtsoftware.paraglidinggps.MainActivity;
 import com.dtsoftware.paraglidinggps.R;
 import com.dtsoftware.paraglidinggps.Utils;
@@ -33,18 +27,17 @@ import com.mapbox.android.core.location.LocationEngineResult;
 import com.mapbox.android.core.permissions.PermissionsListener;
 import com.mapbox.android.core.permissions.PermissionsManager;
 import com.mapbox.mapboxsdk.Mapbox;
-import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
+import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.location.LocationComponent;
 import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions;
 import com.mapbox.mapboxsdk.location.OnCameraTrackingChangedListener;
-import com.mapbox.mapboxsdk.location.OnLocationCameraTransitionListener;
 import com.mapbox.mapboxsdk.location.modes.CameraMode;
 import com.mapbox.mapboxsdk.location.modes.RenderMode;
 import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.maps.Style;
-
+import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 import java.lang.ref.WeakReference;
 import java.util.List;
 
@@ -81,6 +74,11 @@ public class NavFragment extends Fragment implements
 
         // This contains the MapView in XML and needs to be called after the access token is configured.
         View root = inflater.inflate(R.layout.nav_fragment, container, false);
+        //TODO: Pulsación larga para cambiar los bloques visibles
+        //TODO: Bariometro primitivo con el GPS
+        //TODO: Almacenar vuelos y visualizarlos
+        //TODO: Almacenar altura del despegue y altura máxima
+        //TODO: Arreglar bug del layout del Snackbar
 
         mapView = root.findViewById(R.id.mapView);
         mapView.onCreate(savedInstanceState);
@@ -129,11 +127,13 @@ public class NavFragment extends Fragment implements
     @Override
     public void onMapReady(@NonNull final MapboxMap mapboxMap) {
         this.mapboxMap = mapboxMap;
+
         mapboxMap.setStyle(Style.OUTDOORS,
                 new Style.OnStyleLoaded() {
                     @Override
                     public void onStyleLoaded(@NonNull Style style) {
                         enableLocationComponent(style);
+
                     }
                 });
     }
@@ -345,24 +345,26 @@ public class NavFragment extends Fragment implements
 
     private void changeCameraMode() {
         LocationComponent locationComponent = mapboxMap.getLocationComponent();
+        Snackbar snackbar;
 
         if (locationComponent.getCameraMode() == CameraMode.TRACKING_COMPASS) {
             locationComponent.setCameraMode(CameraMode.TRACKING_GPS_NORTH);
             Log.i(getString(R.string.debug_tag), "Modo de cámara cambia de TRACKING_COMPASS a TRACKING_GPS_NORTH");
-            Snackbar.make(getView(), getString(R.string.tracking_gps_north_snack), Snackbar.LENGTH_SHORT)
-                    .show();
+            snackbar = Snackbar.make(getView().getRootView(), getString(R.string.tracking_gps_north_snack), Snackbar.LENGTH_SHORT);
+            snackbar.setAnchorView(getActivity().findViewById(R.id.nav_view));
         } else if (locationComponent.getCameraMode() == CameraMode.TRACKING_GPS_NORTH) {
             locationComponent.setCameraMode(CameraMode.TRACKING_COMPASS);
             Log.i(getString(R.string.debug_tag), "Modo de cámara cambia de TRACKING_GPS_NORTH a TRACKING_COMPASS");
-            Snackbar.make(getView(), getString(R.string.tracking_compass_snack), Snackbar.LENGTH_SHORT)
-                    .show();
+            snackbar = Snackbar.make(getView().getRootView(), getString(R.string.tracking_compass_snack), Snackbar.LENGTH_SHORT);
+            snackbar.setAnchorView(getActivity().findViewById(R.id.nav_view));
         } else {
             locationComponent.setCameraMode(CameraMode.TRACKING_GPS_NORTH);
             Log.i(getString(R.string.debug_tag), "Modo de cámara cambia de NONE a TRACKING_GPS_NORTH");
-            Snackbar snackbar = Snackbar.make(getView().getRootView(), getString(R.string.tracking_gps_north_snack), Snackbar.LENGTH_SHORT);
+            snackbar = Snackbar.make(getView().getRootView(), getString(R.string.tracking_gps_north_snack), Snackbar.LENGTH_SHORT);
             snackbar.setAnchorView(getActivity().findViewById(R.id.nav_view));
-            snackbar.show();
         }
+
+        snackbar.show();
 
     }
 
