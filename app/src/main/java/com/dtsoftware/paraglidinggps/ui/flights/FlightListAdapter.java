@@ -18,28 +18,41 @@ import java.util.List;
 
 public class FlightListAdapter extends RecyclerView.Adapter<FlightListAdapter.FlightViewHolder> {
 
-    class FlightViewHolder extends RecyclerView.ViewHolder {
+    private final LayoutInflater mInflater;
+    private List<Flight> flights; // Cached copy
+    private Context context; // Para poder usar los recursos
+    private static ClickListener clickListener;
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yy");
+
+    FlightListAdapter(Context context, ClickListener clickListener) {
+        mInflater = LayoutInflater.from(context);
+        this.context = context;
+        this.clickListener = clickListener;
+    }
+
+    public static class FlightViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private final TextView tvflightName, tvDistance, tvTime, tvDate;
 
-        //TODO: Acabar !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         private FlightViewHolder(View itemView) {
             super(itemView);
+            itemView.setOnClickListener(this);
             tvflightName = itemView.findViewById(R.id.tvFlightName);
             tvDistance = itemView.findViewById(R.id.tvFlightDistance);
             tvTime = itemView.findViewById(R.id.tvFlightTime);
             tvDate = itemView.findViewById(R.id.tvFlightDate);
         }
+
+        @Override
+        public void onClick(View view) {
+            clickListener.onItemClick(getAdapterPosition(), view);
+        }
     }
 
-    private final LayoutInflater mInflater;
-    private List<Flight> flights; // Cached copy
-    private Context context; // Para poder usar los recursos
-    private SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yy");
 
-    FlightListAdapter(Context context) {
-        mInflater = LayoutInflater.from(context);
-        this.context = context;
+    public interface ClickListener {
+        void onItemClick(int position, View v);
     }
+
 
     @Override
     public FlightViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -75,4 +88,6 @@ public class FlightListAdapter extends RecyclerView.Adapter<FlightListAdapter.Fl
             return flights.size();
         else return 0;
     }
+
+
 }
