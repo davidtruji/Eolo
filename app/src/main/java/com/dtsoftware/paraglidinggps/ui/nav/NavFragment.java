@@ -56,7 +56,7 @@ import static android.os.Looper.getMainLooper;
 
 
 public class NavFragment extends Fragment implements
-        OnMapReadyCallback, PermissionsListener, OnCameraTrackingChangedListener {
+        OnMapReadyCallback, PermissionsListener, OnCameraTrackingChangedListener, SaveDialogFragment.SaveDialogListener {
 
     // Constantes
     private static final long DEFAULT_INTERVAL_IN_MILLISECONDS = 1000;
@@ -89,13 +89,9 @@ public class NavFragment extends Fragment implements
 
         // This contains the MapView in XML and needs to be called after the access token is configured.
         View root = inflater.inflate(R.layout.nav_fragment, container, false);
-        //TODO: Almacenar vuelos y visualizarlos
         //TODO: Pulsación larga para cambiar los bloques visibles
         //TODO: Bariometro primitivo con el GPS
-
         //TODO: Almacenar altura del despegue y altura máxima
-        //TODO: Arreglar bug del layout del Snackbar
-        //TODO: Añadir funcionalidad de guardar los vuelos en el libro de vuelo
 
         mapView = root.findViewById(R.id.mapView);
         mapView.onCreate(savedInstanceState);
@@ -237,6 +233,7 @@ public class NavFragment extends Fragment implements
         }
     }
 
+
     private static class LocationChangeListeningActivityLocationCallback
             implements LocationEngineCallback<LocationEngineResult> {
 
@@ -342,10 +339,6 @@ public class NavFragment extends Fragment implements
 
     private void stopFly() {
 
-        DialogFragment newFragment = new SaveDialogFragment();
-        newFragment.show(getActivity().getSupportFragmentManager(), "save");
-
-
 
         flying = false;
         resetOnScreenInfo();
@@ -355,11 +348,15 @@ public class NavFragment extends Fragment implements
         tvChronometer.setBase(SystemClock.elapsedRealtime());
         tvChronometer.stop();
 
-        Log.i(getString(R.string.debug_tag), "Vuelo finalizado: "+"distancia: "+Utils.getRouteDistance(route)+"m"+" duracion: "+Utils.getRouteDuration(route)+"\"");
+        Log.i(getString(R.string.debug_tag), "Vuelo finalizado: " + "distancia: " + Utils.getRouteDistance(route) + "m" + " duracion: " + Utils.getRouteDuration(route) + "\"");
+        showSaveFlightDialog();
+    }
 
-        //TODO: Crear vuelos en tiempo de ejecución con datos reales *
-        FlightsViewModel flightsViewModel = new ViewModelProvider(this).get(FlightsViewModel.class);
-        flightsViewModel.insert(new Flight("Test Flight", route));
+
+    private void showSaveFlightDialog() {
+        DialogFragment newFragment = new SaveDialogFragment();
+        newFragment.setTargetFragment(NavFragment.this, 0);
+        newFragment.show(this.getParentFragmentManager(), "save");
     }
 
 
@@ -417,6 +414,13 @@ public class NavFragment extends Fragment implements
         }
 
 
+    }
+
+
+    @Override
+    public void onDialogSaveClick(String flightName) {
+        FlightsViewModel flightsViewModel = new ViewModelProvider(this).get(FlightsViewModel.class);
+        flightsViewModel.insert(new Flight(flightName, route));
     }
 
 

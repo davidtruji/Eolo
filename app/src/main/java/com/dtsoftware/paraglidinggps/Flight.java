@@ -41,6 +41,7 @@ public class Flight {
         this.maxAltitude = Utils.getMaxAltitude(route).intValue();
         this.minAltitude = Utils.getMinAltitude(route).intValue();
         //TODO: Usar métodos para extraer el resto de campos de manera correcta! sin usar parametros
+        //TODO: Métodos para obtener la información en formato String
     }
 
     public int getId() {

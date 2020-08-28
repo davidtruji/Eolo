@@ -16,8 +16,8 @@
         android:layout_height="wrap_content"
         android:ems="10"
         android:hint="Flight name"
-        android:inputType="textPersonName"
+        android:inputType="text"
         android:singleLine="true"
-        android:text="Name" />
+         />
 
 </LinearLayout>
