@@ -18,7 +18,7 @@ public interface FlightDAO {
     @Query("DELETE FROM flight_table")
     void deleteAll();
 
-    @Query("SELECT * from flight_table ORDER BY id ASC")
+    @Query("SELECT * from flight_table ORDER BY id DESC")
     LiveData<List<Flight>> getFlights();
 
 }

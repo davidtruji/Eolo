@@ -10,15 +10,16 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.dtsoftware.paraglidinggps.Flight;
 import com.dtsoftware.paraglidinggps.R;
+import com.dtsoftware.paraglidinggps.Utils;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 public class FlightListAdapter extends RecyclerView.Adapter<FlightListAdapter.FlightViewHolder> {
 
     class FlightViewHolder extends RecyclerView.ViewHolder {
-        private final TextView tvflightName;
-        private final TextView tvDistance;
-        private final TextView tvTime;
+        private final TextView tvflightName, tvDistance, tvTime, tvDate;
 
         //TODO: Acabar !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         private FlightViewHolder(View itemView) {
@@ -26,12 +27,14 @@ public class FlightListAdapter extends RecyclerView.Adapter<FlightListAdapter.Fl
             tvflightName = itemView.findViewById(R.id.tvFlightName);
             tvDistance = itemView.findViewById(R.id.tvFlightDistance);
             tvTime = itemView.findViewById(R.id.tvFlightTime);
+            tvDate = itemView.findViewById(R.id.tvFlightDate);
         }
     }
 
     private final LayoutInflater mInflater;
     private List<Flight> flights; // Cached copy
     private Context context; // Para poder usar los recursos
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yy");
 
     FlightListAdapter(Context context) {
         mInflater = LayoutInflater.from(context);
@@ -49,8 +52,9 @@ public class FlightListAdapter extends RecyclerView.Adapter<FlightListAdapter.Fl
         if (flights != null) {
             Flight current = flights.get(position);
             holder.tvflightName.setText(current.getLocationName());
-            holder.tvDistance.setText(String.format(context.getString(R.string.distance_format), current.getDistance()));
-            holder.tvTime.setText(current.getDuration().toString());
+            holder.tvDistance.setText(String.format(context.getString(R.string.distance_format), current.getDistance() / 1000));
+            holder.tvTime.setText(Utils.formatTime(current.getDuration()));
+            holder.tvDate.setText(dateFormat.format(new Date(current.getTime())));
 
         } else {
             // Covers the case of data not being ready yet.

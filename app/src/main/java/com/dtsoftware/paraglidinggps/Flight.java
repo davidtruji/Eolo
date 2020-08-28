@@ -36,10 +36,10 @@ public class Flight {
         this.route = route;
         this.locationName = locationName;
         this.distance = Utils.getRouteDistance(route);
-        this.time = 0L;
+        this.time = route.get(0).getTime();
         this.duration = Utils.getRouteDuration(route);
-        this.maxAltitude = 999;
-        this.minAltitude = -1;
+        this.maxAltitude = Utils.getMaxAltitude(route).intValue();
+        this.minAltitude = Utils.getMinAltitude(route).intValue();
         //TODO: Usar métodos para extraer el resto de campos de manera correcta! sin usar parametros
     }
 

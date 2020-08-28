@@ -5,7 +5,9 @@ import android.location.Location;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.os.SystemClock;
@@ -87,9 +89,10 @@ public class NavFragment extends Fragment implements
 
         // This contains the MapView in XML and needs to be called after the access token is configured.
         View root = inflater.inflate(R.layout.nav_fragment, container, false);
+        //TODO: Almacenar vuelos y visualizarlos
         //TODO: Pulsación larga para cambiar los bloques visibles
         //TODO: Bariometro primitivo con el GPS
-        //TODO: Almacenar vuelos y visualizarlos
+
         //TODO: Almacenar altura del despegue y altura máxima
         //TODO: Arreglar bug del layout del Snackbar
         //TODO: Añadir funcionalidad de guardar los vuelos en el libro de vuelo
@@ -327,7 +330,6 @@ public class NavFragment extends Fragment implements
 
     private void startFly() {
         route.clear();
-
         ((MainActivity) getActivity()).hideSystemUI();
         getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);// Evitar que la pantalla se apague sola
         fabStartFly.setImageDrawable(getActivity().getDrawable(R.drawable.stop));
@@ -339,6 +341,12 @@ public class NavFragment extends Fragment implements
 
 
     private void stopFly() {
+
+        DialogFragment newFragment = new SaveDialogFragment();
+        newFragment.show(getActivity().getSupportFragmentManager(), "save");
+
+
+
         flying = false;
         resetOnScreenInfo();
         ((MainActivity) getActivity()).showSystemUI();

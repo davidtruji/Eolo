@@ -23,13 +23,13 @@ import androidx.fragment.app.FragmentManager;
 
 public class MainActivity extends AppCompatActivity {
 
-
-    Fragment fragmentNav = new NavFragment();
+    Fragment fragmentNav;
     Fragment fragmentWaypoints;
     Fragment fragmentFlights;
     Fragment fragmentRoutes;
-    FragmentManager fm = getSupportFragmentManager();
-    Fragment activeFragment = fragmentNav;
+    FragmentManager fm;
+    Fragment activeFragment;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,7 +45,11 @@ public class MainActivity extends AppCompatActivity {
                 // No hace nada al reelegir un item
             }
         });
+        
 
+        fragmentNav = new NavFragment();
+        fm = getSupportFragmentManager();
+        activeFragment = fragmentNav;
 
         Log.i(getString(R.string.debug_tag), "Creado el NavFragment");
         fm.beginTransaction().add(R.id.nav_host_fragment, fragmentNav).commit();

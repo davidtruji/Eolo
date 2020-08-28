@@ -2,7 +2,9 @@ package com.dtsoftware.paraglidinggps;
 
 import android.location.Location;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class Utils {
@@ -70,10 +72,62 @@ public class Utils {
 
         initTime = route.get(0).getTime();
         finTime = route.get(route.size() - 1).getTime();
-        duration = TimeUnit.MILLISECONDS.toSeconds(finTime - initTime);
+        duration = finTime - initTime;
 
         return duration;
     }
+
+
+    public static Double getMaxAltitude(ArrayList<Location> route) {
+        Double maxAltitude = route.get(0).getAltitude();
+
+        for (Location location : route) {
+
+            if (location.getAltitude() > maxAltitude)
+                maxAltitude = location.getAltitude();
+
+
+        }
+
+        return maxAltitude;
+    }
+
+
+    public static Double getMinAltitude(ArrayList<Location> route) {
+        Double minAltitude = route.get(0).getAltitude();
+
+        for (Location location : route) {
+
+            if (location.getAltitude() < minAltitude)
+                minAltitude = location.getAltitude();
+
+
+        }
+
+        return minAltitude;
+    }
+
+
+    public static String formatTime(long millis) {
+        long secs = millis / 1000;
+        return String.format("%02d:%02d:%02d", secs / 3600, (secs % 3600) / 60, secs % 60);
+    }
+
+    public static Integer getTotalFlightHours(List<Flight> vuelos){
+        Long hours=0L;
+
+        for(Flight f : vuelos){
+
+            hours += f.getDuration();
+
+        }
+
+
+        hours = TimeUnit.MILLISECONDS.toSeconds(hours);
+
+        return hours.intValue();
+    }
+
 
 
 }
