@@ -67,7 +67,7 @@ public class FlightListAdapter extends RecyclerView.Adapter<FlightListAdapter.Fl
             holder.tvflightName.setText(current.getLocationName());
             holder.tvDistance.setText(String.format(context.getString(R.string.distance_format), current.getDistance() / 1000));
             holder.tvTime.setText(Utils.formatTime(current.getDuration()));
-            holder.tvDate.setText(dateFormat.format(new Date(current.getTime())));
+            holder.tvDate.setText(dateFormat.format(new Date(current.getDate())));
 
         } else {
             // Covers the case of data not being ready yet.

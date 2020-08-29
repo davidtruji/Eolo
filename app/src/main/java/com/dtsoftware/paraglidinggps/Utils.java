@@ -1,6 +1,8 @@
 package com.dtsoftware.paraglidinggps;
 
+import android.annotation.SuppressLint;
 import android.location.Location;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -50,7 +52,7 @@ public class Utils {
 
 
     public static Float getRouteDistance(ArrayList<Location> route) {
-        Float distance = 0f; // Distancia en metros de la ruta
+        float distance = 0f; // Distancia en metros de la ruta
         Location prevLocation = null;
 
         for (Location location : route) {
@@ -66,7 +68,7 @@ public class Utils {
 
 
     public static Long getRouteDuration(ArrayList<Location> route) {
-        Long duration = 0L, initTime = 0L, finTime = 0L;
+        long duration = 0L, initTime, finTime;
 
         if (route.size() > 0) {
 
@@ -80,7 +82,7 @@ public class Utils {
 
 
     public static Double getMaxAltitude(ArrayList<Location> route) {
-        Double maxAltitude = 0D;
+        double maxAltitude = 0D;
 
         if (route.size() > 0) {
 
@@ -100,7 +102,7 @@ public class Utils {
 
 
     public static Double getMinAltitude(ArrayList<Location> route) {
-        Double minAltitude = 0D;
+        double minAltitude = 0D;
 
         if (route.size() > 0) {
 
@@ -120,6 +122,7 @@ public class Utils {
     }
 
 
+    @SuppressLint("DefaultLocale")
     public static String formatTime(long millis) {
         long secs = millis / 1000;
         return String.format("%02d:%02d:%02d", secs / 3600, (secs % 3600) / 60, secs % 60);

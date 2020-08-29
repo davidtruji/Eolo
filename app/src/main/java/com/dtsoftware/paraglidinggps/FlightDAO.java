@@ -5,20 +5,27 @@ import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
+import androidx.room.Update;
+
 import java.util.List;
 
 @Dao
 public interface FlightDAO {
 
-    // allowing the insert of the same word multiple times by passing a
-    // conflict resolution strategy
+    // Se permite añadir el mismo vuelo multiples veces
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-     void insert(Flight flight);
+    void insert(Flight flight);
+
+    @Update
+    void updateFlight(Flight flight);
+
+    @Query("SELECT * FROM flight_table WHERE id = :idFlight")
+    LiveData<Flight> getFlightByID(int idFlight);
 
     @Query("DELETE FROM flight_table")
     void deleteAll();
 
-    @Query("SELECT * from flight_table ORDER BY id DESC")
+    @Query("SELECT * FROM flight_table ORDER BY date DESC")
     LiveData<List<Flight>> getFlights();
 
 }
