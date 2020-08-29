@@ -32,11 +32,16 @@ public class Flight {
     //TODO: Añadir más campos útiles a cada vuelo guardado
 
 
-    public Flight(String locationName,ArrayList<Location> route) {
+    public Flight(String locationName, ArrayList<Location> route) {
         this.route = route;
         this.locationName = locationName;
         this.distance = Utils.getRouteDistance(route);
-        this.time = route.get(0).getTime();
+
+        if (route.size() > 0)
+            this.time = route.get(0).getTime();
+        else
+            this.time = 0L;
+
         this.duration = Utils.getRouteDuration(route);
         this.maxAltitude = Utils.getMaxAltitude(route).intValue();
         this.minAltitude = Utils.getMinAltitude(route).intValue();

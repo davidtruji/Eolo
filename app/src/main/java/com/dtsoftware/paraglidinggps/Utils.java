@@ -1,8 +1,6 @@
 package com.dtsoftware.paraglidinggps;
 
 import android.location.Location;
-
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -68,39 +66,53 @@ public class Utils {
 
 
     public static Long getRouteDuration(ArrayList<Location> route) {
-        Long duration, initTime, finTime;
+        Long duration = 0L, initTime = 0L, finTime = 0L;
 
-        initTime = route.get(0).getTime();
-        finTime = route.get(route.size() - 1).getTime();
-        duration = finTime - initTime;
+        if (route.size() > 0) {
 
+            initTime = route.get(0).getTime();
+            finTime = route.get(route.size() - 1).getTime();
+            duration = finTime - initTime;
+
+        }
         return duration;
     }
 
 
     public static Double getMaxAltitude(ArrayList<Location> route) {
-        Double maxAltitude = route.get(0).getAltitude();
+        Double maxAltitude = 0D;
 
-        for (Location location : route) {
+        if (route.size() > 0) {
 
-            if (location.getAltitude() > maxAltitude)
-                maxAltitude = location.getAltitude();
+            maxAltitude = route.get(0).getAltitude();
 
+            for (Location location : route) {
+
+                if (location.getAltitude() > maxAltitude)
+                    maxAltitude = location.getAltitude();
+
+
+            }
 
         }
-
         return maxAltitude;
     }
 
 
     public static Double getMinAltitude(ArrayList<Location> route) {
-        Double minAltitude = route.get(0).getAltitude();
+        Double minAltitude = 0D;
 
-        for (Location location : route) {
+        if (route.size() > 0) {
 
-            if (location.getAltitude() < minAltitude)
-                minAltitude = location.getAltitude();
+            minAltitude = route.get(0).getAltitude();
 
+            for (Location location : route) {
+
+                if (location.getAltitude() < minAltitude)
+                    minAltitude = location.getAltitude();
+
+
+            }
 
         }
 
@@ -113,10 +125,10 @@ public class Utils {
         return String.format("%02d:%02d:%02d", secs / 3600, (secs % 3600) / 60, secs % 60);
     }
 
-    public static Integer getTotalFlightHours(List<Flight> vuelos){
-        Long hours=0L;
+    public static Integer getTotalFlightHours(List<Flight> vuelos) {
+        Long hours = 0L;
 
-        for(Flight f : vuelos){
+        for (Flight f : vuelos) {
 
             hours += f.getDuration();
 
@@ -127,7 +139,6 @@ public class Utils {
 
         return hours.intValue();
     }
-
 
 
 }
