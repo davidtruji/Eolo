@@ -1,6 +1,7 @@
 package com.dtsoftware.paraglidinggps.ui.flights;
 
 import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.annotation.SuppressLint;
@@ -19,6 +20,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.dtsoftware.paraglidinggps.Flight;
+import com.dtsoftware.paraglidinggps.MainActivity;
 import com.dtsoftware.paraglidinggps.R;
 import com.dtsoftware.paraglidinggps.Utils;
 
@@ -36,16 +39,34 @@ public class FlightsFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
 
         View root = inflater.inflate(R.layout.flights_fragment, container, false);
+        SharedFlightViewModel sharedFlightViewModel = new ViewModelProvider(getActivity()).get(SharedFlightViewModel.class);
+        FlightsViewModel flightsViewModel = new ViewModelProvider(getActivity()).get(FlightsViewModel.class);
+        FlightDetailFragment flightDetailFragment = new FlightDetailFragment();
+        FragmentManager fragmentManager = getParentFragmentManager();
 
         RecyclerView recyclerView = root.findViewById(R.id.rvFlightsList);
 
-        final FlightListAdapter adapter = new FlightListAdapter(root.getContext(), (position, v) -> {
+        final FlightListAdapter adapter = new FlightListAdapter(getContext(), new FlightListAdapter.ClickListener() {
+            @Override
+            public void onItemClicked(Flight flight) {
 
-            Log.d(getString(R.string.debug_tag), "onItemClick position: " + position);
-            FlightDetailFragment flightDetailFragment= new FlightDetailFragment();
-            FragmentManager fragmentManager = getParentFragmentManager();
-            fragmentManager.beginTransaction().replace(R.id.nav_host_fragment, flightDetailFragment).commit();
+                Log.d(getString(R.string.debug_tag), "onItemClick: " + flight.getLocationName());
 
+                sharedFlightViewModel.selectFlight(flight);
+                FragmentTransaction transaction = fragmentManager.beginTransaction();
+
+
+
+
+                if (flightDetailFragment.isAdded())
+                    transaction.show(flightDetailFragment);
+                else
+                    transaction.add(R.id.nav_host_fragment, flightDetailFragment);
+
+                transaction.addToBackStack(null);
+                //transaction.hide(ac)
+                transaction.commit();
+            }
         });
 
 
@@ -59,9 +80,6 @@ public class FlightsFragment extends Fragment {
 
 
         tvHoursCount = root.findViewById(R.id.tvHoursCount);
-
-
-        FlightsViewModel flightsViewModel = new ViewModelProvider(this).get(FlightsViewModel.class);
 
         flightsViewModel.getAllFlights().observe(getViewLifecycleOwner(), flights -> {
             adapter.setFlights(flights);

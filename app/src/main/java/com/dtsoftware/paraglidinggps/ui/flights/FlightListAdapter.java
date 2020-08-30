@@ -1,11 +1,13 @@
 package com.dtsoftware.paraglidinggps.ui.flights;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.dtsoftware.paraglidinggps.Flight;
@@ -21,47 +23,47 @@ public class FlightListAdapter extends RecyclerView.Adapter<FlightListAdapter.Fl
     private final LayoutInflater mInflater;
     private List<Flight> flights; // Cached copy
     private Context context; // Para poder usar los recursos
-    private static ClickListener clickListener;
+    private static ClickListener itemClickListener;
+    @SuppressLint("SimpleDateFormat")
     private SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yy");
 
     FlightListAdapter(Context context, ClickListener clickListener) {
         mInflater = LayoutInflater.from(context);
         this.context = context;
-        this.clickListener = clickListener;
+        FlightListAdapter.itemClickListener = clickListener;
     }
 
-    public static class FlightViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public static class FlightViewHolder extends RecyclerView.ViewHolder {
+
         private final TextView tvflightName, tvDistance, tvTime, tvDate;
 
         private FlightViewHolder(View itemView) {
             super(itemView);
-            itemView.setOnClickListener(this);
             tvflightName = itemView.findViewById(R.id.tvFlightName);
             tvDistance = itemView.findViewById(R.id.tvFlightDistance);
             tvTime = itemView.findViewById(R.id.tvFlightTime);
             tvDate = itemView.findViewById(R.id.tvFlightDate);
         }
 
-        @Override
-        public void onClick(View view) {
-            clickListener.onItemClick(getAdapterPosition(), view);
+        public void setClickListener(Flight flight, ClickListener clickListener) {
+            itemView.setOnClickListener(view -> clickListener.onItemClicked(flight));
         }
-    }
 
+    }
 
     public interface ClickListener {
-        void onItemClick(int position, View v);
+        void onItemClicked(Flight flight);
     }
 
-
+    @NonNull
     @Override
-    public FlightViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public FlightViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View itemView = mInflater.inflate(R.layout.flight_list_item, parent, false);
         return new FlightViewHolder(itemView);
     }
 
     @Override
-    public void onBindViewHolder(FlightViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull FlightViewHolder holder, int position) {
         if (flights != null) {
             Flight current = flights.get(position);
             holder.tvflightName.setText(current.getLocationName());
@@ -69,10 +71,11 @@ public class FlightListAdapter extends RecyclerView.Adapter<FlightListAdapter.Fl
             holder.tvTime.setText(Utils.formatTime(current.getDuration()));
             holder.tvDate.setText(dateFormat.format(new Date(current.getDate())));
 
-        } else {
-            // Covers the case of data not being ready yet.
-            // holder.wordItemView.setText("No Word");
-        }
+            holder.setClickListener(current,itemClickListener);
+
+        }  // Covers the case of data not being ready yet.
+        // holder.wordItemView.setText("No Word");
+
     }
 
     void setFlights(List<Flight> flightList) {
@@ -87,6 +90,11 @@ public class FlightListAdapter extends RecyclerView.Adapter<FlightListAdapter.Fl
         if (flights != null)
             return flights.size();
         else return 0;
+    }
+
+    @SuppressWarnings("unused")
+    public Flight getItem(int index) {
+        return flights.get(index);
     }
 
 

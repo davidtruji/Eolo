@@ -22,7 +22,11 @@ public class FlightsViewModel extends AndroidViewModel {
         mAllFlights = mRepository.getAllFlights();
     }
 
-    LiveData<List<Flight>> getAllFlights() { return mAllFlights; }
+    public LiveData<List<Flight>> getAllFlights() { return mAllFlights; }
 
     public void insert(Flight flight) { mRepository.insert(flight); }
+
+    public  LiveData<Flight> getFlightByID(int id){return mRepository.getFlightByID(id);}
+
+
 }

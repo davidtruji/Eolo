@@ -20,6 +20,8 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
+import java.util.List;
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -45,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
                 // No hace nada al reelegir un item
             }
         });
-        
+
 
         fragmentNav = new NavFragment();
         fm = getSupportFragmentManager();
@@ -115,18 +117,6 @@ public class MainActivity extends AppCompatActivity {
                 // View.SYSTEM_UI_FLAG_FULLSCREEN);
         );
 
-//        Window window = this.getWindow();
-//
-//// clear FLAG_TRANSLUCENT_STATUS flag:
-//        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-//
-//// add FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS flag to the window
-//        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-//
-//// finally change the color
-//        window.setStatusBarColor(ContextCompat.getColor(this,R.color.infoBackground));
-
-
     }
 
     public void showSystemUI() {
@@ -136,6 +126,18 @@ public class MainActivity extends AppCompatActivity {
                 View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                         | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                         | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+    }
+
+    public void setActiveFragment(Fragment activeFragment) {
+        this.activeFragment = activeFragment;
+    }
+
+
+    public void hideFragments() {
+        List<Fragment> fragmentList = fm.getFragments();
+        for (Fragment f : fragmentList) {
+            fm.beginTransaction().hide(f).commit();
+        }
     }
 
 
