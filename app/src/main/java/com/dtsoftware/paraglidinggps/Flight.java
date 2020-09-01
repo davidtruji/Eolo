@@ -1,5 +1,6 @@
 package com.dtsoftware.paraglidinggps;
 
+import android.annotation.SuppressLint;
 import android.location.Location;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
@@ -12,7 +13,7 @@ public class Flight {
     @PrimaryKey(autoGenerate = true)
     private int id;
 
-    private float distance; // Distancia en Km
+    private float distance; // Distancia en m
 
     private long date; // TimeStamp con la fecha y hora del vuelo
 
@@ -42,7 +43,6 @@ public class Flight {
         this.duration = Utils.getRouteDuration(route);
         this.maxAltitude = Utils.getMaxAltitude(route).intValue();
         this.minAltitude = Utils.getMinAltitude(route).intValue();
-        //TODO: Métodos para obtener la información en formato String
     }
 
 
@@ -109,4 +109,29 @@ public class Flight {
     public void setLocationName(String locationName) {
         this.locationName = locationName;
     }
+
+    @SuppressLint("DefaultLocale")
+    public String getDistanceString() {
+        return String.format(Utils.DISTANCE_FORMAT, this.distance/1000);
+    }
+
+    public String getDateString(){
+        return Utils.DateToString(date);
+    }
+
+    public String getDurationString(){
+        return Utils.DurationToString(duration);
+    }
+
+    @SuppressLint("DefaultLocale")
+    public String getMaxAltitudeString(){
+        return String.valueOf(this.maxAltitude);
+    }
+
+    @SuppressLint("DefaultLocale")
+    public String getMinAltitudeString(){
+        return String.valueOf(this.minAltitude);
+    }
+
+
 }

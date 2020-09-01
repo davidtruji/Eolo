@@ -7,7 +7,6 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.os.SystemClock;
@@ -35,7 +34,6 @@ import com.mapbox.android.core.location.LocationEngineResult;
 import com.mapbox.android.core.permissions.PermissionsListener;
 import com.mapbox.android.core.permissions.PermissionsManager;
 import com.mapbox.mapboxsdk.Mapbox;
-import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.location.LocationComponent;
 import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions;
 import com.mapbox.mapboxsdk.location.OnCameraTrackingChangedListener;
@@ -45,11 +43,9 @@ import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.maps.Style;
-import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import static android.os.Looper.getMainLooper;
@@ -93,7 +89,7 @@ public class NavFragment extends Fragment implements
         //TODO: Bariometro primitivo con el GPS
         //TODO: Almacenar altura del despegue y altura máxima
 
-        mapView = root.findViewById(R.id.mapView);
+        mapView = root.findViewById(R.id.mv_fd_map);
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
 
@@ -338,7 +334,6 @@ public class NavFragment extends Fragment implements
 
 
     private void stopFly() {
-
 
         flying = false;
         resetOnScreenInfo();

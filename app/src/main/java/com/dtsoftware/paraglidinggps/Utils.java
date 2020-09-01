@@ -5,9 +5,10 @@ import android.location.Location;
 
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -22,6 +23,11 @@ public class Utils {
     public static final String SOUTH_WEST = "SW"; // [202.5° - 247.5°)
     public static final String WEST = "W"; // [247.5° - 292.5°)
     public static final String NORTH_WEST = "NW"; // [292.5° - 337.5°)
+
+    public static final String DISTANCE_FORMAT = "%.1f";
+    public static final String ALTITUDE_FORMAT = "%.0f";
+    public static final String DURATION_FORMAT = "%02d:%02d:%02d";
+    public static final String DATE_FORMAT = "dd/MM/yy";
 
 
     public static String degreesToBearing(Float degrees) {
@@ -127,13 +133,19 @@ public class Utils {
 
 
     @SuppressLint("DefaultLocale")
-    public static String formatTime(long millis) {
-        long secs = millis / 1000;
-        return String.format("%02d:%02d:%02d", secs / 3600, (secs % 3600) / 60, secs % 60);
+    public static String DurationToString(long durationTimestamp) {
+        long secs = durationTimestamp / 1000;
+        return String.format(DURATION_FORMAT, secs / 3600, (secs % 3600) / 60, secs % 60);
     }
 
+    public static String DateToString(long dateTimestamp) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
+        return dateFormat.format(new Date(dateTimestamp));
+    }
+
+
     public static Integer getTotalFlightHours(List<Flight> vuelos) {
-        Long hours = 0L;
+        long hours = 0L;
 
         for (Flight f : vuelos) {
 
@@ -144,20 +156,16 @@ public class Utils {
 
         hours = TimeUnit.MILLISECONDS.toSeconds(hours);
 
-        return hours.intValue();
+        return (int) hours;
     }
 
 
-    public static void hideAllFragments(FragmentManager fragmentManager){
+    public static void hideAllFragments(FragmentManager fragmentManager) {
         List<Fragment> fragmentList = fragmentManager.getFragments();
         for (Fragment f : fragmentList) {
             fragmentManager.beginTransaction().hide(f).commit();
         }
     }
-
-
-
-
 
 
 }

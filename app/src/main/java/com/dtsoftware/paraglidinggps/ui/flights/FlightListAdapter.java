@@ -24,8 +24,7 @@ public class FlightListAdapter extends RecyclerView.Adapter<FlightListAdapter.Fl
     private List<Flight> flights; // Cached copy
     private Context context; // Para poder usar los recursos
     private static ClickListener itemClickListener;
-    @SuppressLint("SimpleDateFormat")
-    private SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yy");
+
 
     FlightListAdapter(Context context, ClickListener clickListener) {
         mInflater = LayoutInflater.from(context);
@@ -67,9 +66,9 @@ public class FlightListAdapter extends RecyclerView.Adapter<FlightListAdapter.Fl
         if (flights != null) {
             Flight current = flights.get(position);
             holder.tvflightName.setText(current.getLocationName());
-            holder.tvDistance.setText(String.format(context.getString(R.string.distance_format), current.getDistance() / 1000));
-            holder.tvTime.setText(Utils.formatTime(current.getDuration()));
-            holder.tvDate.setText(dateFormat.format(new Date(current.getDate())));
+            holder.tvDistance.setText(current.getDistanceString());
+            holder.tvTime.setText(current.getDurationString());
+            holder.tvDate.setText(current.getDateString());
 
             holder.setClickListener(current,itemClickListener);
 
