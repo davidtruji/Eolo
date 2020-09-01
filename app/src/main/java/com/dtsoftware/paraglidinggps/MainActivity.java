@@ -19,6 +19,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import java.util.List;
 
@@ -53,16 +54,21 @@ public class MainActivity extends AppCompatActivity {
         fm = getSupportFragmentManager();
         activeFragment = fragmentNav;
 
+
         Log.i(getString(R.string.debug_tag), "Creado el NavFragment");
         fm.beginTransaction().add(R.id.nav_host_fragment, fragmentNav).commit();
 
         navView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+
+                FragmentTransaction transaction = fm.beginTransaction();
+                fm.popBackStack();
+
                 switch (item.getItemId()) {
                     case R.id.navigation_nav:
-                        fm.beginTransaction().hide(activeFragment).show(fragmentNav).commit();
-                        activeFragment = fragmentNav;
+                        Utils.hideAllFragments(fm);
+                        transaction.show(fragmentNav).commit();
                         break;
                     case R.id.navigation_waypoints:
                         if (fragmentWaypoints == null) {
@@ -79,8 +85,8 @@ public class MainActivity extends AppCompatActivity {
                             fragmentFlights = new FlightsFragment();
                             fm.beginTransaction().add(R.id.nav_host_fragment, fragmentFlights).commit();
                         }
-                        fm.beginTransaction().hide(activeFragment).show(fragmentFlights).commit();
-                        activeFragment = fragmentFlights;
+                        Utils.hideAllFragments(fm);
+                        transaction.show(fragmentFlights).commit();
                         break;
                     case R.id.navigation_route:
                         if (fragmentRoutes == null) {
@@ -126,18 +132,6 @@ public class MainActivity extends AppCompatActivity {
                 View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                         | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                         | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
-    }
-
-    public void setActiveFragment(Fragment activeFragment) {
-        this.activeFragment = activeFragment;
-    }
-
-
-    public void hideFragments() {
-        List<Fragment> fragmentList = fm.getFragments();
-        for (Fragment f : fragmentList) {
-            fm.beginTransaction().hide(f).commit();
-        }
     }
 
 

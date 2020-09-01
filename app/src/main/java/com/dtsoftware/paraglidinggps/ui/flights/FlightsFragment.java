@@ -37,12 +37,9 @@ public class FlightsFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-
         View root = inflater.inflate(R.layout.flights_fragment, container, false);
-        SharedFlightViewModel sharedFlightViewModel = new ViewModelProvider(getActivity()).get(SharedFlightViewModel.class);
+
         FlightsViewModel flightsViewModel = new ViewModelProvider(getActivity()).get(FlightsViewModel.class);
-        FlightDetailFragment flightDetailFragment = new FlightDetailFragment();
-        FragmentManager fragmentManager = getParentFragmentManager();
 
         RecyclerView recyclerView = root.findViewById(R.id.rvFlightsList);
 
@@ -52,20 +49,25 @@ public class FlightsFragment extends Fragment {
 
                 Log.d(getString(R.string.debug_tag), "onItemClick: " + flight.getLocationName());
 
+
+                SharedFlightViewModel sharedFlightViewModel = new ViewModelProvider(getActivity()).get(SharedFlightViewModel.class);
                 sharedFlightViewModel.selectFlight(flight);
+
+                FragmentManager fragmentManager = getParentFragmentManager();
                 FragmentTransaction transaction = fragmentManager.beginTransaction();
+                FlightDetailFragment flightDetailFragment = new FlightDetailFragment();
 
+                transaction.hide(FlightsFragment.this);
 
-
-
-                if (flightDetailFragment.isAdded())
-                    transaction.show(flightDetailFragment);
-                else
+                if (flightDetailFragment.isAdded()) {
+                    transaction.show(flightDetailFragment);//TODO: transiciones de fragments
+                } else {
                     transaction.add(R.id.nav_host_fragment, flightDetailFragment);
+                }
 
                 transaction.addToBackStack(null);
-                //transaction.hide(ac)
                 transaction.commit();
+
             }
         });
 

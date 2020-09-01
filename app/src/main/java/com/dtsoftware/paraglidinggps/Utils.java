@@ -3,6 +3,10 @@ package com.dtsoftware.paraglidinggps;
 import android.annotation.SuppressLint;
 import android.location.Location;
 
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -142,6 +146,18 @@ public class Utils {
 
         return hours.intValue();
     }
+
+
+    public static void hideAllFragments(FragmentManager fragmentManager){
+        List<Fragment> fragmentList = fragmentManager.getFragments();
+        for (Fragment f : fragmentList) {
+            fragmentManager.beginTransaction().hide(f).commit();
+        }
+    }
+
+
+
+
 
 
 }
