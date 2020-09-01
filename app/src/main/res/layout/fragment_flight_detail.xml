@@ -11,7 +11,7 @@
 
     <com.mapbox.mapboxsdk.maps.MapView
         android:id="@+id/mv_fd_map"
-        mapbox:mapbox_cameraZoom="14"
+        mapbox:mapbox_cameraZoom="1"
         android:layout_width="match_parent"
         android:layout_height="300dp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -19,7 +19,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
     </com.mapbox.mapboxsdk.maps.MapView>
-    
+
 
     <TextView
         android:id="@+id/tv_fd_date"

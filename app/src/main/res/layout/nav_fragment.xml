@@ -174,7 +174,7 @@
 
 
             <com.mapbox.mapboxsdk.maps.MapView
-                android:id="@+id/mv_fd_map"
+                android:id="@+id/mv_nav_map"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 mapbox:mapbox_cameraZoom="14">

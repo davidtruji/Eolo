@@ -89,7 +89,7 @@ public class NavFragment extends Fragment implements
         //TODO: Bariometro primitivo con el GPS
         //TODO: Almacenar altura del despegue y altura máxima
 
-        mapView = root.findViewById(R.id.mv_fd_map);
+        mapView = root.findViewById(R.id.mv_nav_map);
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
 

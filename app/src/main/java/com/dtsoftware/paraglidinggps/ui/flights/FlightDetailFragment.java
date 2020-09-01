@@ -2,6 +2,7 @@ package com.dtsoftware.paraglidinggps.ui.flights;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -12,20 +13,39 @@ import android.widget.TextView;
 
 import com.dtsoftware.paraglidinggps.Flight;
 import com.dtsoftware.paraglidinggps.R;
+import com.mapbox.mapboxsdk.Mapbox;
+import com.mapbox.mapboxsdk.maps.MapView;
+import com.mapbox.mapboxsdk.maps.MapboxMap;
+import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
+import com.mapbox.mapboxsdk.maps.Style;
 
 
 public class FlightDetailFragment extends Fragment {
 
-
-    public FlightDetailFragment() {
-        // Required empty public constructor
-    }
+    private MapView mapView;
+    private MapboxMap mapboxMap;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+
         View root = inflater.inflate(R.layout.fragment_flight_detail, container, false);
+
+        mapView = root.findViewById(R.id.mv_fd_map);
+        mapView.onCreate(savedInstanceState);
+        mapView.getMapAsync(new OnMapReadyCallback() {
+            @Override
+            public void onMapReady(@NonNull MapboxMap mapboxMap) {
+                mapboxMap.setStyle(Style.MAPBOX_STREETS, new Style.OnStyleLoaded() {
+                    @Override
+                    public void onStyleLoaded(@NonNull Style style) {
+
+
+                    }
+                });
+            }
+        });
+
 
         TextView tvName, tvDate, tvDistance, tvDuration, tvMaxAltitude, tvMinAltitude;
 
@@ -47,6 +67,49 @@ public class FlightDetailFragment extends Fragment {
         tvMinAltitude.setText("Min. Altitude: " + flight.getMinAltitudeString() + " m");
 
         return root;
+    }
+
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        mapView.onStart();
+    }
+
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mapView.onResume();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        mapView.onPause();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        mapView.onStop();
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        mapView.onSaveInstanceState(outState);
+    }
+
+    @Override
+    public void onLowMemory() {
+        super.onLowMemory();
+        mapView.onLowMemory();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
     }
 
 
