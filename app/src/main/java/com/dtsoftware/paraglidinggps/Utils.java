@@ -11,6 +11,7 @@ import com.mapbox.geojson.FeatureCollection;
 import com.mapbox.geojson.Point;
 import com.mapbox.geojson.Polygon;
 import com.mapbox.mapboxsdk.geometry.LatLng;
+import com.mapbox.mapboxsdk.geometry.LatLngBounds;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 
 import java.text.SimpleDateFormat;
@@ -38,7 +39,6 @@ public class Utils {
 
     public static final double POLYGON_SIZE = .000025;
     public static final String GEO_JSON_ID = "source-id";
-
 
 
     public static String degreesToBearing(Float degrees) {
@@ -183,9 +183,11 @@ public class Utils {
         Feature feature;
         FeatureCollection featureCollection;
 
+       double groundAltitude = getMinAltitude(route);
+
         for (FlightLocation location : route) {
             feature = Feature.fromGeometry(getPolygonFromLocation(location));
-            feature.addNumberProperty("e",location.getAltitude());
+            feature.addNumberProperty("e", location.getAltitude()-groundAltitude);
             featureList.add(feature);
         }
 
@@ -193,8 +195,6 @@ public class Utils {
 
         return new GeoJsonSource(GEO_JSON_ID, featureCollection);
     }
-
-
 
 
     private static Polygon getPolygonFromLocation(FlightLocation location) {
@@ -214,6 +214,38 @@ public class Utils {
         coordinates.add(pointList);
 
         return Polygon.fromLngLats(coordinates);
+    }
+
+
+    public static LatLngBounds getBoundsOfRoute(ArrayList<FlightLocation> flightLocations) {
+
+        double northLatitude = -90;
+        double southLatitude = 90;
+        double eastLongitude = -180;
+        double westLongitude = 180;
+
+        double currentLat, currentLng;
+
+        for (FlightLocation flightLocation : flightLocations) {
+
+            currentLat = flightLocation.getLatitude();
+            currentLng = flightLocation.getLongitude();
+
+            if (currentLat > northLatitude)
+                northLatitude = currentLat;
+
+            if (currentLat < southLatitude)
+                southLatitude = currentLat;
+
+            if (currentLng > eastLongitude)
+                eastLongitude = currentLng;
+
+            if (currentLng < westLongitude)
+                westLongitude = currentLng;
+
+        }
+
+        return LatLngBounds.from(northLatitude, eastLongitude, southLatitude, westLongitude);
     }
 
 

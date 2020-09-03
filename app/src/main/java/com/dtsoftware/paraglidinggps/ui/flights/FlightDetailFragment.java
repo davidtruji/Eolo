@@ -83,6 +83,12 @@ public class FlightDetailFragment extends Fragment implements OnMapReadyCallback
 
                 style.addSource(geoJsonSource);
 
+
+
+
+
+
+
                 // Add FillExtrusion layer to map using GeoJSON data
                 style.addLayer(new FillExtrusionLayer("course", Utils.GEO_JSON_ID).withProperties(
                         fillExtrusionColor(Color.YELLOW),
@@ -95,11 +101,12 @@ public class FlightDetailFragment extends Fragment implements OnMapReadyCallback
 
 
                 CameraPosition position = new CameraPosition.Builder()
-                        .target(new LatLng(lat,lng))
-                        .zoom(16)
-                        .tilt(40)
                         .bearing(0)
+                        .target(new LatLng(lat,lng))
+                        .tilt(40)
+                        .zoom(14)
                         .build();
+
 
                 mapboxMap.animateCamera(CameraUpdateFactory
                         .newCameraPosition(position), 3000);
