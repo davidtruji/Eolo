@@ -19,6 +19,7 @@ import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.maps.Style;
+import com.mapbox.mapboxsdk.style.expressions.Expression;
 import com.mapbox.mapboxsdk.style.layers.FillExtrusionLayer;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 import androidx.annotation.NonNull;
@@ -84,32 +85,20 @@ public class FlightDetailFragment extends Fragment implements OnMapReadyCallback
                 style.addSource(geoJsonSource);
 
 
-
-
-
-
-
                 // Add FillExtrusion layer to map using GeoJSON data
                 style.addLayer(new FillExtrusionLayer("course", Utils.GEO_JSON_ID).withProperties(
                         fillExtrusionColor(Color.YELLOW),
                         fillExtrusionOpacity(0.7f),
                         fillExtrusionHeight(get("e"))));
 
-
                 double lat = flight.getRoute().get(0).getLatitude();
                 double lng = flight.getRoute().get(0).getLongitude();
 
-
-                CameraPosition position = new CameraPosition.Builder()
-                        .bearing(0)
-                        .target(new LatLng(lat,lng))
-                        .tilt(40)
-                        .zoom(14)
-                        .build();
-
+                CameraPosition position = mapboxMap.getCameraForLatLngBounds(Utils.getBoundsOfRoute(flight.getRoute()), new int[]{50,50,50,50});
 
                 mapboxMap.animateCamera(CameraUpdateFactory
-                        .newCameraPosition(position), 3000);
+                        .newCameraPosition(position), 5000);
+
             }
         });
     }

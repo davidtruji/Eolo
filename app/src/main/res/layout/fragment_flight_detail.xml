@@ -16,10 +16,10 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        mapbox:mapbox_cameraTargetLat="38.886904"
-        mapbox:mapbox_cameraTargetLng="-6.968058"
-        mapbox:mapbox_cameraTilt="55.8873"
-        mapbox:mapbox_cameraZoom="12.692151">
+        mapbox:mapbox_cameraTargetLat="0"
+        mapbox:mapbox_cameraTargetLng="0"
+        mapbox:mapbox_cameraTilt="0"
+        mapbox:mapbox_cameraZoom="1">
 
     </com.mapbox.mapboxsdk.maps.MapView>
 
