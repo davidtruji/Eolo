@@ -6,6 +6,13 @@ import android.location.Location;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
+import com.mapbox.geojson.Feature;
+import com.mapbox.geojson.FeatureCollection;
+import com.mapbox.geojson.Point;
+import com.mapbox.geojson.Polygon;
+import com.mapbox.mapboxsdk.geometry.LatLng;
+import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -28,6 +35,10 @@ public class Utils {
     public static final String ALTITUDE_FORMAT = "%.0f";
     public static final String DURATION_FORMAT = "%02d:%02d:%02d";
     public static final String DATE_FORMAT = "dd/MM/yy";
+
+    public static final double POLYGON_SIZE = .000025;
+    public static final String GEO_JSON_ID = "source-id";
+
 
 
     public static String degreesToBearing(Float degrees) {
@@ -61,11 +72,11 @@ public class Utils {
     }
 
 
-    public static Float getRouteDistance(ArrayList<Location> route) {
+    public static Float getRouteDistance(ArrayList<FlightLocation> route) {
         float distance = 0f; // Distancia en metros de la ruta
-        Location prevLocation = null;
+        FlightLocation prevLocation = null;
 
-        for (Location location : route) {
+        for (FlightLocation location : route) {
 
             if (prevLocation != null)
                 distance += prevLocation.distanceTo(location);
@@ -77,7 +88,7 @@ public class Utils {
     }
 
 
-    public static Long getRouteDuration(ArrayList<Location> route) {
+    public static Long getRouteDuration(ArrayList<FlightLocation> route) {
         long duration = 0L, initTime, finTime;
 
         if (route.size() > 0) {
@@ -91,14 +102,14 @@ public class Utils {
     }
 
 
-    public static Double getMaxAltitude(ArrayList<Location> route) {
+    public static Double getMaxAltitude(ArrayList<FlightLocation> route) {
         double maxAltitude = 0D;
 
         if (route.size() > 0) {
 
             maxAltitude = route.get(0).getAltitude();
 
-            for (Location location : route) {
+            for (FlightLocation location : route) {
 
                 if (location.getAltitude() > maxAltitude)
                     maxAltitude = location.getAltitude();
@@ -111,14 +122,14 @@ public class Utils {
     }
 
 
-    public static Double getMinAltitude(ArrayList<Location> route) {
+    public static Double getMinAltitude(ArrayList<FlightLocation> route) {
         double minAltitude = 0D;
 
         if (route.size() > 0) {
 
             minAltitude = route.get(0).getAltitude();
 
-            for (Location location : route) {
+            for (FlightLocation location : route) {
 
                 if (location.getAltitude() < minAltitude)
                     minAltitude = location.getAltitude();
@@ -165,6 +176,44 @@ public class Utils {
         for (Fragment f : fragmentList) {
             fragmentManager.beginTransaction().hide(f).commit();
         }
+    }
+
+    public static GeoJsonSource getGeoJsonSourceFromRoute(ArrayList<FlightLocation> route) {
+        List<Feature> featureList = new ArrayList<>();
+        Feature feature;
+        FeatureCollection featureCollection;
+
+        for (FlightLocation location : route) {
+            feature = Feature.fromGeometry(getPolygonFromLocation(location));
+            feature.addNumberProperty("e",location.getAltitude());
+            featureList.add(feature);
+        }
+
+        featureCollection = FeatureCollection.fromFeatures(featureList);
+
+        return new GeoJsonSource(GEO_JSON_ID, featureCollection);
+    }
+
+
+
+
+    private static Polygon getPolygonFromLocation(FlightLocation location) {
+
+        List<Point> pointList = new ArrayList<>();
+        List<List<Point>> coordinates = new ArrayList<>();
+
+        double lat = location.getLatitude();
+        double lng = location.getLongitude();
+
+        pointList.add(Point.fromLngLat(lng - POLYGON_SIZE, lat + POLYGON_SIZE)); // Arriba izq
+        pointList.add(Point.fromLngLat(lng + POLYGON_SIZE, lat + POLYGON_SIZE)); // Arriba der
+        pointList.add(Point.fromLngLat(lng + POLYGON_SIZE, lat - POLYGON_SIZE)); // Abajo der
+        pointList.add(Point.fromLngLat(lng - POLYGON_SIZE, lat - POLYGON_SIZE)); // Abajo izq
+        pointList.add(Point.fromLngLat(lng - POLYGON_SIZE, lat + POLYGON_SIZE)); // Arriba izq (Repetido necesariamente)
+
+        coordinates.add(pointList);
+
+        return Polygon.fromLngLats(coordinates);
     }
 
 

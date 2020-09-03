@@ -20,12 +20,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.dtsoftware.paraglidinggps.Flight;
+import com.dtsoftware.paraglidinggps.FlightLocation;
 import com.dtsoftware.paraglidinggps.MainActivity;
 import com.dtsoftware.paraglidinggps.R;
 import com.dtsoftware.paraglidinggps.Utils;
 import com.dtsoftware.paraglidinggps.ui.flights.FlightsViewModel;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.gson.Gson;
 import com.mapbox.android.core.location.LocationEngine;
 import com.mapbox.android.core.location.LocationEngineCallback;
 import com.mapbox.android.core.location.LocationEngineProvider;
@@ -75,7 +77,7 @@ public class NavFragment extends Fragment implements
     private boolean flying = false;
     private Location prevLocation = null;
     private float distance = 0;
-    private ArrayList<Location> route = new ArrayList<>();
+    private ArrayList<FlightLocation> route = new ArrayList<>();
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -296,7 +298,7 @@ public class NavFragment extends Fragment implements
 
         if (flying) {
             updateDistance(lastLocation); // Distancia del vuelo (Km)
-            route.add(lastLocation);
+            route.add(new FlightLocation(lastLocation));
         }
 
 
@@ -415,6 +417,10 @@ public class NavFragment extends Fragment implements
     @Override
     public void onDialogSaveClick(String flightName) {
         FlightsViewModel flightsViewModel = new ViewModelProvider(this).get(FlightsViewModel.class);
+
+        String json = new Gson().toJson(route);
+
+       Log.d("DEBUG-INFO",json) ;
         flightsViewModel.insert(new Flight(flightName, route));
     }
 

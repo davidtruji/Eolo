@@ -1,6 +1,7 @@
 package com.dtsoftware.paraglidinggps;
 
 import android.location.Location;
+import android.util.Log;
 
 import androidx.room.TypeConverter;
 import com.google.gson.Gson;
@@ -10,13 +11,13 @@ import java.util.ArrayList;
 
 public class Converters {
     @TypeConverter
-    public static ArrayList<Location> fromString(String value) {
-        Type listType = new TypeToken<ArrayList<Location>>() {}.getType();
+    public static ArrayList<FlightLocation> fromString(String value) {
+        Type listType = new TypeToken<ArrayList<FlightLocation>>() {}.getType();
         return new Gson().fromJson(value, listType);
     }
 
     @TypeConverter
-    public static String fromArrayList(ArrayList<Location> list) {
+    public static String fromArrayList(ArrayList<FlightLocation> list) {
         Gson gson = new Gson();
         String json = gson.toJson(list);
         return json;

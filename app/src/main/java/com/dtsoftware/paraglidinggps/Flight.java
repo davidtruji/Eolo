@@ -17,7 +17,7 @@ public class Flight {
 
     private long date; // TimeStamp con la fecha y hora del vuelo
 
-    private ArrayList<Location> route; // Lista de todas las ubicaciones
+    private ArrayList<FlightLocation> route; // Lista de todas las ubicaciones
 
     private long duration; // Duración del vuelo
 
@@ -30,7 +30,7 @@ public class Flight {
     //TODO: Añadir más campos útiles a cada vuelo guardado
 
 
-    public Flight(String locationName, ArrayList<Location> route) {
+    public Flight(String locationName, ArrayList<FlightLocation> route) {
         this.route = route;
         this.locationName = locationName;
         this.distance = Utils.getRouteDistance(route);
@@ -70,11 +70,11 @@ public class Flight {
         this.date = date;
     }
 
-    public ArrayList<Location> getRoute() {
+    public ArrayList<FlightLocation> getRoute() {
         return route;
     }
 
-    public void setRoute(ArrayList<Location> route) {
+    public void setRoute(ArrayList<FlightLocation> route) {
         this.route = route;
     }
 

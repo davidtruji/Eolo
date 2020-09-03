@@ -11,12 +11,15 @@
 
     <com.mapbox.mapboxsdk.maps.MapView
         android:id="@+id/mv_fd_map"
-        mapbox:mapbox_cameraZoom="1"
         android:layout_width="match_parent"
         android:layout_height="300dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        mapbox:mapbox_cameraTargetLat="38.886904"
+        mapbox:mapbox_cameraTargetLng="-6.968058"
+        mapbox:mapbox_cameraTilt="55.8873"
+        mapbox:mapbox_cameraZoom="12.692151">
 
     </com.mapbox.mapboxsdk.maps.MapView>
 
