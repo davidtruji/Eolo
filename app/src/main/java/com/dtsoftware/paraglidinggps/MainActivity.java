@@ -76,8 +76,8 @@ public class MainActivity extends AppCompatActivity {
                             fragmentWaypoints = new WaypointsFragment();
                             fm.beginTransaction().add(R.id.nav_host_fragment, fragmentWaypoints).commit();
                         }
-                        fm.beginTransaction().hide(activeFragment).show(fragmentWaypoints).commit();
-                        activeFragment = fragmentWaypoints;
+                        Utils.hideAllFragments(fm);
+                        transaction.show(fragmentWaypoints).commit();
                         break;
                     case R.id.navigation_flights:
                         if (fragmentFlights == null) {

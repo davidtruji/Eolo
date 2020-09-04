@@ -1,7 +1,6 @@
 package com.dtsoftware.paraglidinggps;
 
 import android.annotation.SuppressLint;
-import android.location.Location;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 import java.util.ArrayList;

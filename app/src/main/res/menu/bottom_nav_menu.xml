@@ -23,6 +23,6 @@
         android:id="@+id/navigation_waypoints"
         android:icon="@drawable/waypoint"
         android:title="@string/title_waypoints"
-        android:enabled="false"/>
+        android:enabled="true"/>
 
 </menu>
