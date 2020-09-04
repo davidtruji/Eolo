@@ -28,7 +28,7 @@ import com.dtsoftware.paraglidinggps.Utils;
 
 public class FlightsFragment extends Fragment {
 
-    private TextView tvHoursCount;
+    private TextView tvHoursCount, tvNumberOfFlights;
 
 
     //TODO: Añadir fragment de vuelo al detalle
@@ -82,10 +82,12 @@ public class FlightsFragment extends Fragment {
 
 
         tvHoursCount = root.findViewById(R.id.tvHoursCount);
+        tvNumberOfFlights = root.findViewById(R.id.tvFlightsCount);
 
         flightsViewModel.getAllFlights().observe(getViewLifecycleOwner(), flights -> {
             adapter.setFlights(flights);
             tvHoursCount.setText(Utils.getTotalFlightHours(flights).toString());
+            tvNumberOfFlights.setText(String.valueOf(flights.size()));
         });
 
 

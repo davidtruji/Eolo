@@ -19,7 +19,7 @@
                 android:id="@+id/tvHoursCount"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="59"
+                android:text="@string/sample_text"
                 android:textSize="36sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -30,7 +30,7 @@
                 android:id="@+id/textView2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="hours"
+                android:text="@string/sample_text"
                 app:layout_constraintBottom_toBottomOf="@+id/tvHoursCount"
                 app:layout_constraintStart_toEndOf="@+id/tvHoursCount" />
 
@@ -39,7 +39,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
-                android:text="16"
+                android:text="@string/sample_text"
                 android:textSize="36sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -49,10 +49,17 @@
                 android:id="@+id/textView5"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="flights"
+                android:text="@string/sample_text"
                 app:layout_constraintBottom_toBottomOf="@+id/tvFlightsCount"
                 app:layout_constraintStart_toEndOf="@+id/tvFlightsCount" />
         </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+        <View
+            android:id="@+id/divider"
+            style="@style/HorizontalDivider"
+            android:layout_width="match_parent"
+            android:layout_height="1dp" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvFlightsList"

@@ -46,8 +46,9 @@
 
     <string name="save_button">Save flight</string>
     <string name="discard_button">Discard flight</string>
+
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
-
+    <string name="sample_text">Text</string>
 
 </resources>

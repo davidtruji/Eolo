@@ -183,11 +183,11 @@ public class Utils {
         Feature feature;
         FeatureCollection featureCollection;
 
-       double groundAltitude = getMinAltitude(route);
+        double groundAltitude = getMinAltitude(route);
 
         for (FlightLocation location : route) {
             feature = Feature.fromGeometry(getPolygonFromLocation(location));
-            feature.addNumberProperty("e", location.getAltitude()-groundAltitude);
+            feature.addNumberProperty("e", location.getAltitude() - groundAltitude);
             featureList.add(feature);
         }
 
@@ -204,12 +204,33 @@ public class Utils {
 
         double lat = location.getLatitude();
         double lng = location.getLongitude();
+        double latN, latS, lngW, lngE;
 
-        pointList.add(Point.fromLngLat(lng - POLYGON_SIZE, lat + POLYGON_SIZE)); // Arriba izq
-        pointList.add(Point.fromLngLat(lng + POLYGON_SIZE, lat + POLYGON_SIZE)); // Arriba der
-        pointList.add(Point.fromLngLat(lng + POLYGON_SIZE, lat - POLYGON_SIZE)); // Abajo der
-        pointList.add(Point.fromLngLat(lng - POLYGON_SIZE, lat - POLYGON_SIZE)); // Abajo izq
-        pointList.add(Point.fromLngLat(lng - POLYGON_SIZE, lat + POLYGON_SIZE)); // Arriba izq (Repetido necesariamente)
+        if (lat + POLYGON_SIZE > 90)
+            latN = 90 - ((lat + POLYGON_SIZE) - 90);
+        else
+            latN = lat + POLYGON_SIZE;
+
+        if (lat - POLYGON_SIZE < -90)
+            latS = -90 + ((lat - POLYGON_SIZE) + 90);
+        else
+            latS = lat - POLYGON_SIZE;
+
+        if (lng + POLYGON_SIZE > 180)
+            lngE = -180 + ((lng + POLYGON_SIZE) - 180);
+        else
+            lngE = lng + POLYGON_SIZE;
+
+        if (lng - POLYGON_SIZE < -180)
+            lngW = 180 - ((lng - POLYGON_SIZE) + 180);
+        else
+            lngW = lng - POLYGON_SIZE;
+
+        pointList.add(Point.fromLngLat(lngW, latN)); // Arriba izq
+        pointList.add(Point.fromLngLat(lngE, latN)); // Arriba der
+        pointList.add(Point.fromLngLat(lngE, latS)); // Abajo der
+        pointList.add(Point.fromLngLat(lngW, latS)); // Abajo izq
+        pointList.add(Point.fromLngLat(lngW, latN)); // Arriba izq (Repetido necesariamente)
 
         coordinates.add(pointList);
 
