@@ -10,7 +10,7 @@
         android:id="@+id/tvFlightName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Fly Name"
+        android:text="@string/sample_text"
         android:textSize="18sp"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
@@ -20,7 +20,7 @@
         android:id="@+id/tvFlightDistance"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Distance"
+        android:text="@string/sample_text"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/textView3" />
 
@@ -28,7 +28,7 @@
         android:id="@+id/tvFlightTime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Time"
+        android:text="@string/sample_text"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvFlightName" />
 
@@ -36,7 +36,7 @@
         android:id="@+id/textView3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text=" Km"
+        android:text="@string/sample_text"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
@@ -44,7 +44,7 @@
         android:id="@+id/tvFlightDate"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="00/00/0000"
+        android:text="@string/sample_text"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 

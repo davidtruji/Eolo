@@ -16,7 +16,7 @@
     <string name="altitude_format">%.0f</string>
     <string name="bearing_format">%.0f</string>
     <string name="distance_format">%.1f</string>
-    <string name="coordinates_format">%1$.3f , %2$.3f</string>
+    <string name="coordinates_format">%1$.4f</string>
 
 
     <string name="default_speed">0</string>
