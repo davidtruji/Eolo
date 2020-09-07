@@ -58,7 +58,12 @@ public class AppRepository {
     }
 
     public void deleteAllWaypoints() {
-        AppRoomDatabase.databaseWriteExecutor.execute(()->waypointDAO.deleteAll());
+        AppRoomDatabase.databaseWriteExecutor.execute(() -> waypointDAO.deleteAll());
+    }
+
+    public void deleteFlightByID(int id) {
+        AppRoomDatabase.databaseWriteExecutor.execute(() -> mFlightDAO.deleteFlightById(id));
+
     }
 
 

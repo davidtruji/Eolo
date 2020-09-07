@@ -16,17 +16,27 @@ public class FlightsViewModel extends AndroidViewModel {
 
     private LiveData<List<Flight>> mAllFlights;
 
-    public FlightsViewModel (Application application) {
+    public FlightsViewModel(Application application) {
         super(application);
         mRepository = new AppRepository(application);
         mAllFlights = mRepository.getAllFlights();
     }
 
-    public LiveData<List<Flight>> getAllFlights() { return mAllFlights; }
+    public LiveData<List<Flight>> getAllFlights() {
+        return mAllFlights;
+    }
 
-    public void insert(Flight flight) { mRepository.insert(flight); }
+    public void insert(Flight flight) {
+        mRepository.insert(flight);
+    }
 
-    public  LiveData<Flight> getFlightByID(int id){return mRepository.getFlightByID(id);}
+    public LiveData<Flight> getFlightByID(int id) {
+        return mRepository.getFlightByID(id);
+    }
+
+    public void deleteFlightByID(int id) {
+        mRepository.deleteFlightByID(id);
+    }
 
 
 }

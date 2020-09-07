@@ -196,7 +196,8 @@
                     android:layout_marginBottom="8dp"
                     android:clickable="true"
                     android:focusable="true"
-                    android:src="@drawable/compass_off" />
+                    android:src="@drawable/compass_off"
+                    mapbox:fabSize="mini" />
 
                 <com.google.android.material.floatingactionbutton.FloatingActionButton
                     android:id="@+id/fabLayers"
@@ -205,10 +206,11 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="bottom|end"
                     android:layout_marginEnd="8dp"
-                    android:layout_marginBottom="80dp"
+                    android:layout_marginBottom="60dp"
                     android:clickable="true"
                     android:focusable="true"
-                    android:src="@drawable/layers" />
+                    android:src="@drawable/layers"
+                    mapbox:fabSize="mini" />
 
                 <com.google.android.material.floatingactionbutton.FloatingActionButton
                     android:id="@+id/fabPlay"

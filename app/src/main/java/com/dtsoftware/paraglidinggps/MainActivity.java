@@ -16,12 +16,10 @@ import com.google.android.material.bottomnavigation.LabelVisibilityMode;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
-
-import java.util.List;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -38,6 +36,11 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
 
+        Toolbar appBar = findViewById(R.id.appbar);
+        setSupportActionBar(appBar);
+        //TODO: Cambiar titulo de la barra en cada fragment
+
+
         BottomNavigationView navView = findViewById(R.id.nav_view);
         navView.setLabelVisibilityMode(LabelVisibilityMode.LABEL_VISIBILITY_LABELED);
         navView.setOnNavigationItemReselectedListener(new BottomNavigationView.OnNavigationItemReselectedListener() {
@@ -47,10 +50,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
         fragmentNav = new NavFragment();
         fm = getSupportFragmentManager();
-
 
         Log.i(getString(R.string.debug_tag), "Creado el NavFragment");
         fm.beginTransaction().add(R.id.nav_host_fragment, fragmentNav).commit();
@@ -98,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
                             fragmentRoutes = new RoutesFragment();
                             fm.beginTransaction().add(R.id.nav_host_fragment, fragmentRoutes).commit();
                         }
-                     //   fm.beginTransaction().hide(activeFragment).show(fragmentRoutes).commit();
+                        //   fm.beginTransaction().hide(activeFragment).show(fragmentRoutes).commit();
 
                         break;
 

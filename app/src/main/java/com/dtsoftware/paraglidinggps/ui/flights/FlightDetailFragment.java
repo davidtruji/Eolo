@@ -3,11 +3,15 @@ package com.dtsoftware.paraglidinggps.ui.flights;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.dtsoftware.paraglidinggps.Flight;
+import com.dtsoftware.paraglidinggps.MainActivity;
 import com.dtsoftware.paraglidinggps.R;
 import com.dtsoftware.paraglidinggps.Utils;
 import com.mapbox.mapboxsdk.Mapbox;
@@ -22,7 +26,9 @@ import com.mapbox.mapboxsdk.maps.Style;
 import com.mapbox.mapboxsdk.style.expressions.Expression;
 import com.mapbox.mapboxsdk.style.layers.FillExtrusionLayer;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
+
 import androidx.annotation.NonNull;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -36,6 +42,8 @@ public class FlightDetailFragment extends Fragment implements OnMapReadyCallback
 
     private MapView mapView;
     private Flight flight;
+    private SharedFlightViewModel sharedFlightViewModel;
+    private FlightsViewModel flightsViewModel;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -46,8 +54,12 @@ public class FlightDetailFragment extends Fragment implements OnMapReadyCallback
 
         View root = inflater.inflate(R.layout.fragment_flight_detail, container, false);
 
-        mapView = root.findViewById(R.id.mv_fd_map);
+        sharedFlightViewModel = new ViewModelProvider(getActivity()).get(SharedFlightViewModel.class);
+        flightsViewModel  =new ViewModelProvider(getActivity()).get(FlightsViewModel.class);
 
+        setHasOptionsMenu(true);
+
+        mapView = root.findViewById(R.id.mv_fd_map);
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
 
@@ -61,7 +73,6 @@ public class FlightDetailFragment extends Fragment implements OnMapReadyCallback
         tvMaxAltitude = root.findViewById(R.id.tv_fd_max_altitude);
         tvMinAltitude = root.findViewById(R.id.tv_fd_min_altitude);
 
-        SharedFlightViewModel sharedFlightViewModel = new ViewModelProvider(getActivity()).get(SharedFlightViewModel.class);
         flight = sharedFlightViewModel.getSelectedFlight().getValue();
 
         tvName.setText(flight.getLocationName());
@@ -72,6 +83,26 @@ public class FlightDetailFragment extends Fragment implements OnMapReadyCallback
         tvMinAltitude.setText("Min. Altitude: " + flight.getMinAltitudeString() + " m");
 
         return root;
+    }
+
+
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        inflater.inflate(R.menu.fd_toolbar_menu, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_delete:
+                flightsViewModel.deleteFlightByID(flight.getId());
+                break;
+            default:
+                break;
+
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -94,7 +125,7 @@ public class FlightDetailFragment extends Fragment implements OnMapReadyCallback
                 double lat = flight.getRoute().get(0).getLatitude();
                 double lng = flight.getRoute().get(0).getLongitude();
 
-                CameraPosition position = mapboxMap.getCameraForLatLngBounds(Utils.getBoundsOfRoute(flight.getRoute()), new int[]{50,50,50,50});
+                CameraPosition position = mapboxMap.getCameraForLatLngBounds(Utils.getBoundsOfRoute(flight.getRoute()), new int[]{50, 50, 50, 50});
 
                 mapboxMap.animateCamera(CameraUpdateFactory
                         .newCameraPosition(position), 5000);
