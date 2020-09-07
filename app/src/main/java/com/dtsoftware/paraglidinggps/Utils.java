@@ -2,10 +2,12 @@ package com.dtsoftware.paraglidinggps;
 
 import android.annotation.SuppressLint;
 import android.location.Location;
+import android.view.View;
 
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
+import com.google.android.material.snackbar.Snackbar;
 import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.FeatureCollection;
 import com.mapbox.geojson.Point;
@@ -69,6 +71,13 @@ public class Utils {
             return NORTH_WEST;
         }
 
+    }
+
+
+    public static void showSnakcbar(View coordinatorView, String text) {
+        Snackbar snackbar;
+        snackbar = Snackbar.make(coordinatorView, text, Snackbar.LENGTH_SHORT);
+        snackbar.show();
     }
 
 

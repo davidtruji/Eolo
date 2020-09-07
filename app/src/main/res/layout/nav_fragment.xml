@@ -181,7 +181,7 @@
 
             </com.mapbox.mapboxsdk.maps.MapView>
 
-            <androidx.constraintlayout.widget.ConstraintLayout
+            <androidx.coordinatorlayout.widget.CoordinatorLayout
                 android:id="@+id/screenInfo_layout"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
@@ -191,41 +191,37 @@
                     style="@style/FabButtons"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="bottom|end"
                     android:layout_marginEnd="8dp"
                     android:layout_marginBottom="8dp"
                     android:clickable="true"
                     android:focusable="true"
-                    android:src="@drawable/compass_off"
-                    mapbox:layout_constraintBottom_toTopOf="@+id/fabLayers"
-                    mapbox:layout_constraintEnd_toEndOf="parent" />
+                    android:src="@drawable/compass_off" />
 
                 <com.google.android.material.floatingactionbutton.FloatingActionButton
                     android:id="@+id/fabLayers"
                     style="@style/FabButtons"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="bottom|end"
                     android:layout_marginEnd="8dp"
-                    android:layout_marginBottom="8dp"
+                    android:layout_marginBottom="80dp"
                     android:clickable="true"
                     android:focusable="true"
-                    android:src="@drawable/layers"
-                    mapbox:layout_constraintBottom_toBottomOf="parent"
-                    mapbox:layout_constraintEnd_toEndOf="parent" />
+                    android:src="@drawable/layers" />
 
                 <com.google.android.material.floatingactionbutton.FloatingActionButton
                     android:id="@+id/fabPlay"
                     style="@style/FabButtons"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="bottom|center"
                     android:layout_marginBottom="8dp"
                     android:clickable="true"
                     android:focusable="true"
-                    android:src="@drawable/play"
-                    mapbox:layout_constraintBottom_toBottomOf="parent"
-                    mapbox:layout_constraintEnd_toEndOf="parent"
-                    mapbox:layout_constraintStart_toStartOf="parent" />
+                    android:src="@drawable/play" />
 
-            </androidx.constraintlayout.widget.ConstraintLayout>
+            </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
         </FrameLayout>
 

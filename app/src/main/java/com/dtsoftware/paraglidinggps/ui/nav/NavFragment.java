@@ -9,6 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -18,6 +19,7 @@ import android.view.WindowManager;
 import android.widget.Chronometer;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import com.dtsoftware.paraglidinggps.Flight;
 import com.dtsoftware.paraglidinggps.FlightLocation;
 import com.dtsoftware.paraglidinggps.MainActivity;
@@ -55,14 +57,15 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
+import okhttp3.internal.Util;
+
 import static android.os.Looper.getMainLooper;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconAllowOverlap;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconIgnorePlacement;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconImage;
 
 
-
-@SuppressLint({"UseCompatLoadingForDrawables","SetTextI18n"})
+@SuppressLint({"UseCompatLoadingForDrawables", "SetTextI18n"})
 public class NavFragment extends Fragment implements
         OnMapReadyCallback, PermissionsListener, OnCameraTrackingChangedListener, SaveDialogFragment.SaveDialogListener {
 
@@ -339,7 +342,6 @@ public class NavFragment extends Fragment implements
     }
 
 
-
     private void stopFly() {
 
         flying = false;
@@ -372,26 +374,24 @@ public class NavFragment extends Fragment implements
 
     private void changeCameraMode() {
         LocationComponent locationComponent = mapboxMap.getLocationComponent();
-        Snackbar snackbar;
 
         if (locationComponent.getCameraMode() == CameraMode.TRACKING_COMPASS) {
             locationComponent.setCameraMode(CameraMode.TRACKING_GPS_NORTH);
             Log.i(getString(R.string.debug_tag), "Modo de cámara cambia de TRACKING_COMPASS a TRACKING_GPS_NORTH");
-            snackbar = Snackbar.make(getView().getRootView(), getString(R.string.tracking_gps_north_snack), Snackbar.LENGTH_SHORT);
-            snackbar.setAnchorView(getActivity().findViewById(R.id.nav_view));
+            Utils.showSnakcbar(getView().findViewById(R.id.screenInfo_layout), getString(R.string.tracking_gps_north_snack));
+
         } else if (locationComponent.getCameraMode() == CameraMode.TRACKING_GPS_NORTH) {
             locationComponent.setCameraMode(CameraMode.TRACKING_COMPASS);
             Log.i(getString(R.string.debug_tag), "Modo de cámara cambia de TRACKING_GPS_NORTH a TRACKING_COMPASS");
-            snackbar = Snackbar.make(getView().getRootView(), getString(R.string.tracking_compass_snack), Snackbar.LENGTH_SHORT);
-            snackbar.setAnchorView(getActivity().findViewById(R.id.nav_view));
+            Utils.showSnakcbar(getView().findViewById(R.id.screenInfo_layout), getString(R.string.tracking_compass_snack));
+
         } else {
             locationComponent.setCameraMode(CameraMode.TRACKING_GPS_NORTH);
             Log.i(getString(R.string.debug_tag), "Modo de cámara cambia de NONE a TRACKING_GPS_NORTH");
-            snackbar = Snackbar.make(getView().getRootView(), getString(R.string.tracking_gps_north_snack), Snackbar.LENGTH_SHORT);
-            snackbar.setAnchorView(getActivity().findViewById(R.id.nav_view));
+            Utils.showSnakcbar(getView().findViewById(R.id.screenInfo_layout), getString(R.string.tracking_gps_north_snack));
+
         }
 
-        snackbar.show();
 
     }
 
