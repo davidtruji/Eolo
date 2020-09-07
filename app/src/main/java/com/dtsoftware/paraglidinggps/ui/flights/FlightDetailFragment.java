@@ -35,7 +35,6 @@ import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.fillExtrusionOpa
 public class FlightDetailFragment extends Fragment implements OnMapReadyCallback {
 
     private MapView mapView;
-    private MapboxMap mapboxMap;
     private Flight flight;
 
     @Override
@@ -48,6 +47,7 @@ public class FlightDetailFragment extends Fragment implements OnMapReadyCallback
         View root = inflater.inflate(R.layout.fragment_flight_detail, container, false);
 
         mapView = root.findViewById(R.id.mv_fd_map);
+
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
 
@@ -143,6 +143,7 @@ public class FlightDetailFragment extends Fragment implements OnMapReadyCallback
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+
     }
 
 

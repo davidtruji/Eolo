@@ -65,8 +65,9 @@ public class FlightListAdapter extends RecyclerView.Adapter<FlightListAdapter.Fl
     public void onBindViewHolder(@NonNull FlightViewHolder holder, int position) {
         if (flights != null) {
             Flight current = flights.get(position);
+
             holder.tvflightName.setText(current.getLocationName());
-            holder.tvDistance.setText(current.getDistanceString());
+            holder.tvDistance.setText(current.getDistanceString() + "km");
             holder.tvTime.setText(current.getDurationString());
             holder.tvDate.setText(current.getDateString());
 

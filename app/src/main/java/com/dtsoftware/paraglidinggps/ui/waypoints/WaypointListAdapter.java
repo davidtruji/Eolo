@@ -63,8 +63,8 @@ public class WaypointListAdapter extends RecyclerView.Adapter<WaypointListAdapte
             Waypoint current = waypoints.get(position);
 
             holder.tvName.setText(current.getWaypointName());
-            holder.tvLat.setText("Lat. " + String.valueOf(current.getLatitude()));
-            holder.tvLong.setText("Long. " + String.valueOf(current.getLongitude()));
+            holder.tvLat.setText("Lat. " + String.format(context.getString(R.string.coordinates_format),current.getLatitude()));
+            holder.tvLong.setText("Long. " + String.format(context.getString(R.string.coordinates_format),current.getLongitude()));
 
             holder.setClickListener(current, itemClickListener);
 

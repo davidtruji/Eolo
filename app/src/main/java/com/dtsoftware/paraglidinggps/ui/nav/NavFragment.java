@@ -1,6 +1,7 @@
 package com.dtsoftware.paraglidinggps.ui.nav;
 
 import android.annotation.SuppressLint;
+import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.os.Bundle;
 
@@ -8,7 +9,6 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
-
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -18,16 +18,16 @@ import android.view.WindowManager;
 import android.widget.Chronometer;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.dtsoftware.paraglidinggps.Flight;
 import com.dtsoftware.paraglidinggps.FlightLocation;
 import com.dtsoftware.paraglidinggps.MainActivity;
 import com.dtsoftware.paraglidinggps.R;
 import com.dtsoftware.paraglidinggps.Utils;
+import com.dtsoftware.paraglidinggps.Waypoint;
 import com.dtsoftware.paraglidinggps.ui.flights.FlightsViewModel;
+import com.dtsoftware.paraglidinggps.ui.waypoints.WaypointsViewModel;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
-import com.google.gson.Gson;
 import com.mapbox.android.core.location.LocationEngine;
 import com.mapbox.android.core.location.LocationEngineCallback;
 import com.mapbox.android.core.location.LocationEngineProvider;
@@ -35,6 +35,9 @@ import com.mapbox.android.core.location.LocationEngineRequest;
 import com.mapbox.android.core.location.LocationEngineResult;
 import com.mapbox.android.core.permissions.PermissionsListener;
 import com.mapbox.android.core.permissions.PermissionsManager;
+import com.mapbox.geojson.Feature;
+import com.mapbox.geojson.FeatureCollection;
+import com.mapbox.geojson.Point;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.location.LocationComponent;
 import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions;
@@ -45,20 +48,32 @@ import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.maps.Style;
+import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
+import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
 import static android.os.Looper.getMainLooper;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconAllowOverlap;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconIgnorePlacement;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconImage;
 
 
+
+@SuppressLint({"UseCompatLoadingForDrawables","SetTextI18n"})
 public class NavFragment extends Fragment implements
         OnMapReadyCallback, PermissionsListener, OnCameraTrackingChangedListener, SaveDialogFragment.SaveDialogListener {
 
     // Constantes
     private static final long DEFAULT_INTERVAL_IN_MILLISECONDS = 1000;
     private static final long DEFAULT_MAX_WAIT_TIME = 0;
+
+    private static final String SOURCE_ID = "wpt_source";
+    private static final String ICON_LAYER_ID = "icon_layer";
+    private static final String IMAGE_NAME = "red_marker";
+
 
     // Mapbox variables
     private MapboxMap mapboxMap;
@@ -67,6 +82,7 @@ public class NavFragment extends Fragment implements
     private LocationEngine locationEngine;
     private LocationChangeListeningActivityLocationCallback callback =
             new LocationChangeListeningActivityLocationCallback(this);
+    private List<Waypoint> waypoints = new ArrayList<>();
 
     // Variables UI
     private TextView tvDistance, tvSpeed, tvBearing, tvBearingLet, tvAltitude;
@@ -89,7 +105,6 @@ public class NavFragment extends Fragment implements
         View root = inflater.inflate(R.layout.nav_fragment, container, false);
         //TODO: Pulsación larga para cambiar los bloques visibles
         //TODO: Bariometro primitivo con el GPS
-        //TODO: Almacenar altura del despegue y altura máxima
 
         mapView = root.findViewById(R.id.mv_nav_map);
         mapView.onCreate(savedInstanceState);
@@ -107,30 +122,27 @@ public class NavFragment extends Fragment implements
         fabLayers = root.findViewById(R.id.fabLayers);
         fabCompass = root.findViewById(R.id.fabCompass);
 
-        fabStartFly.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (flying) {// Usuario pulsó STOP
-                    stopFly();
-                } else {// Usuario pulsó PLAY
-                    startFly();
-                }
+        fabStartFly.setOnClickListener(view -> {
+            if (flying) {   // Usuario pulsó STOP
+                stopFly();
+            } else {        // Usuario pulsó PLAY
+                startFly();
             }
         });
 
-        fabLayers.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                changeCurrentMapLayer();
-            }
+        fabLayers.setOnClickListener(view -> changeCurrentMapLayer());
+
+        fabCompass.setOnClickListener(view -> changeCameraMode());
+
+        WaypointsViewModel waypointsViewModel = new ViewModelProvider(getActivity()).get(WaypointsViewModel.class);
+        waypointsViewModel.getAllWaypoints().observe(getViewLifecycleOwner(), waypoints -> {
+            NavFragment.this.waypoints = waypoints;
+
+            if (mapboxMap != null)
+                setWaypointsLayer();
+
         });
 
-        fabCompass.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                changeCameraMode();
-            }
-        });
 
         return root;
     }
@@ -140,12 +152,9 @@ public class NavFragment extends Fragment implements
         this.mapboxMap = mapboxMap;
 
         mapboxMap.setStyle(Style.OUTDOORS,
-                new Style.OnStyleLoaded() {
-                    @Override
-                    public void onStyleLoaded(@NonNull Style style) {
-                        enableLocationComponent(style);
-
-                    }
+                style -> {
+                    enableLocationComponent(style);
+                    setWaypointsLayer();
                 });
     }
 
@@ -220,12 +229,7 @@ public class NavFragment extends Fragment implements
     @Override
     public void onPermissionResult(boolean granted) {
         if (granted) {
-            mapboxMap.getStyle(new Style.OnStyleLoaded() {
-                @Override
-                public void onStyleLoaded(@NonNull Style style) {
-                    enableLocationComponent(style);
-                }
-            });
+            mapboxMap.getStyle(this::enableLocationComponent);
         } else {
             Toast.makeText(getContext(), R.string.user_location_permission_not_granted, Toast.LENGTH_LONG).show();
         }
@@ -335,6 +339,7 @@ public class NavFragment extends Fragment implements
     }
 
 
+
     private void stopFly() {
 
         flying = false;
@@ -345,7 +350,7 @@ public class NavFragment extends Fragment implements
         tvChronometer.setBase(SystemClock.elapsedRealtime());
         tvChronometer.stop();
 
-        Log.i(getString(R.string.debug_tag), "Vuelo finalizado: " + "distancia: " + Utils.getRouteDistance(route) + "m" + " duracion: " + Utils.getRouteDuration(route) + "\"");
+        Log.i(getString(R.string.debug_tag), "Vuelo finalizado: " + "distancia: " + Utils.getRouteDistance(route) + "m" + " duracion: " + Utils.getRouteDuration(route) / 1000 + "\"");
         showSaveFlightDialog();
     }
 
@@ -396,6 +401,7 @@ public class NavFragment extends Fragment implements
         fabCompass.setImageDrawable(getActivity().getDrawable(R.drawable.ic_baseline_my_location_24));
     }
 
+    @SuppressLint("SwitchIntDef")
     @Override
     public void onCameraTrackingChanged(int currentMode) {
 
@@ -407,7 +413,9 @@ public class NavFragment extends Fragment implements
             case CameraMode.TRACKING_GPS_NORTH:
                 fabCompass.setImageDrawable(getActivity().getDrawable(R.drawable.compass_off));
                 break;
+
             default:
+                break;
         }
 
 
@@ -417,11 +425,42 @@ public class NavFragment extends Fragment implements
     @Override
     public void onDialogSaveClick(String flightName) {
         FlightsViewModel flightsViewModel = new ViewModelProvider(this).get(FlightsViewModel.class);
-
-        String json = new Gson().toJson(route);
-
-       Log.d("DEBUG-INFO",json) ;
         flightsViewModel.insert(new Flight(flightName, route));
+    }
+
+
+    public void setWaypointsLayer() {
+
+        List<Feature> symbolLayerIconFeatureList = new ArrayList<>();
+
+        for (Waypoint waypoint : waypoints) {
+            symbolLayerIconFeatureList.add(Feature.fromGeometry(Point.fromLngLat(waypoint.getLongitude(), waypoint.getLatitude())));
+        }
+
+        mapboxMap.getStyle(style -> {
+
+            if (style.getLayer(ICON_LAYER_ID) != null) {
+                style.removeLayer(ICON_LAYER_ID);
+                style.removeSource(SOURCE_ID);
+
+            } else {
+
+                style.addImage(IMAGE_NAME, BitmapFactory.decodeResource(
+                        NavFragment.this.getResources(), R.drawable.mapbox_marker_icon_default));
+
+            }
+
+            style.addSource(new GeoJsonSource(SOURCE_ID, FeatureCollection.fromFeatures(symbolLayerIconFeatureList)));
+
+            style.addLayer(new SymbolLayer(ICON_LAYER_ID, SOURCE_ID)
+                    .withProperties(
+                            iconImage(IMAGE_NAME),
+                            iconAllowOverlap(true),
+                            iconIgnorePlacement(true)
+                    ));
+        });
+
+
     }
 
 

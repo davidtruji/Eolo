@@ -22,14 +22,18 @@
     <string name="default_speed">0</string>
     <string name="default_altitude">0</string>
     <string name="default_distance">0</string>
-    <string name="default_coordinates">00.0000 , 00.0000</string>
+    <string name="default_coordinates">0.0000</string>
     <string name="default_bearing">0</string>
 
+
+    <!--Labels-->
     <string name="meters_unit">Altitude (m)</string>
     <string name="kmh_unit">Speed (km/h)</string>
     <string name="degrees_unit">(°)</string>
     <string name="distance_unit">Distance (Km)</string>
-
+    <string name="flights_counter">Flights</string>
+    <string name="hours_counter">Flight hours</string>
+    <!--Labels-->
 
     <string name="north">N</string>
     <string name="northEast">NE</string>

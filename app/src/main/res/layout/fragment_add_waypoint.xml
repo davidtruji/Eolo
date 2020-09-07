@@ -7,18 +7,31 @@
     android:layout_height="match_parent"
     tools:context=".ui.waypoints.AddWaypointFragment">
 
+    <Button
+        android:id="@+id/btn_aw_save"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:drawableLeft="@drawable/save"
+        android:text="SAVE"
+        app:layout_constraintBottom_toBottomOf="@+id/et_aw_name"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/et_aw_name" />
+
     <EditText
         android:id="@+id/et_aw_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
+        android:layout_marginEnd="8dp"
         android:layout_marginBottom="16dp"
         android:ems="10"
+        android:hint="Waypoint name"
         android:inputType="textPersonName"
         android:singleLine="true"
-        android:text="Name"
         app:layout_constraintBottom_toTopOf="@+id/tv_aw_lat"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/btn_aw_save"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/mv_aw_map" />
 
@@ -28,7 +41,6 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
-        android:text="TextView"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/tv_aw_lng" />
 
@@ -38,7 +50,6 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
-        android:text="TextView"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 

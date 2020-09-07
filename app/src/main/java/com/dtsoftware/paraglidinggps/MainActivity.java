@@ -31,8 +31,6 @@ public class MainActivity extends AppCompatActivity {
     Fragment fragmentFlights;
     Fragment fragmentRoutes;
     FragmentManager fm;
-    Fragment activeFragment;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,7 +50,6 @@ public class MainActivity extends AppCompatActivity {
 
         fragmentNav = new NavFragment();
         fm = getSupportFragmentManager();
-        activeFragment = fragmentNav;
 
 
         Log.i(getString(R.string.debug_tag), "Creado el NavFragment");
@@ -67,10 +64,13 @@ public class MainActivity extends AppCompatActivity {
 
                 switch (item.getItemId()) {
                     case R.id.navigation_nav:
+
                         Utils.hideAllFragments(fm);
                         transaction.show(fragmentNav).commit();
+
                         break;
                     case R.id.navigation_waypoints:
+
                         if (fragmentWaypoints == null) {
                             Log.i(getString(R.string.debug_tag), "Creado el WaypointsFragment");
                             fragmentWaypoints = new WaypointsFragment();
@@ -78,8 +78,10 @@ public class MainActivity extends AppCompatActivity {
                         }
                         Utils.hideAllFragments(fm);
                         transaction.show(fragmentWaypoints).commit();
+
                         break;
                     case R.id.navigation_flights:
+
                         if (fragmentFlights == null) {
                             Log.i(getString(R.string.debug_tag), "Creado el FlightsFragment");
                             fragmentFlights = new FlightsFragment();
@@ -87,15 +89,17 @@ public class MainActivity extends AppCompatActivity {
                         }
                         Utils.hideAllFragments(fm);
                         transaction.show(fragmentFlights).commit();
+
                         break;
                     case R.id.navigation_route:
+
                         if (fragmentRoutes == null) {
                             Log.i(getString(R.string.debug_tag), "Creado el RoutesFragment");
                             fragmentRoutes = new RoutesFragment();
                             fm.beginTransaction().add(R.id.nav_host_fragment, fragmentRoutes).commit();
                         }
-                        fm.beginTransaction().hide(activeFragment).show(fragmentRoutes).commit();
-                        activeFragment = fragmentRoutes;
+                     //   fm.beginTransaction().hide(activeFragment).show(fragmentRoutes).commit();
+
                         break;
 
                 }

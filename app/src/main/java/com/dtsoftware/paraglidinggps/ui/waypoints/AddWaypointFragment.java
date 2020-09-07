@@ -8,14 +8,18 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.dtsoftware.paraglidinggps.R;
+import com.dtsoftware.paraglidinggps.Waypoint;
 import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.Point;
 import com.mapbox.mapboxsdk.Mapbox;
@@ -42,7 +46,8 @@ public class AddWaypointFragment extends Fragment implements OnMapReadyCallback,
     private ValueAnimator animator;
 
     private TextView tvLat, tvLng;
-
+    private Button btnSave;
+    private EditText etName;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -54,6 +59,17 @@ public class AddWaypointFragment extends Fragment implements OnMapReadyCallback,
         mapView = root.findViewById(R.id.mv_aw_map);
         tvLat = root.findViewById(R.id.tv_aw_lat);
         tvLng = root.findViewById(R.id.tv_aw_lng);
+        etName = root.findViewById(R.id.et_aw_name);
+        btnSave = root.findViewById(R.id.btn_aw_save);
+
+        btnSave.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                WaypointsViewModel waypointsViewModel = new ViewModelProvider(getActivity()).get(WaypointsViewModel.class);
+                waypointsViewModel.insert(new Waypoint(etName.getText().toString(), currentPosition.getLatitude(), currentPosition.getLongitude()));
+            }
+        });
+
 
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
@@ -76,7 +92,7 @@ public class AddWaypointFragment extends Fragment implements OnMapReadyCallback,
             public void onStyleLoaded(@NonNull Style style) {
 
                 style.addImage(("marker_icon"), BitmapFactory.decodeResource(
-                        getResources(), R.drawable.red_marker));
+                        getResources(), R.drawable.mapbox_marker_icon_default));
 
                 style.addSource(geoJsonSource);
 
@@ -86,12 +102,6 @@ public class AddWaypointFragment extends Fragment implements OnMapReadyCallback,
                                 PropertyFactory.iconIgnorePlacement(true),
                                 PropertyFactory.iconAllowOverlap(true)
                         ));
-
-//                Toast.makeText(
-//                        AnimatedMarkerActivity.this,
-//                        getString(R.string.tap_on_map_instruction),
-//                        Toast.LENGTH_LONG
-//                ).show();
 
                 mapboxMap.addOnMapClickListener(AddWaypointFragment.this);
 
@@ -116,8 +126,8 @@ public class AddWaypointFragment extends Fragment implements OnMapReadyCallback,
 
         currentPosition = point;
 
-        tvLat.setText("Lat. " + String.format(getString(R.string.coordinates_format),point.getLatitude()));
-        tvLng.setText("Long. " + String.format(getString(R.string.coordinates_format),point.getLongitude()));
+        tvLat.setText("Lat. " + String.format(getString(R.string.coordinates_format), point.getLatitude()));
+        tvLng.setText("Long. " + String.format(getString(R.string.coordinates_format), point.getLongitude()));
 
 
         return true;
