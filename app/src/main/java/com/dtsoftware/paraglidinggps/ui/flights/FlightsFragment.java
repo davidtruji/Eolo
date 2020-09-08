@@ -31,9 +31,6 @@ public class FlightsFragment extends Fragment {
 
     private TextView tvHoursCount, tvNumberOfFlights;
 
-
-    //TODO: Añadir fragment de vuelo al detalle
-
     @SuppressLint("SetTextI18n")
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,

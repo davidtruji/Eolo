@@ -339,6 +339,8 @@ public class NavFragment extends Fragment implements
 
     private void startFly() {
         route.clear();
+        mapboxMap.getGesturesManager().getMoveGestureDetector().setEnabled(false);
+        mapboxMap.getLocationComponent().setCameraMode(CameraMode.TRACKING_COMPASS);
         ((MainActivity) getActivity()).hideSystemUI();
         getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);// Evitar que la pantalla se apague sola
         fabStartFly.setImageDrawable(getActivity().getDrawable(R.drawable.stop));
@@ -352,6 +354,7 @@ public class NavFragment extends Fragment implements
     private void stopFly() {
 
         flying = false;
+        mapboxMap.getGesturesManager().getMoveGestureDetector().setEnabled(true);
         resetOnScreenInfo();
         ((MainActivity) getActivity()).showSystemUI();
         getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);// Permitir apagar la pantalla de nuevo

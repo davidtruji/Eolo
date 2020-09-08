@@ -47,8 +47,6 @@ public class AppRepository {
         AppRoomDatabase.databaseWriteExecutor.execute(() -> waypointDAO.insert(waypoint));
     }
 
-    //TODO: Implementar resto de métodos para Waypoints
-
     public LiveData<Flight> getFlightByID(int id) {
         return mFlightDAO.getFlightByID(id);
     }
