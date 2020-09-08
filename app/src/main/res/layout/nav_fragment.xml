@@ -22,6 +22,11 @@
         mapbox:layout_constraintStart_toStartOf="parent"
         mapbox:layout_constraintTop_toTopOf="parent">
 
+        <include
+            android:id="@+id/nav_toolbar"
+            layout="@layout/toolbar" />
+
+
         <LinearLayout
             android:id="@+id/infoRow1"
             android:layout_width="match_parent"

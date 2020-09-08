@@ -6,6 +6,7 @@ import android.location.Location;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
@@ -109,9 +110,9 @@ public class NavFragment extends Fragment implements
         //TODO: Pulsación larga para cambiar los bloques visibles
         //TODO: Bariometro primitivo con el GPS
 
-        mapView = root.findViewById(R.id.mv_nav_map);
-        mapView.onCreate(savedInstanceState);
-        mapView.getMapAsync(this);
+
+        Toolbar toolbar = root.findViewById(R.id.nav_toolbar);
+        toolbar.setTitle(getString(R.string.title_nav));
 
         tvDistance = root.findViewById(R.id.tvDistance);
         tvBearing = root.findViewById(R.id.tvBearing);
@@ -124,6 +125,12 @@ public class NavFragment extends Fragment implements
         fabStartFly = root.findViewById(R.id.fabPlay);
         fabLayers = root.findViewById(R.id.fabLayers);
         fabCompass = root.findViewById(R.id.fabCompass);
+
+
+        mapView = root.findViewById(R.id.mv_nav_map);
+        mapView.onCreate(savedInstanceState);
+        mapView.getMapAsync(this);
+
 
         fabStartFly.setOnClickListener(view -> {
             if (flying) {   // Usuario pulsó STOP

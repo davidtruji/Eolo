@@ -1,10 +1,10 @@
 <resources>
     <string name="app_name">Paragliding GPS</string>
-    <string name="title_home">Home</string>
     <string name="title_nav">Navigation</string>
     <string name="title_waypoints">Waypoints</string>
     <string name="title_route">Route</string>
     <string name="title_flights">Flights</string>
+    <string name="title_aw">New Waypoint</string>
     <string name="debug_tag">DEBUG-INFO</string>
 
 

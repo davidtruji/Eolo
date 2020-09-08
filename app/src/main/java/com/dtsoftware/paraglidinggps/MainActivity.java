@@ -35,11 +35,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
-        Toolbar appBar = findViewById(R.id.appbar);
-        setSupportActionBar(appBar);
         //TODO: Cambiar titulo de la barra en cada fragment
-
 
         BottomNavigationView navView = findViewById(R.id.nav_view);
         navView.setLabelVisibilityMode(LabelVisibilityMode.LABEL_VISIBILITY_LABELED);
@@ -115,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
         // Enables regular immersive mode.
         // For "lean back" mode, remove SYSTEM_UI_FLAG_IMMERSIVE.
         // Or for "sticky immersive," replace it with SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-        getSupportActionBar().hide();
+       // getSupportActionBar().hide(); //TODO: Esconder Toolbar
         View decorView = getWindow().getDecorView();
         decorView.setSystemUiVisibility(
                 View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
@@ -131,7 +127,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void showSystemUI() {
-        getSupportActionBar().show();
+      //  getSupportActionBar().show();
         View decorView = getWindow().getDecorView();
         decorView.setSystemUiVisibility(
                 View.SYSTEM_UI_FLAG_LAYOUT_STABLE

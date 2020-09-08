@@ -7,6 +7,31 @@
     android:layout_height="match_parent"
     tools:context=".ui.waypoints.AddWaypointFragment">
 
+
+    <include
+        android:id="@+id/aw_toolbar"
+        layout="@layout/toolbar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <com.mapbox.mapboxsdk.maps.MapView
+        android:id="@+id/mv_aw_map"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="16dp"
+        app:layout_constraintBottom_toTopOf="@+id/textInputLayout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/aw_toolbar"
+        mapbox:mapbox_cameraTargetLat="0"
+        mapbox:mapbox_cameraTargetLng="0"
+        mapbox:mapbox_cameraTilt="0"
+        mapbox:mapbox_cameraZoom="1">
+
+    </com.mapbox.mapboxsdk.maps.MapView>
+
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/textInputLayout"
         android:layout_width="0dp"
@@ -43,22 +68,6 @@
         android:layout_marginBottom="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
-
-    <com.mapbox.mapboxsdk.maps.MapView
-        android:id="@+id/mv_aw_map"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginBottom="16dp"
-        app:layout_constraintBottom_toTopOf="@+id/textInputLayout"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        mapbox:mapbox_cameraTargetLat="0"
-        mapbox:mapbox_cameraTargetLng="0"
-        mapbox:mapbox_cameraTilt="0"
-        mapbox:mapbox_cameraZoom="1">
-
-    </com.mapbox.mapboxsdk.maps.MapView>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

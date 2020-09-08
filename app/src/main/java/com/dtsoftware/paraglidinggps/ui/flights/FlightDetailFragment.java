@@ -54,8 +54,9 @@ public class FlightDetailFragment extends Fragment implements OnMapReadyCallback
 
         View root = inflater.inflate(R.layout.fragment_flight_detail, container, false);
 
+
         sharedFlightViewModel = new ViewModelProvider(getActivity()).get(SharedFlightViewModel.class);
-        flightsViewModel  =new ViewModelProvider(getActivity()).get(FlightsViewModel.class);
+        flightsViewModel = new ViewModelProvider(getActivity()).get(FlightsViewModel.class);
 
         setHasOptionsMenu(true);
 
@@ -75,6 +76,29 @@ public class FlightDetailFragment extends Fragment implements OnMapReadyCallback
 
         flight = sharedFlightViewModel.getSelectedFlight().getValue();
 
+        Toolbar toolbar = root.findViewById(R.id.fd_toolbar);
+        toolbar.setTitle("Details");
+        toolbar.setSubtitle(flight.getLocationName());
+        toolbar.inflateMenu(R.menu.fd_toolbar_menu);
+        toolbar.setNavigationIcon(R.drawable.back);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                getParentFragmentManager().popBackStack();
+            }
+        });
+        toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                if(item.getItemId()==R.id.action_delete){
+                    flightsViewModel.deleteFlightByID(flight.getId());
+                    getParentFragmentManager().popBackStack();
+                }
+
+                return true;
+            }
+        });
+
         tvName.setText(flight.getLocationName());
         tvDate.setText(flight.getDateString());
         tvDistance.setText("Distance: " + flight.getDistanceString() + " km");
@@ -83,26 +107,6 @@ public class FlightDetailFragment extends Fragment implements OnMapReadyCallback
         tvMinAltitude.setText("Min. Altitude: " + flight.getMinAltitudeString() + " m");
 
         return root;
-    }
-
-
-    @Override
-    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
-        inflater.inflate(R.menu.fd_toolbar_menu, menu);
-        super.onCreateOptionsMenu(menu, inflater);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_delete:
-                flightsViewModel.deleteFlightByID(flight.getId());
-                break;
-            default:
-                break;
-
-        }
-        return super.onOptionsItemSelected(item);
     }
 
     @Override

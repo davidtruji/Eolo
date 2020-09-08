@@ -1,5 +1,6 @@
 package com.dtsoftware.paraglidinggps.ui.waypoints;
 
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.Observer;
@@ -46,6 +47,10 @@ public class WaypointsFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
 
         View root = inflater.inflate(R.layout.waypoints_fragment, container, false);
+
+        Toolbar toolbar = root.findViewById(R.id.waypoints_toolbar);
+        toolbar.setTitle(getString(R.string.title_waypoints));
+
 
         WaypointsViewModel waypointsViewModel = new ViewModelProvider(getActivity()).get(WaypointsViewModel.class);
 

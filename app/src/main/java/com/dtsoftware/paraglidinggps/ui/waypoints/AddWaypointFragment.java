@@ -58,6 +58,29 @@ public class AddWaypointFragment extends Fragment implements OnMapReadyCallback,
 
         View root = inflater.inflate(R.layout.fragment_add_waypoint, container, false);
 
+        Toolbar toolbar = root.findViewById(R.id.aw_toolbar);
+        toolbar.setTitle(getString(R.string.title_aw));
+        toolbar.setSubtitle("Tap to add a point");
+        toolbar.inflateMenu(R.menu.aw_toolbar_menu);
+        toolbar.setNavigationIcon(R.drawable.back);
+        toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                if (item.getItemId() == R.id.action_save) {
+                    waypointsViewModel.insert(new Waypoint(etName.getText().toString(), currentPosition.getLatitude(), currentPosition.getLongitude()));
+                    getParentFragmentManager().popBackStack();
+
+                }
+                return true;
+            }
+        });
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                getParentFragmentManager().popBackStack();
+            }
+        });
+
         setHasOptionsMenu(true);
 
         waypointsViewModel = new ViewModelProvider(getActivity()).get(WaypointsViewModel.class);
@@ -71,20 +94,6 @@ public class AddWaypointFragment extends Fragment implements OnMapReadyCallback,
         mapView.getMapAsync(this);
 
         return root;
-    }
-
-    @Override
-    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
-        inflater.inflate(R.menu.aw_toolbar_menu, menu);
-        super.onCreateOptionsMenu(menu, inflater);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == R.id.action_save) {
-            waypointsViewModel.insert(new Waypoint(etName.getText().toString(), currentPosition.getLatitude(), currentPosition.getLongitude()));
-        }
-        return super.onOptionsItemSelected(item);
     }
 
     @Override

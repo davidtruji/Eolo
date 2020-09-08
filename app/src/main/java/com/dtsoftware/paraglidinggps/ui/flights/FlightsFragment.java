@@ -1,5 +1,6 @@
 package com.dtsoftware.paraglidinggps.ui.flights;
 
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
@@ -38,6 +39,10 @@ public class FlightsFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.flights_fragment, container, false);
+
+
+        Toolbar toolbar = root.findViewById(R.id.flights_toolbar);
+        toolbar.setTitle(getString(R.string.title_flights));
 
         FlightsViewModel flightsViewModel = new ViewModelProvider(getActivity()).get(FlightsViewModel.class);
 
