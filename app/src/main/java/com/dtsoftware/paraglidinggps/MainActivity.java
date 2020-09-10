@@ -55,7 +55,10 @@ public class MainActivity extends AppCompatActivity {
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
 
                 FragmentTransaction transaction = fm.beginTransaction();
-                fm.popBackStack();
+
+                //Limpio la pila de BACK antes de entrar en un destino de nivel TOP
+                for (int i = 0; i < fm.getBackStackEntryCount(); i++)
+                    fm.popBackStack();
 
                 switch (item.getItemId()) {
                     case R.id.navigation_nav:
@@ -109,7 +112,7 @@ public class MainActivity extends AppCompatActivity {
         // Enables regular immersive mode.
         // For "lean back" mode, remove SYSTEM_UI_FLAG_IMMERSIVE.
         // Or for "sticky immersive," replace it with SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-       // getSupportActionBar().hide(); //TODO: Esconder Toolbar
+        // getSupportActionBar().hide(); //TODO: Esconder Toolbar
         View decorView = getWindow().getDecorView();
         decorView.setSystemUiVisibility(
                 View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
@@ -125,7 +128,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void showSystemUI() {
-      //  getSupportActionBar().show();
+        //  getSupportActionBar().show();
         View decorView = getWindow().getDecorView();
         decorView.setSystemUiVisibility(
                 View.SYSTEM_UI_FLAG_LAYOUT_STABLE

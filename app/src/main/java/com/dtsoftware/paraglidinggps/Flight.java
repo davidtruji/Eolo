@@ -12,13 +12,13 @@ public class Flight {
     @PrimaryKey(autoGenerate = true)
     private int id;
 
-    private float distance; // Distancia en m
+    private float distance; // Distancia en metros
 
-    private long date; // TimeStamp con la fecha y hora del vuelo
+    private long date; // TimeStamp con la fecha del vuelo dd/mm/aaaa
 
     private ArrayList<FlightLocation> route; // Lista de todas las ubicaciones
 
-    private long duration; // Duración del vuelo
+    private long duration; // Duración del vuelo milisegundos
 
     private int maxAltitude; // Altitud máxima en metros
 

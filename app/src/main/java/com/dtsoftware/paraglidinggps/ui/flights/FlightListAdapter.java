@@ -67,7 +67,7 @@ public class FlightListAdapter extends RecyclerView.Adapter<FlightListAdapter.Fl
             Flight current = flights.get(position);
 
             holder.tvflightName.setText(current.getLocationName());
-            holder.tvDistance.setText(current.getDistanceString() + "km");
+            holder.tvDistance.setText(current.getDistanceString() + " km");
             holder.tvTime.setText(current.getDurationString());
             holder.tvDate.setText(current.getDateString());
 

@@ -55,7 +55,9 @@ import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 
 import java.lang.ref.WeakReference;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import okhttp3.internal.Util;
@@ -363,7 +365,7 @@ public class NavFragment extends Fragment implements
         tvChronometer.stop();
 
         Log.i(getString(R.string.debug_tag), "Vuelo finalizado: " + "distancia: " + Utils.getRouteDistance(route) + "m" + " duracion: " + Utils.getRouteDuration(route) / 1000 + "\"");
-        showSaveFlightDialog();
+        saveFlight();
     }
 
 
@@ -410,6 +412,14 @@ public class NavFragment extends Fragment implements
     public void onCameraTrackingDismissed() {
         fabCompass.setImageDrawable(getActivity().getDrawable(R.drawable.ic_baseline_my_location_24));
     }
+
+
+    public void saveFlight() {
+        FlightsViewModel flightsViewModel = new ViewModelProvider(this).get(FlightsViewModel.class);
+        flightsViewModel.insert(new Flight("Flight", route));
+        Utils.showSnakcbar(getView().findViewById(R.id.screenInfo_layout), "Saved Flight");
+    }
+
 
     @SuppressLint("SwitchIntDef")
     @Override

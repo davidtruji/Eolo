@@ -16,6 +16,7 @@ import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.geometry.LatLngBounds;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -37,7 +38,7 @@ public class Utils {
     public static final String DISTANCE_FORMAT = "%.1f";
     public static final String ALTITUDE_FORMAT = "%.0f";
     public static final String DURATION_FORMAT = "%02d:%02d:%02d";
-    public static final String DATE_FORMAT = "dd/MM/yy";
+    public static final String DATE_FORMAT = "dd/MM/yyyy";
 
     public static final double POLYGON_SIZE = .000025;
     public static final String GEO_JSON_ID = "source-id";
@@ -157,6 +158,34 @@ public class Utils {
         long secs = durationTimestamp / 1000;
         return String.format(DURATION_FORMAT, secs / 3600, (secs % 3600) / 60, secs % 60);
     }
+
+
+    public static long StringToDuration(String durationString) {
+        String[] durationStringSplit = durationString.split(":");
+        long durationTimestamp = 0L;
+
+        int hours = Integer.parseInt(durationStringSplit[0]);
+        int minutes = Integer.parseInt(durationStringSplit[1]);
+        int seconds = Integer.parseInt(durationStringSplit[2]);
+
+        durationTimestamp += TimeUnit.HOURS.toMillis(hours);
+        durationTimestamp += TimeUnit.MINUTES.toMillis(minutes);
+        durationTimestamp += TimeUnit.SECONDS.toMillis(seconds);
+
+        return durationTimestamp;
+    }
+
+    public static long StringDateToTimestamp(String dateString) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
+        Date date = null;
+        try {
+            date = dateFormat.parse(dateString);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return date.getTime();
+    }
+
 
     public static String DateToString(long dateTimestamp) {
         SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);

@@ -52,7 +52,7 @@ public class AppRepository {
     }
 
     public void updateFlight(Flight flight) {
-        mFlightDAO.updateFlight(flight);
+        AppRoomDatabase.databaseWriteExecutor.execute(() -> mFlightDAO.updateFlight(flight));
     }
 
     public void deleteAllWaypoints() {
@@ -61,8 +61,6 @@ public class AppRepository {
 
     public void deleteFlightByID(int id) {
         AppRoomDatabase.databaseWriteExecutor.execute(() -> mFlightDAO.deleteFlightById(id));
-
     }
-
 
 }

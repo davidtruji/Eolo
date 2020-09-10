@@ -1,36 +1,34 @@
 package com.dtsoftware.paraglidinggps.ui.flights;
 
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.ViewModelProvider;
+
 import com.dtsoftware.paraglidinggps.Flight;
-import com.dtsoftware.paraglidinggps.MainActivity;
 import com.dtsoftware.paraglidinggps.R;
 import com.dtsoftware.paraglidinggps.Utils;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
-import com.mapbox.mapboxsdk.geometry.LatLng;
-import com.mapbox.mapboxsdk.geometry.LatLngBounds;
 import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.maps.Style;
-import com.mapbox.mapboxsdk.style.expressions.Expression;
 import com.mapbox.mapboxsdk.style.layers.FillExtrusionLayer;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.widget.Toolbar;
-import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
 
 import static com.mapbox.mapboxsdk.style.expressions.Expression.get;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.fillExtrusionColor;
@@ -49,7 +47,7 @@ public class FlightDetailFragment extends Fragment implements OnMapReadyCallback
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-
+//TODO: UPDATE FLIGHT LIVE DATA IF EDITED
         Mapbox.getInstance(getContext(), getString(R.string.mapbox_access_token));
 
         View root = inflater.inflate(R.layout.fragment_flight_detail, container, false);
@@ -90,10 +88,18 @@ public class FlightDetailFragment extends Fragment implements OnMapReadyCallback
         toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                if(item.getItemId()==R.id.action_delete){
-                    flightsViewModel.deleteFlightByID(flight.getId());
-                    getParentFragmentManager().popBackStack();
+
+                switch (item.getItemId()) {
+                    case R.id.action_delete:
+                        showDeleteDialog();
+                        break;
+                    case R.id.action_edit_flight:
+                        showEditFlightFragment();
+                        break;
+                    default:
+                        break;
                 }
+
 
                 return true;
             }
@@ -108,6 +114,7 @@ public class FlightDetailFragment extends Fragment implements OnMapReadyCallback
 
         return root;
     }
+
 
     @Override
     public void onMapReady(@NonNull final MapboxMap mapboxMap) {
@@ -137,6 +144,45 @@ public class FlightDetailFragment extends Fragment implements OnMapReadyCallback
             }
         });
     }
+
+
+    public void showDeleteDialog() {
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+
+        builder.setMessage("Are you sure of delete this flight?")
+                .setTitle("Delete")
+                .setPositiveButton("YES", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        flightsViewModel.deleteFlightByID(flight.getId());
+                        getParentFragmentManager().popBackStack();
+                    }
+                })
+                .setNegativeButton("NO", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        //Do nothing
+                    }
+                });
+
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    private void showEditFlightFragment() {
+        FragmentManager fragmentManager = getParentFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        EditFlightFragment editFlightFragment = new EditFlightFragment();
+
+        transaction.hide(FlightDetailFragment.this);
+        transaction.add(R.id.nav_host_fragment, editFlightFragment);
+        transaction.addToBackStack(null);
+        transaction.commit();
+
+    }
+
 
     @Override
     public void onStart() {
