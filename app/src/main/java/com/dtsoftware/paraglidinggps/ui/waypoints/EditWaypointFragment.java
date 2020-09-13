@@ -3,11 +3,9 @@ package com.dtsoftware.paraglidinggps.ui.waypoints;
 import android.animation.ObjectAnimator;
 import android.animation.TypeEvaluator;
 import android.animation.ValueAnimator;
-import android.content.DialogInterface;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
@@ -17,14 +15,16 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.dtsoftware.paraglidinggps.R;
+import com.dtsoftware.paraglidinggps.Utils;
 import com.dtsoftware.paraglidinggps.Waypoint;
 import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.Point;
 import com.mapbox.mapboxsdk.Mapbox;
+import com.mapbox.mapboxsdk.camera.CameraPosition;
+import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
@@ -44,7 +44,7 @@ public class EditWaypointFragment extends Fragment implements MapboxMap.OnMapCli
     private OnMapReadyCallback onMapReadyCallback = new OnMapReadyCallback() {
         @Override
         public void onMapReady(@NonNull MapboxMap mapboxMap) {
-            // this.mapboxMap = mapboxMap;
+            EditWaypointFragment.this.mapboxMap = mapboxMap;
 
             geoJsonSource = new GeoJsonSource("source-id",
                     Feature.fromGeometry(Point.fromLngLat(currentPosition.getLongitude(),
@@ -66,6 +66,14 @@ public class EditWaypointFragment extends Fragment implements MapboxMap.OnMapCli
                         ));
 
                 mapboxMap.addOnMapClickListener(EditWaypointFragment.this);
+
+                CameraPosition cameraPosition = new CameraPosition.Builder()
+                        .target(currentPosition)
+                        .zoom(12.0)
+                        .build();
+
+                mapboxMap.animateCamera(CameraUpdateFactory
+                        .newCameraPosition(cameraPosition), 5000);
 
             });
         }
@@ -151,6 +159,14 @@ public class EditWaypointFragment extends Fragment implements MapboxMap.OnMapCli
         tvLng.setText("Long. " + String.format(getString(R.string.coordinates_format), point.getLongitude()));
 
 
+        CameraPosition cameraPosition = new CameraPosition.Builder()
+                .target(currentPosition)
+                .build();
+
+        mapboxMap.animateCamera(CameraUpdateFactory
+                .newCameraPosition(cameraPosition), 5000);
+
+
         return true;
     }
 
@@ -193,7 +209,9 @@ public class EditWaypointFragment extends Fragment implements MapboxMap.OnMapCli
         toolbar.setTitle(waypoint.getWaypointName());
         etName.setText(waypoint.getWaypointName());
 
+
         mapView.getMapAsync(onMapReadyCallback);
+
     }
 
 

@@ -28,6 +28,8 @@ import com.dtsoftware.paraglidinggps.Waypoint;
 import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.Point;
 import com.mapbox.mapboxsdk.Mapbox;
+import com.mapbox.mapboxsdk.camera.CameraPosition;
+import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
@@ -63,23 +65,15 @@ public class AddWaypointFragment extends Fragment implements OnMapReadyCallback,
         toolbar.setSubtitle("Tap to add a point");
         toolbar.inflateMenu(R.menu.aw_toolbar_menu);
         toolbar.setNavigationIcon(R.drawable.back);
-        toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                if (item.getItemId() == R.id.action_save) {
-                    waypointsViewModel.insert(new Waypoint(etName.getText().toString(), currentPosition.getLatitude(), currentPosition.getLongitude()));
-                    getParentFragmentManager().popBackStack();
-
-                }
-                return true;
-            }
-        });
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+        toolbar.setOnMenuItemClickListener(item -> {
+            if (item.getItemId() == R.id.action_save) {
+                waypointsViewModel.insert(new Waypoint(etName.getText().toString(), currentPosition.getLatitude(), currentPosition.getLongitude()));
                 getParentFragmentManager().popBackStack();
+
             }
+            return true;
         });
+        toolbar.setNavigationOnClickListener(view -> getParentFragmentManager().popBackStack());
 
         setHasOptionsMenu(true);
 
@@ -105,25 +99,22 @@ public class AddWaypointFragment extends Fragment implements OnMapReadyCallback,
                         currentPosition.getLatitude())));
 
 
-        mapboxMap.setStyle(Style.SATELLITE_STREETS, new Style.OnStyleLoaded() {
-            @Override
-            public void onStyleLoaded(@NonNull Style style) {
+        mapboxMap.setStyle(Style.SATELLITE_STREETS, style -> {
 
-                style.addImage(("marker_icon"), BitmapFactory.decodeResource(
-                        getResources(), R.drawable.mapbox_marker_icon_default));
+            style.addImage(("marker_icon"), BitmapFactory.decodeResource(
+                    getResources(), R.drawable.mapbox_marker_icon_default));
 
-                style.addSource(geoJsonSource);
+            style.addSource(geoJsonSource);
 
-                style.addLayer(new SymbolLayer("layer-id", "source-id")
-                        .withProperties(
-                                PropertyFactory.iconImage("marker_icon"),
-                                PropertyFactory.iconIgnorePlacement(true),
-                                PropertyFactory.iconAllowOverlap(true)
-                        ));
+            style.addLayer(new SymbolLayer("layer-id", "source-id")
+                    .withProperties(
+                            PropertyFactory.iconImage("marker_icon"),
+                            PropertyFactory.iconIgnorePlacement(true),
+                            PropertyFactory.iconAllowOverlap(true)
+                    ));
 
-                mapboxMap.addOnMapClickListener(AddWaypointFragment.this);
+            mapboxMap.addOnMapClickListener(AddWaypointFragment.this);
 
-            }
         });
     }
 
@@ -147,6 +138,13 @@ public class AddWaypointFragment extends Fragment implements OnMapReadyCallback,
         tvLat.setText("Lat. " + String.format(getString(R.string.coordinates_format), point.getLatitude()));
         tvLng.setText("Long. " + String.format(getString(R.string.coordinates_format), point.getLongitude()));
 
+
+        CameraPosition cameraPosition = new CameraPosition.Builder()
+                .target(currentPosition)
+                .build();
+
+        mapboxMap.animateCamera(CameraUpdateFactory
+                .newCameraPosition(cameraPosition), 5000);
 
         return true;
     }
