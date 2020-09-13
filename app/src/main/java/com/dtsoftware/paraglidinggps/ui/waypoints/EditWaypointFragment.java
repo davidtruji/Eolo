@@ -38,7 +38,7 @@ public class EditWaypointFragment extends Fragment implements MapboxMap.OnMapCli
 
     private MapView mapView;
     private MapboxMap mapboxMap;
-    private LatLng currentPosition = new LatLng(80, 0);
+    private LatLng currentPosition = new LatLng(0, 0);
     private GeoJsonSource geoJsonSource;
     private ValueAnimator animator;
     private OnMapReadyCallback onMapReadyCallback = new OnMapReadyCallback() {
@@ -51,25 +51,22 @@ public class EditWaypointFragment extends Fragment implements MapboxMap.OnMapCli
                             currentPosition.getLatitude())));
 
 
-            mapboxMap.setStyle(Style.SATELLITE_STREETS, new Style.OnStyleLoaded() {
-                @Override
-                public void onStyleLoaded(@NonNull Style style) {
+            mapboxMap.setStyle(Style.SATELLITE_STREETS, style -> {
 
-                    style.addImage(("marker_icon"), BitmapFactory.decodeResource(
-                            getResources(), R.drawable.mapbox_marker_icon_default));
+                style.addImage(("marker_icon"), BitmapFactory.decodeResource(
+                        getResources(), R.drawable.mapbox_marker_icon_default));
 
-                    style.addSource(geoJsonSource);
+                style.addSource(geoJsonSource);
 
-                    style.addLayer(new SymbolLayer("layer-id", "source-id")
-                            .withProperties(
-                                    PropertyFactory.iconImage("marker_icon"),
-                                    PropertyFactory.iconIgnorePlacement(true),
-                                    PropertyFactory.iconAllowOverlap(true)
-                            ));
+                style.addLayer(new SymbolLayer("layer-id", "source-id")
+                        .withProperties(
+                                PropertyFactory.iconImage("marker_icon"),
+                                PropertyFactory.iconIgnorePlacement(true),
+                                PropertyFactory.iconAllowOverlap(true)
+                        ));
 
-                    mapboxMap.addOnMapClickListener(EditWaypointFragment.this);
+                mapboxMap.addOnMapClickListener(EditWaypointFragment.this);
 
-                }
             });
         }
     };
@@ -95,33 +92,25 @@ public class EditWaypointFragment extends Fragment implements MapboxMap.OnMapCli
         toolbar.setSubtitle("Tap to edit the position");
         toolbar.inflateMenu(R.menu.aw_toolbar_menu);
         toolbar.setNavigationIcon(R.drawable.back);
-        toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
+        toolbar.setOnMenuItemClickListener(item -> {
 
-                switch (item.getItemId()) {
+            switch (item.getItemId()) {
 
-                    case R.id.action_save:
-                        updateWaypoint();
-                        break;
+                case R.id.action_save:
+                    updateWaypoint();
+                    break;
 
-                    case R.id.action_delete:
-                        showDeleteDialog();
-                        break;
+                case R.id.action_delete:
+                    showDeleteDialog();
+                    break;
 
-                    default:
-                        break;
-                }
-
-                return true;
+                default:
+                    break;
             }
+
+            return true;
         });
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                getParentFragmentManager().popBackStack();
-            }
-        });
+        toolbar.setNavigationOnClickListener(view -> getParentFragmentManager().popBackStack());
 
         setHasOptionsMenu(true);
 
@@ -135,12 +124,7 @@ public class EditWaypointFragment extends Fragment implements MapboxMap.OnMapCli
 
 
         waypointViewModel = new ViewModelProvider(getActivity()).get(WaypointViewModel.class);
-        waypointViewModel.getSelectedWaypoint().observe(getViewLifecycleOwner(), new Observer<Waypoint>() {
-            @Override
-            public void onChanged(Waypoint waypoint) {
-                bindWaypoint(waypoint);
-            }
-        });
+        waypointViewModel.getSelectedWaypoint().observe(getViewLifecycleOwner(), this::bindWaypoint);
 
         return root;
     }
@@ -230,18 +214,12 @@ public class EditWaypointFragment extends Fragment implements MapboxMap.OnMapCli
 
         builder.setMessage("Are you sure of delete this Waypoint?")
                 .setTitle("Delete")
-                .setPositiveButton("YES", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        waypointViewModel.deleteWaypointById(waypoint.getId());
-                        getParentFragmentManager().popBackStack();
-                    }
+                .setPositiveButton("YES", (dialogInterface, i) -> {
+                    waypointViewModel.deleteWaypointById(waypoint.getId());
+                    getParentFragmentManager().popBackStack();
                 })
-                .setNegativeButton("NO", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        //Do nothing
-                    }
+                .setNegativeButton("NO", (dialogInterface, i) -> {
+                    //Do nothing
                 });
 
 

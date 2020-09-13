@@ -7,7 +7,6 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
-import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -30,7 +29,6 @@ import com.dtsoftware.paraglidinggps.Waypoint;
 import com.dtsoftware.paraglidinggps.ui.flights.FlightsViewModel;
 import com.dtsoftware.paraglidinggps.ui.waypoints.WaypointsViewModel;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 import com.mapbox.android.core.location.LocationEngine;
 import com.mapbox.android.core.location.LocationEngineCallback;
 import com.mapbox.android.core.location.LocationEngineProvider;
@@ -55,12 +53,9 @@ import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 
 import java.lang.ref.WeakReference;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
-import okhttp3.internal.Util;
 
 import static android.os.Looper.getMainLooper;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconAllowOverlap;
@@ -69,8 +64,7 @@ import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconImage;
 
 
 @SuppressLint({"UseCompatLoadingForDrawables", "SetTextI18n"})
-public class NavFragment extends Fragment implements
-        OnMapReadyCallback, PermissionsListener, OnCameraTrackingChangedListener, SaveDialogFragment.SaveDialogListener {
+public class NavFragment extends Fragment implements PermissionsListener, OnCameraTrackingChangedListener {
 
     // Constantes
     private static final long DEFAULT_INTERVAL_IN_MILLISECONDS = 1000;
@@ -89,6 +83,15 @@ public class NavFragment extends Fragment implements
     private LocationChangeListeningActivityLocationCallback callback =
             new LocationChangeListeningActivityLocationCallback(this);
     private List<Waypoint> waypoints = new ArrayList<>();
+    private OnMapReadyCallback onMapReadyCallback = mapboxMap -> {
+        NavFragment.this.mapboxMap = mapboxMap;
+
+        mapboxMap.setStyle(Style.OUTDOORS,
+                style -> {
+                    enableLocationComponent(style);
+                    setWaypointsLayer();
+                });
+    };
 
     // Variables UI
     private TextView tvDistance, tvSpeed, tvBearing, tvBearingLet, tvAltitude;
@@ -131,7 +134,6 @@ public class NavFragment extends Fragment implements
 
         mapView = root.findViewById(R.id.mv_nav_map);
         mapView.onCreate(savedInstanceState);
-        mapView.getMapAsync(this);
 
 
         fabStartFly.setOnClickListener(view -> {
@@ -149,9 +151,7 @@ public class NavFragment extends Fragment implements
         WaypointsViewModel waypointsViewModel = new ViewModelProvider(getActivity()).get(WaypointsViewModel.class);
         waypointsViewModel.getAllWaypoints().observe(getViewLifecycleOwner(), waypoints -> {
             NavFragment.this.waypoints = waypoints;
-
-            if (mapboxMap != null)
-                setWaypointsLayer();
+            mapView.getMapAsync(onMapReadyCallback);
 
         });
 
@@ -159,16 +159,6 @@ public class NavFragment extends Fragment implements
         return root;
     }
 
-    @Override
-    public void onMapReady(@NonNull final MapboxMap mapboxMap) {
-        this.mapboxMap = mapboxMap;
-
-        mapboxMap.setStyle(Style.OUTDOORS,
-                style -> {
-                    enableLocationComponent(style);
-                    setWaypointsLayer();
-                });
-    }
 
     /**
      * Initialize the Maps SDK's LocationComponent
@@ -369,18 +359,13 @@ public class NavFragment extends Fragment implements
     }
 
 
-    private void showSaveFlightDialog() {
-        DialogFragment newFragment = new SaveDialogFragment();
-        newFragment.setTargetFragment(NavFragment.this, 0);
-        newFragment.show(this.getParentFragmentManager(), "save");
-    }
-
-
     private void changeCurrentMapLayer() {
         if (mapboxMap.getStyle().getUri().equalsIgnoreCase(Style.SATELLITE_STREETS))
             mapboxMap.setStyle(Style.OUTDOORS);
         else
             mapboxMap.setStyle(Style.SATELLITE_STREETS);
+
+        setWaypointsLayer();
     }
 
 
@@ -439,13 +424,6 @@ public class NavFragment extends Fragment implements
         }
 
 
-    }
-
-
-    @Override
-    public void onDialogSaveClick(String flightName) {
-        FlightsViewModel flightsViewModel = new ViewModelProvider(this).get(FlightsViewModel.class);
-        flightsViewModel.insert(new Flight(flightName, route));
     }
 
 
