@@ -12,6 +12,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.view.KeyEvent;
@@ -55,6 +56,7 @@ public class EditFlightFragment extends Fragment {
 
         flight = sharedFlightViewModel.getSelectedFlight().getValue();
 
+
         setHasOptionsMenu(true);
 
         Toolbar toolbar = root.findViewById(R.id.ef_toolbar);
@@ -74,8 +76,8 @@ public class EditFlightFragment extends Fragment {
 
                 switch (item.getItemId()) {
                     case R.id.action_save:
-                        //TODO: UPDATE FLIGHT
                         uptateFlight();
+                        getParentFragmentManager().popBackStack();
                         break;
                     default:
                         break;
@@ -123,7 +125,8 @@ public class EditFlightFragment extends Fragment {
         flight.setDistance(Float.parseFloat(et_distance.getText().toString()) * 1000); // Paso de km del usuario a metros
         flight.setMaxAltitude(Integer.parseInt(et_max_alt.getText().toString()));
         flight.setMinAltitude(Integer.parseInt(et_min_alt.getText().toString()));
-        flightsViewModel.updateFLight(flight);
+
+        sharedFlightViewModel.updateFlight(flight);
     }
 
     private void bindFlight(Flight flight) {

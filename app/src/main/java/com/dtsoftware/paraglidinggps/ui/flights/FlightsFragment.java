@@ -26,6 +26,8 @@ import com.dtsoftware.paraglidinggps.MainActivity;
 import com.dtsoftware.paraglidinggps.R;
 import com.dtsoftware.paraglidinggps.Utils;
 
+import static com.google.gson.reflect.TypeToken.get;
+
 
 public class FlightsFragment extends Fragment {
 
@@ -51,9 +53,8 @@ public class FlightsFragment extends Fragment {
 
                 Log.d(getString(R.string.debug_tag), "onItemClick: " + flight.getLocationName());
 
-
                 SharedFlightViewModel sharedFlightViewModel = new ViewModelProvider(getActivity()).get(SharedFlightViewModel.class);
-                sharedFlightViewModel.selectFlight(flight);
+                sharedFlightViewModel.setSelected(flight);
 
                 FragmentManager fragmentManager = getParentFragmentManager();
                 FragmentTransaction transaction = fragmentManager.beginTransaction();

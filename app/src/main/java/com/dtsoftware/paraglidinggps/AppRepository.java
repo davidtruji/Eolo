@@ -3,6 +3,7 @@ package com.dtsoftware.paraglidinggps;
 import android.app.Application;
 
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 
 import java.util.List;
 
@@ -22,7 +23,6 @@ public class AppRepository {
         AppRoomDatabase db = AppRoomDatabase.getDatabase(application);
         mFlightDAO = db.flightDAO();
         waypointDAO = db.waypointDAO();
-
         mAllFlights = mFlightDAO.getFlights();
         allWaypoints = waypointDAO.getWaypoints();
     }
@@ -36,6 +36,7 @@ public class AppRepository {
     public LiveData<List<Waypoint>> getAllWaypoints() {
         return allWaypoints;
     }
+
 
     // You must call this on a non-UI thread or your app will throw an exception. Room ensures
     // that you're not doing any long running operations on the main thread, blocking the UI.

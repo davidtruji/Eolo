@@ -38,7 +38,5 @@ public class FlightsViewModel extends AndroidViewModel {
         mRepository.deleteFlightByID(id);
     }
 
-    public void updateFLight(Flight flight) {
-        mRepository.updateFlight(flight);
-    }
+
 }

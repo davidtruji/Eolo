@@ -1,8 +1,10 @@
 package com.dtsoftware.paraglidinggps.ui.flights;
 
 import android.content.DialogInterface;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -15,11 +17,15 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.dtsoftware.paraglidinggps.Flight;
 import com.dtsoftware.paraglidinggps.R;
 import com.dtsoftware.paraglidinggps.Utils;
+import com.dtsoftware.paraglidinggps.ui.nav.NavFragment;
+import com.mapbox.geojson.FeatureCollection;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
@@ -28,20 +34,64 @@ import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.maps.Style;
 import com.mapbox.mapboxsdk.style.layers.FillExtrusionLayer;
+import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 
 import static com.mapbox.mapboxsdk.style.expressions.Expression.get;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.fillExtrusionColor;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.fillExtrusionHeight;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.fillExtrusionOpacity;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconAllowOverlap;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconIgnorePlacement;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconImage;
 
 
-public class FlightDetailFragment extends Fragment implements OnMapReadyCallback {
+public class FlightDetailFragment extends Fragment {
 
+    private MapboxMap mapboxMap;
     private MapView mapView;
-    private Flight flight;
+    private Flight mflight;
     private SharedFlightViewModel sharedFlightViewModel;
     private FlightsViewModel flightsViewModel;
+    private TextView tvName, tvDate, tvDistance, tvDuration, tvMaxAltitude, tvMinAltitude;
+    private Toolbar toolbar;
+
+    private OnMapReadyCallback onMapReadyCallback = new OnMapReadyCallback() {
+        @Override
+        public void onMapReady(@NonNull MapboxMap mapboxMap) {
+
+
+            mapboxMap.setStyle(Style.SATELLITE_STREETS, new Style.OnStyleLoaded() {
+                @Override
+                public void onStyleLoaded(@NonNull Style style) {
+
+                    GeoJsonSource geoJsonSource = Utils.getGeoJsonSourceFromRoute(mflight.getRoute());
+
+                    style.addSource(geoJsonSource);
+
+
+                    // Add FillExtrusion layer to map using GeoJSON data
+                    style.addLayer(new FillExtrusionLayer("course", Utils.GEO_JSON_ID).withProperties(
+                            fillExtrusionColor(Color.YELLOW),
+                            fillExtrusionOpacity(0.7f),
+                            fillExtrusionHeight(get("e"))));
+
+                    double lat = mflight.getRoute().get(0).getLatitude();
+                    double lng = mflight.getRoute().get(0).getLongitude();
+
+                    CameraPosition position = mapboxMap.getCameraForLatLngBounds(Utils.getBoundsOfRoute(mflight.getRoute()), new int[]{50, 50, 50, 50});
+
+                    mapboxMap.animateCamera(CameraUpdateFactory
+                            .newCameraPosition(position), 5000);
+
+
+                }
+            });
+
+
+        }
+    };
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -52,7 +102,6 @@ public class FlightDetailFragment extends Fragment implements OnMapReadyCallback
 
         View root = inflater.inflate(R.layout.fragment_flight_detail, container, false);
 
-
         sharedFlightViewModel = new ViewModelProvider(getActivity()).get(SharedFlightViewModel.class);
         flightsViewModel = new ViewModelProvider(getActivity()).get(FlightsViewModel.class);
 
@@ -60,10 +109,6 @@ public class FlightDetailFragment extends Fragment implements OnMapReadyCallback
 
         mapView = root.findViewById(R.id.mv_fd_map);
         mapView.onCreate(savedInstanceState);
-        mapView.getMapAsync(this);
-
-
-        TextView tvName, tvDate, tvDistance, tvDuration, tvMaxAltitude, tvMinAltitude;
 
         tvDate = root.findViewById(R.id.tv_fd_date);
         tvName = root.findViewById(R.id.tv_fd_name);
@@ -72,11 +117,15 @@ public class FlightDetailFragment extends Fragment implements OnMapReadyCallback
         tvMaxAltitude = root.findViewById(R.id.tv_fd_max_altitude);
         tvMinAltitude = root.findViewById(R.id.tv_fd_min_altitude);
 
-        flight = sharedFlightViewModel.getSelectedFlight().getValue();
+        sharedFlightViewModel.getSelectedFlight().observe(getViewLifecycleOwner(), new Observer<Flight>() {
+            @Override
+            public void onChanged(Flight flight) {
+                bindFlight(flight); // ACTUALIZA LA UI
+            }
+        });
 
-        Toolbar toolbar = root.findViewById(R.id.fd_toolbar);
+        toolbar = root.findViewById(R.id.fd_toolbar);
         toolbar.setTitle("Details");
-        toolbar.setSubtitle(flight.getLocationName());
         toolbar.inflateMenu(R.menu.fd_toolbar_menu);
         toolbar.setNavigationIcon(R.drawable.back);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
@@ -105,45 +154,71 @@ public class FlightDetailFragment extends Fragment implements OnMapReadyCallback
             }
         });
 
+
+        return root;
+    }
+
+    private void bindFlight(Flight flight) {
+        mflight = flight;
+
+        mapView.getMapAsync(onMapReadyCallback);
+
+        toolbar.setSubtitle(flight.getLocationName());
         tvName.setText(flight.getLocationName());
         tvDate.setText(flight.getDateString());
         tvDistance.setText("Distance: " + flight.getDistanceString() + " km");
         tvDuration.setText("Duration: " + flight.getDurationString() + " (hh:mm:ss)");
         tvMaxAltitude.setText("Max. Altitude: " + flight.getMaxAltitudeString() + " m");
         tvMinAltitude.setText("Min. Altitude: " + flight.getMinAltitudeString() + " m");
-
-        return root;
     }
 
 
-    @Override
-    public void onMapReady(@NonNull final MapboxMap mapboxMap) {
-        mapboxMap.setStyle(Style.SATELLITE_STREETS, new Style.OnStyleLoaded() {
-            @Override
-            public void onStyleLoaded(@NonNull Style style) {
-
-                GeoJsonSource geoJsonSource = Utils.getGeoJsonSourceFromRoute(flight.getRoute());
-
-                style.addSource(geoJsonSource);
-
-
-                // Add FillExtrusion layer to map using GeoJSON data
-                style.addLayer(new FillExtrusionLayer("course", Utils.GEO_JSON_ID).withProperties(
-                        fillExtrusionColor(Color.YELLOW),
-                        fillExtrusionOpacity(0.7f),
-                        fillExtrusionHeight(get("e"))));
-
-                double lat = flight.getRoute().get(0).getLatitude();
-                double lng = flight.getRoute().get(0).getLongitude();
-
-                CameraPosition position = mapboxMap.getCameraForLatLngBounds(Utils.getBoundsOfRoute(flight.getRoute()), new int[]{50, 50, 50, 50});
-
-                mapboxMap.animateCamera(CameraUpdateFactory
-                        .newCameraPosition(position), 5000);
-
-            }
-        });
-    }
+//    @Override
+//    public void onMapReady(@NonNull final MapboxMap mapboxMap) {
+//
+//
+//        //  this.mapboxMap = mapboxMap;
+//
+//
+//        mapboxMap.setStyle(Style.SATELLITE_STREETS, new Style.OnStyleLoaded() {
+//            @Override
+//            public void onStyleLoaded(@NonNull Style style) {
+//                //    setRouteInMap();
+//
+//
+//                while (mflight == null) {
+//                    try {
+//                        Log.i("DEBUG-INFO", "wait!!!!");
+//                        wait();
+//                    } catch (InterruptedException e) {
+//                        e.printStackTrace();
+//                        Log.i("DEBUG-INFO", "NO wait!!!!");
+//                    }
+//                }
+//
+//                GeoJsonSource geoJsonSource = Utils.getGeoJsonSourceFromRoute(mflight.getRoute());
+//
+//                style.addSource(geoJsonSource);
+//
+//
+//                // Add FillExtrusion layer to map using GeoJSON data
+//                style.addLayer(new FillExtrusionLayer("course", Utils.GEO_JSON_ID).withProperties(
+//                        fillExtrusionColor(Color.YELLOW),
+//                        fillExtrusionOpacity(0.7f),
+//                        fillExtrusionHeight(get("e"))));
+//
+//                double lat = mflight.getRoute().get(0).getLatitude();
+//                double lng = mflight.getRoute().get(0).getLongitude();
+//
+//                CameraPosition position = mapboxMap.getCameraForLatLngBounds(Utils.getBoundsOfRoute(mflight.getRoute()), new int[]{50, 50, 50, 50});
+//
+//                mapboxMap.animateCamera(CameraUpdateFactory
+//                        .newCameraPosition(position), 5000);
+//
+//
+//            }
+//        });
+//    }
 
 
     public void showDeleteDialog() {
@@ -155,7 +230,7 @@ public class FlightDetailFragment extends Fragment implements OnMapReadyCallback
                 .setPositiveButton("YES", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        flightsViewModel.deleteFlightByID(flight.getId());
+                        flightsViewModel.deleteFlightByID(mflight.getId());
                         getParentFragmentManager().popBackStack();
                     }
                 })
@@ -175,12 +250,10 @@ public class FlightDetailFragment extends Fragment implements OnMapReadyCallback
         FragmentManager fragmentManager = getParentFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         EditFlightFragment editFlightFragment = new EditFlightFragment();
-
         transaction.hide(FlightDetailFragment.this);
         transaction.add(R.id.nav_host_fragment, editFlightFragment);
         transaction.addToBackStack(null);
         transaction.commit();
-
     }
 
 
