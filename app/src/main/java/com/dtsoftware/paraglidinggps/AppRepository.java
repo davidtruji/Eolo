@@ -60,8 +60,17 @@ public class AppRepository {
         AppRoomDatabase.databaseWriteExecutor.execute(() -> waypointDAO.deleteAll());
     }
 
+    public void updateWaypoint(Waypoint waypoint) {
+        AppRoomDatabase.databaseWriteExecutor.execute(() -> waypointDAO.updateWaypoint(waypoint));
+    }
+
     public void deleteFlightByID(int id) {
         AppRoomDatabase.databaseWriteExecutor.execute(() -> mFlightDAO.deleteFlightById(id));
     }
+
+    public void deleteWaypointByID(int id) {
+        AppRoomDatabase.databaseWriteExecutor.execute(() -> waypointDAO.deleteWaypointById(id));
+    }
+
 
 }

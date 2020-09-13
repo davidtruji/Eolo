@@ -35,8 +35,10 @@ import java.util.List;
 
 public class WaypointsFragment extends Fragment {
 
-    private WaypointsViewModel mViewModel;
+    private WaypointsViewModel waypointsViewModel;
     private FloatingActionButton fabAddWaypoint;
+    private FragmentManager fragmentManager;
+
 
     public static WaypointsFragment newInstance() {
         return new WaypointsFragment();
@@ -51,8 +53,9 @@ public class WaypointsFragment extends Fragment {
         Toolbar toolbar = root.findViewById(R.id.waypoints_toolbar);
         toolbar.setTitle(getString(R.string.title_waypoints));
 
+        fragmentManager = getParentFragmentManager();
 
-        WaypointsViewModel waypointsViewModel = new ViewModelProvider(getActivity()).get(WaypointsViewModel.class);
+        waypointsViewModel = new ViewModelProvider(getActivity()).get(WaypointsViewModel.class);
 
         RecyclerView recyclerView = root.findViewById(R.id.rv_waypoints);
         fabAddWaypoint = root.findViewById(R.id.fab_wp_add);
@@ -61,7 +64,6 @@ public class WaypointsFragment extends Fragment {
             @Override
             public void onClick(View view) {
 
-                FragmentManager fragmentManager = getParentFragmentManager();
                 FragmentTransaction transaction = fragmentManager.beginTransaction();
                 AddWaypointFragment addWaypointFragment = new AddWaypointFragment();
 
@@ -80,11 +82,23 @@ public class WaypointsFragment extends Fragment {
         });
 
 
-
         final WaypointListAdapter adapter = new WaypointListAdapter(getContext(), new WaypointListAdapter.ClickListener() {
             @Override
             public void onItemClicked(Waypoint waypoint) {
                 //TODO: Implementar detalles de waypoint
+                WaypointViewModel waypointViewModel = new ViewModelProvider(getActivity()).get(WaypointViewModel.class);
+                waypointViewModel.setSelected(waypoint);
+
+
+                FragmentTransaction transaction = fragmentManager.beginTransaction();
+                EditWaypointFragment flightDetailFragment = new EditWaypointFragment();
+
+                transaction.hide(WaypointsFragment.this);
+                transaction.add(R.id.nav_host_fragment, flightDetailFragment);
+                transaction.addToBackStack(null);
+                transaction.commit();
+
+
             }
         });
 

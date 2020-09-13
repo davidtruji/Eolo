@@ -6,6 +6,7 @@ import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 import androidx.room.Update;
+
 import java.util.List;
 
 
@@ -24,6 +25,9 @@ public interface WaypointDAO {
 
     @Query("DELETE FROM waypoint_table")
     void deleteAll();
+
+    @Query("DELETE FROM waypoint_table WHERE id = :id")
+    void deleteWaypointById(int id);
 
     @Query("SELECT * FROM waypoint_table ORDER BY id DESC")
     LiveData<List<Waypoint>> getWaypoints();
