@@ -36,6 +36,7 @@ public class Utils {
     public static final String NORTH_WEST = "NW"; // [292.5° - 337.5°)
 
     public static final String DISTANCE_FORMAT = "%.1f";
+    public static final String FLIGHT_HOURS_FORMAT = "%05d";
     public static final String ALTITUDE_FORMAT = "%.0f";
     public static final String DURATION_FORMAT = "%02d:%02d:%02d";
     public static final String DATE_FORMAT = "dd/MM/yyyy";
@@ -203,7 +204,7 @@ public class Utils {
         }
 
 
-        hours = TimeUnit.MILLISECONDS.toSeconds(hours);
+        hours = TimeUnit.MILLISECONDS.toHours(hours);
 
         return (int) hours;
     }

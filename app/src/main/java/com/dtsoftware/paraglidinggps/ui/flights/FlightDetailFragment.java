@@ -17,15 +17,12 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.dtsoftware.paraglidinggps.Flight;
 import com.dtsoftware.paraglidinggps.R;
 import com.dtsoftware.paraglidinggps.Utils;
-import com.dtsoftware.paraglidinggps.ui.nav.NavFragment;
-import com.mapbox.geojson.FeatureCollection;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
@@ -34,16 +31,12 @@ import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.maps.Style;
 import com.mapbox.mapboxsdk.style.layers.FillExtrusionLayer;
-import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 
 import static com.mapbox.mapboxsdk.style.expressions.Expression.get;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.fillExtrusionColor;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.fillExtrusionHeight;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.fillExtrusionOpacity;
-import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconAllowOverlap;
-import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconIgnorePlacement;
-import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconImage;
 
 
 public class FlightDetailFragment extends Fragment {
@@ -65,26 +58,22 @@ public class FlightDetailFragment extends Fragment {
                 @Override
                 public void onStyleLoaded(@NonNull Style style) {
 
-                    GeoJsonSource geoJsonSource = Utils.getGeoJsonSourceFromRoute(mflight.getRoute());
+                    if (mflight.getRoute() != null) {
+                        GeoJsonSource geoJsonSource = Utils.getGeoJsonSourceFromRoute(mflight.getRoute());
 
-                    style.addSource(geoJsonSource);
+                        style.addSource(geoJsonSource);
 
+                        // Add FillExtrusion layer to map using GeoJSON data
+                        style.addLayer(new FillExtrusionLayer("course", Utils.GEO_JSON_ID).withProperties(
+                                fillExtrusionColor(Color.YELLOW),
+                                fillExtrusionOpacity(0.7f),
+                                fillExtrusionHeight(get("e"))));
 
-                    // Add FillExtrusion layer to map using GeoJSON data
-                    style.addLayer(new FillExtrusionLayer("course", Utils.GEO_JSON_ID).withProperties(
-                            fillExtrusionColor(Color.YELLOW),
-                            fillExtrusionOpacity(0.7f),
-                            fillExtrusionHeight(get("e"))));
+                        CameraPosition position = mapboxMap.getCameraForLatLngBounds(Utils.getBoundsOfRoute(mflight.getRoute()), new int[]{50, 50, 50, 50});
 
-                    double lat = mflight.getRoute().get(0).getLatitude();
-                    double lng = mflight.getRoute().get(0).getLongitude();
-
-                    CameraPosition position = mapboxMap.getCameraForLatLngBounds(Utils.getBoundsOfRoute(mflight.getRoute()), new int[]{50, 50, 50, 50});
-
-                    mapboxMap.animateCamera(CameraUpdateFactory
-                            .newCameraPosition(position), 5000);
-
-
+                        mapboxMap.animateCamera(CameraUpdateFactory
+                                .newCameraPosition(position), 5000);
+                    }
                 }
             });
 
@@ -97,7 +86,6 @@ public class FlightDetailFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-//TODO: UPDATE FLIGHT LIVE DATA IF EDITED
         Mapbox.getInstance(getContext(), getString(R.string.mapbox_access_token));
 
         View root = inflater.inflate(R.layout.fragment_flight_detail, container, false);
@@ -171,54 +159,6 @@ public class FlightDetailFragment extends Fragment {
         tvMaxAltitude.setText("Max. Altitude: " + flight.getMaxAltitudeString() + " m");
         tvMinAltitude.setText("Min. Altitude: " + flight.getMinAltitudeString() + " m");
     }
-
-
-//    @Override
-//    public void onMapReady(@NonNull final MapboxMap mapboxMap) {
-//
-//
-//        //  this.mapboxMap = mapboxMap;
-//
-//
-//        mapboxMap.setStyle(Style.SATELLITE_STREETS, new Style.OnStyleLoaded() {
-//            @Override
-//            public void onStyleLoaded(@NonNull Style style) {
-//                //    setRouteInMap();
-//
-//
-//                while (mflight == null) {
-//                    try {
-//                        Log.i("DEBUG-INFO", "wait!!!!");
-//                        wait();
-//                    } catch (InterruptedException e) {
-//                        e.printStackTrace();
-//                        Log.i("DEBUG-INFO", "NO wait!!!!");
-//                    }
-//                }
-//
-//                GeoJsonSource geoJsonSource = Utils.getGeoJsonSourceFromRoute(mflight.getRoute());
-//
-//                style.addSource(geoJsonSource);
-//
-//
-//                // Add FillExtrusion layer to map using GeoJSON data
-//                style.addLayer(new FillExtrusionLayer("course", Utils.GEO_JSON_ID).withProperties(
-//                        fillExtrusionColor(Color.YELLOW),
-//                        fillExtrusionOpacity(0.7f),
-//                        fillExtrusionHeight(get("e"))));
-//
-//                double lat = mflight.getRoute().get(0).getLatitude();
-//                double lng = mflight.getRoute().get(0).getLongitude();
-//
-//                CameraPosition position = mapboxMap.getCameraForLatLngBounds(Utils.getBoundsOfRoute(mflight.getRoute()), new int[]{50, 50, 50, 50});
-//
-//                mapboxMap.animateCamera(CameraUpdateFactory
-//                        .newCameraPosition(position), 5000);
-//
-//
-//            }
-//        });
-//    }
 
 
     public void showDeleteDialog() {

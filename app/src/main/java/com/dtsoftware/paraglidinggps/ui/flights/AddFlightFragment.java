@@ -4,10 +4,6 @@ import android.app.DatePickerDialog;
 import android.content.DialogInterface;
 import android.icu.util.Calendar;
 import android.os.Bundle;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.widget.Toolbar;
-import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -15,35 +11,45 @@ import android.view.ViewGroup;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.NumberPicker;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
+
 import com.dtsoftware.paraglidinggps.Flight;
 import com.dtsoftware.paraglidinggps.R;
 import com.dtsoftware.paraglidinggps.Utils;
 
+public class AddFlightFragment extends Fragment {
 
-
-public class EditFlightFragment extends Fragment {
 
     private EditText et_name, et_date, et_duration, et_distance, et_min_alt, et_max_alt;
-    private SharedFlightViewModel sharedFlightViewModel;
-    private Flight flight;
+    private FlightsViewModel flightsViewModel;
 
+
+    @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+
         View root = inflater.inflate(R.layout.fragment_edit_flight, container, false);
 
-        sharedFlightViewModel = new ViewModelProvider(getActivity()).get(SharedFlightViewModel.class);
+        et_name = root.findViewById(R.id.et_ef_name);
+        et_date = root.findViewById(R.id.et_ef_date);
+        et_duration = root.findViewById(R.id.et_ef_duration);
+        et_distance = root.findViewById(R.id.et_ef_distance);
+        et_min_alt = root.findViewById(R.id.et_ef_min_alt);
+        et_max_alt = root.findViewById(R.id.et_ef_max_alt);
 
-
-        flight = sharedFlightViewModel.getSelectedFlight().getValue();
-
+        flightsViewModel = new ViewModelProvider(getActivity()).get(FlightsViewModel.class);
 
         setHasOptionsMenu(true);
 
         Toolbar toolbar = root.findViewById(R.id.ef_toolbar);
-        toolbar.setTitle("Edit Flight");
-        toolbar.setSubtitle(flight.getLocationName());
+        toolbar.setTitle("New Flight");
+        // toolbar.setSubtitle(flight.getLocationName());
         toolbar.inflateMenu(R.menu.ef_toolbar_menu);
         toolbar.setNavigationIcon(R.drawable.back);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
@@ -58,7 +64,7 @@ public class EditFlightFragment extends Fragment {
 
                 switch (item.getItemId()) {
                     case R.id.action_save:
-                        uptateFlight();
+                        addFlight();
                         getParentFragmentManager().popBackStack();
                         break;
                     default:
@@ -68,15 +74,6 @@ public class EditFlightFragment extends Fragment {
                 return true;
             }
         });
-
-
-        et_name = root.findViewById(R.id.et_ef_name);
-        et_date = root.findViewById(R.id.et_ef_date);
-        et_duration = root.findViewById(R.id.et_ef_duration);
-        et_distance = root.findViewById(R.id.et_ef_distance);
-        et_min_alt = root.findViewById(R.id.et_ef_min_alt);
-        et_max_alt = root.findViewById(R.id.et_ef_max_alt);
-
 
         et_date.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -94,13 +91,13 @@ public class EditFlightFragment extends Fragment {
         });
 
 
-        bindFlight(flight);
-
-
         return root;
     }
 
-    private void uptateFlight() {
+    private void addFlight() {
+
+        Flight flight = new Flight();
+
         flight.setLocationName(et_name.getText().toString());
         flight.setDate(Utils.StringDateToTimestamp(et_date.getText().toString()));
         flight.setDuration(Utils.StringToDuration(et_duration.getText().toString()));
@@ -108,17 +105,9 @@ public class EditFlightFragment extends Fragment {
         flight.setMaxAltitude(Integer.parseInt(et_max_alt.getText().toString()));
         flight.setMinAltitude(Integer.parseInt(et_min_alt.getText().toString()));
 
-        sharedFlightViewModel.updateFlight(flight);
+        flightsViewModel.insert(flight);
     }
 
-    private void bindFlight(Flight flight) {
-        et_name.setText(flight.getLocationName());
-        et_date.setText(flight.getDateString());
-        et_duration.setText(flight.getDurationString());
-        et_distance.setText(flight.getDistanceString());
-        et_min_alt.setText(flight.getMinAltitudeString());
-        et_max_alt.setText(flight.getMaxAltitudeString());
-    }
 
     private void showDateDialog() {
         Calendar calendar = Calendar.getInstance();

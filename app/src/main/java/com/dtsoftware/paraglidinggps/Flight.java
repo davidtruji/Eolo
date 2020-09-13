@@ -1,9 +1,12 @@
 package com.dtsoftware.paraglidinggps;
 
 import android.annotation.SuppressLint;
+
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
+
 import java.util.ArrayList;
+import java.util.Locale;
 
 
 @Entity(tableName = "flight_table")
@@ -28,6 +31,9 @@ public class Flight {
 
     //TODO: Añadir más campos útiles a cada vuelo guardado
 
+    public Flight() {
+        // Constructor vacio
+    }
 
     public Flight(String locationName, ArrayList<FlightLocation> route) {
         this.route = route;
@@ -109,26 +115,25 @@ public class Flight {
         this.locationName = locationName;
     }
 
-    @SuppressLint("DefaultLocale")
     public String getDistanceString() {
-        return String.format(Utils.DISTANCE_FORMAT, this.distance/1000);
+        return String.format(Locale.US, Utils.DISTANCE_FORMAT, this.distance / 1000);
     }
 
-    public String getDateString(){
+    public String getDateString() {
         return Utils.DateToString(date);
     }
 
-    public String getDurationString(){
+    public String getDurationString() {
         return Utils.DurationToString(duration);
     }
 
     @SuppressLint("DefaultLocale")
-    public String getMaxAltitudeString(){
+    public String getMaxAltitudeString() {
         return String.valueOf(this.maxAltitude);
     }
 
     @SuppressLint("DefaultLocale")
-    public String getMinAltitudeString(){
+    public String getMinAltitudeString() {
         return String.valueOf(this.minAltitude);
     }
 
