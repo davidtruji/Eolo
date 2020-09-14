@@ -1,8 +1,14 @@
 package com.dtsoftware.paraglidinggps.ui.nav;
 
 import android.annotation.SuppressLint;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.PointF;
+import android.graphics.RectF;
 import android.location.Location;
+import android.os.AsyncTask;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -40,6 +46,9 @@ import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.FeatureCollection;
 import com.mapbox.geojson.Point;
 import com.mapbox.mapboxsdk.Mapbox;
+import com.mapbox.mapboxsdk.annotations.BubbleLayout;
+import com.mapbox.mapboxsdk.annotations.Marker;
+import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.location.LocationComponent;
 import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions;
 import com.mapbox.mapboxsdk.location.OnCameraTrackingChangedListener;
@@ -54,13 +63,20 @@ import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 
 import static android.os.Looper.getMainLooper;
+import static com.mapbox.mapboxsdk.style.expressions.Expression.eq;
+import static com.mapbox.mapboxsdk.style.expressions.Expression.get;
+import static com.mapbox.mapboxsdk.style.expressions.Expression.literal;
+import static com.mapbox.mapboxsdk.style.layers.Property.ICON_ANCHOR_BOTTOM;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconAllowOverlap;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconAnchor;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconIgnorePlacement;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconImage;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconOffset;
 
 
 @SuppressLint({"UseCompatLoadingForDrawables", "SetTextI18n"})
@@ -72,7 +88,10 @@ public class NavFragment extends Fragment implements PermissionsListener, OnCame
 
     private static final String SOURCE_ID = "wpt_source";
     private static final String ICON_LAYER_ID = "icon_layer";
+    private static final String WINDOW_LAYER_ID = "window_layer";
     private static final String IMAGE_NAME = "red_marker";
+    private static final String PROPERTY_SELECTED = "selected";
+    private static final String PROPERTY_NAME = "name";
 
 
     // Mapbox variables
@@ -82,6 +101,10 @@ public class NavFragment extends Fragment implements PermissionsListener, OnCame
     private LocationEngine locationEngine;
     private LocationChangeListeningActivityLocationCallback callback =
             new LocationChangeListeningActivityLocationCallback(this);
+
+    private GeoJsonSource source;
+    private FeatureCollection featureCollection;
+
     private List<Waypoint> waypoints = new ArrayList<>();
     private OnMapReadyCallback onMapReadyCallback = mapboxMap -> {
         NavFragment.this.mapboxMap = mapboxMap;
@@ -91,6 +114,17 @@ public class NavFragment extends Fragment implements PermissionsListener, OnCame
                     enableLocationComponent(style);
                     setWaypointsLayer();
                 });
+
+        mapboxMap.addOnMapClickListener(new MapboxMap.OnMapClickListener() {
+
+            @Override
+            public boolean onMapClick(@NonNull LatLng point) {
+                return handleClickIcon(mapboxMap.getProjection().toScreenLocation(point));
+            }
+
+        });
+
+
     };
 
     // Variables UI
@@ -152,11 +186,272 @@ public class NavFragment extends Fragment implements PermissionsListener, OnCame
         waypointsViewModel.getAllWaypoints().observe(getViewLifecycleOwner(), waypoints -> {
             NavFragment.this.waypoints = waypoints;
             mapView.getMapAsync(onMapReadyCallback);
-
         });
 
 
         return root;
+    }
+
+
+    /**
+     * AsyncTask to generate Bitmap from Views to be used as iconImage in a SymbolLayer.
+     * <p>
+     * Call be optionally be called to update the underlying data source after execution.
+     * </p>
+     * <p>
+     * Generating Views on background thread since we are not going to be adding them to the view hierarchy.
+     * </p>
+     */
+    private static class GenerateViewIconTask extends AsyncTask<FeatureCollection, Void, HashMap<String, Bitmap>> {
+
+        private final HashMap<String, View> viewMap = new HashMap<>();
+        private final WeakReference<NavFragment> activityRef;
+        private final boolean refreshSource;
+
+        GenerateViewIconTask(NavFragment activity, boolean refreshSource) {
+            this.activityRef = new WeakReference<>(activity);
+            this.refreshSource = refreshSource;
+        }
+
+        GenerateViewIconTask(NavFragment activity) {
+            this(activity, false);
+        }
+
+        @SuppressWarnings("WrongThread")
+        @Override
+        protected HashMap<String, Bitmap> doInBackground(FeatureCollection... params) {
+            NavFragment activity = activityRef.get();
+            if (activity != null) {
+                HashMap<String, Bitmap> imagesMap = new HashMap<>();
+                LayoutInflater inflater = LayoutInflater.from(activity.getContext());
+
+                FeatureCollection featureCollection = params[0];
+
+                for (Feature feature : featureCollection.features()) {
+
+                    BubbleLayout bubbleLayout = (BubbleLayout)
+                            inflater.inflate(R.layout.symbol_layer_info_window_layout_callout, null);
+
+                    String name = feature.getStringProperty(PROPERTY_NAME);
+                    TextView titleTextView = bubbleLayout.findViewById(R.id.info_window_title);
+                    titleTextView.setText(name);
+
+//                    String style = feature.getStringProperty(PROPERTY_CAPITAL);
+//                    TextView descriptionTextView = bubbleLayout.findViewById(R.id.info_window_description);
+//                    descriptionTextView.setText(
+//                            String.format(activity.getString(R.string.capital), style));
+
+                    int measureSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
+                    bubbleLayout.measure(measureSpec, measureSpec);
+
+                    float measuredWidth = bubbleLayout.getMeasuredWidth();
+
+                    bubbleLayout.setArrowPosition(measuredWidth / 2 - 5);
+
+                    Bitmap bitmap = SymbolGenerator.generate(bubbleLayout);
+                    imagesMap.put(name, bitmap);
+                    viewMap.put(name, bubbleLayout);
+                }
+
+                return imagesMap;
+            } else {
+                return null;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(HashMap<String, Bitmap> bitmapHashMap) {
+            super.onPostExecute(bitmapHashMap);
+            NavFragment activity = activityRef.get();
+            if (activity != null && bitmapHashMap != null) {
+                activity.setImageGenResults(bitmapHashMap);
+                if (refreshSource) {
+                    activity.refreshSource();
+                }
+            }
+        }
+    }
+
+    /**
+     * Utility class to generate Bitmaps for Symbol.
+     */
+    private static class SymbolGenerator {
+
+        /**
+         * Generate a Bitmap from an Android SDK View.
+         *
+         * @param view the View to be drawn to a Bitmap
+         * @return the generated bitmap
+         */
+        static Bitmap generate(@NonNull View view) {
+            int measureSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
+            view.measure(measureSpec, measureSpec);
+
+            int measuredWidth = view.getMeasuredWidth();
+            int measuredHeight = view.getMeasuredHeight();
+
+            view.layout(0, 0, measuredWidth, measuredHeight);
+            Bitmap bitmap = Bitmap.createBitmap(measuredWidth, measuredHeight, Bitmap.Config.ARGB_8888);
+            bitmap.eraseColor(Color.TRANSPARENT);
+            Canvas canvas = new Canvas(bitmap);
+            view.draw(canvas);
+            return bitmap;
+        }
+    }
+
+
+    /**
+     * This method handles click events for SymbolLayer symbols.
+     * <p>
+     * When a SymbolLayer icon is clicked, we moved that feature to the selected state.
+     * </p>
+     *
+     * @param screenPoint the point on screen clicked
+     */
+    private boolean handleClickIcon(PointF screenPoint) {
+        List<Feature> features = mapboxMap.queryRenderedFeatures(screenPoint, ICON_LAYER_ID);
+        if (!features.isEmpty()) {
+            String name = features.get(0).getStringProperty(PROPERTY_NAME);
+            List<Feature> featureList = featureCollection.features();
+            if (featureList != null) {
+                for (int i = 0; i < featureList.size(); i++) {
+                    if (featureList.get(i).getStringProperty(PROPERTY_NAME).equals(name)) {
+                        if (featureSelectStatus(i)) {
+                            setFeatureSelectState(featureList.get(i), false);
+                        } else {
+                            setSelected(i);
+                        }
+                    }
+                }
+            }
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+
+    public void setWaypointsLayer() {
+
+        List<Feature> symbolLayerIconFeatureList = new ArrayList<>();
+
+        for (Waypoint waypoint : waypoints) {
+            Feature feature = Feature.fromGeometry(Point.fromLngLat(waypoint.getLongitude(), waypoint.getLatitude()));
+            feature.addStringProperty(PROPERTY_NAME, waypoint.getWaypointName());
+            feature.addBooleanProperty(PROPERTY_SELECTED, false);
+            symbolLayerIconFeatureList.add(feature);
+        }
+
+        featureCollection = FeatureCollection.fromFeatures(symbolLayerIconFeatureList);
+
+
+        mapboxMap.getStyle(style -> {
+            if (style.getLayer(ICON_LAYER_ID) != null) {
+                style.removeLayer(ICON_LAYER_ID);
+                style.removeSource(SOURCE_ID);
+
+            } else {
+
+                style.addImage(IMAGE_NAME, BitmapFactory.decodeResource(
+                        NavFragment.this.getResources(), R.drawable.mapbox_marker_icon_default));
+
+            }
+
+
+            source = new GeoJsonSource(SOURCE_ID, featureCollection);
+
+            style.addSource(source);
+
+            style.addLayer(new SymbolLayer(ICON_LAYER_ID, SOURCE_ID)
+                    .withProperties(
+                            iconImage(IMAGE_NAME),
+                            iconAllowOverlap(true),
+                            iconIgnorePlacement(true)
+                    ));
+
+            style.addLayer(new SymbolLayer(WINDOW_LAYER_ID, SOURCE_ID)
+                    .withProperties(
+                            /* show image with id title based on the value of the name feature property */
+                            iconImage("{name}"),
+
+                            /* set anchor of icon to bottom-left */
+                            iconAnchor(ICON_ANCHOR_BOTTOM),
+
+                            /* all info window and marker image to appear at the same time*/
+                            iconAllowOverlap(true),
+
+                            /* offset the info window to be above the marker */
+                            iconOffset(new Float[]{-2f, -28f})
+                    )
+/* add a filter to show only when selected feature property is true */
+                    .withFilter(eq((get(PROPERTY_SELECTED)), literal(true))));
+
+            new GenerateViewIconTask(this).execute(featureCollection);
+
+
+        });
+
+
+    }
+
+    /**
+     * Set a feature selected state.
+     *
+     * @param index the index of selected feature
+     */
+    private void setSelected(int index) {
+        if (featureCollection.features() != null) {
+            Feature feature = featureCollection.features().get(index);
+            setFeatureSelectState(feature, true);
+            refreshSource();
+        }
+    }
+
+    /**
+     * Selects the state of a feature
+     *
+     * @param feature the feature to be selected.
+     */
+    private void setFeatureSelectState(Feature feature, boolean selectedState) {
+        if (feature.properties() != null) {
+            feature.properties().addProperty(PROPERTY_SELECTED, selectedState);
+            refreshSource();
+        }
+    }
+
+    /**
+     * Checks whether a Feature's boolean "selected" property is true or false
+     *
+     * @param index the specific Feature's index position in the FeatureCollection's list of Features.
+     * @return true if "selected" is true. False if the boolean property is false.
+     */
+    private boolean featureSelectStatus(int index) {
+        if (featureCollection == null) {
+            return false;
+        }
+        return featureCollection.features().get(index).getBooleanProperty(PROPERTY_SELECTED);
+    }
+
+    /**
+     * Invoked when the bitmaps have been generated from a view.
+     */
+    public void setImageGenResults(HashMap<String, Bitmap> imageMap) {
+        if (mapboxMap != null) {
+            mapboxMap.getStyle(style -> {
+// calling addImages is faster as separate addImage calls for each bitmap.
+                style.addImages(imageMap);
+            });
+        }
+    }
+
+
+    /**
+     * Updates the display of data on the map after the FeatureCollection has been modified
+     */
+    private void refreshSource() {
+        if (source != null && featureCollection != null) {
+            source.setGeoJson(featureCollection);
+        }
     }
 
 
@@ -422,41 +717,6 @@ public class NavFragment extends Fragment implements PermissionsListener, OnCame
             default:
                 break;
         }
-
-
-    }
-
-
-    public void setWaypointsLayer() {
-
-        List<Feature> symbolLayerIconFeatureList = new ArrayList<>();
-
-        for (Waypoint waypoint : waypoints) {
-            symbolLayerIconFeatureList.add(Feature.fromGeometry(Point.fromLngLat(waypoint.getLongitude(), waypoint.getLatitude())));
-        }
-
-        mapboxMap.getStyle(style -> {
-
-            if (style.getLayer(ICON_LAYER_ID) != null) {
-                style.removeLayer(ICON_LAYER_ID);
-                style.removeSource(SOURCE_ID);
-
-            } else {
-
-                style.addImage(IMAGE_NAME, BitmapFactory.decodeResource(
-                        NavFragment.this.getResources(), R.drawable.mapbox_marker_icon_default));
-
-            }
-
-            style.addSource(new GeoJsonSource(SOURCE_ID, FeatureCollection.fromFeatures(symbolLayerIconFeatureList)));
-
-            style.addLayer(new SymbolLayer(ICON_LAYER_ID, SOURCE_ID)
-                    .withProperties(
-                            iconImage(IMAGE_NAME),
-                            iconAllowOverlap(true),
-                            iconIgnorePlacement(true)
-                    ));
-        });
 
 
     }
