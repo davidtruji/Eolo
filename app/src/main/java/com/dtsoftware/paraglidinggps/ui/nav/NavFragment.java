@@ -6,7 +6,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.PointF;
-import android.graphics.RectF;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -23,6 +22,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Chronometer;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -46,8 +46,6 @@ import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.FeatureCollection;
 import com.mapbox.geojson.Point;
 import com.mapbox.mapboxsdk.Mapbox;
-import com.mapbox.mapboxsdk.annotations.BubbleLayout;
-import com.mapbox.mapboxsdk.annotations.Marker;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.location.LocationComponent;
 import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions;
@@ -229,12 +227,11 @@ public class NavFragment extends Fragment implements PermissionsListener, OnCame
 
                 for (Feature feature : featureCollection.features()) {
 
-                    BubbleLayout bubbleLayout = (BubbleLayout)
-                            inflater.inflate(R.layout.symbol_layer_info_window_layout_callout, null);
+                    LinearLayout bubbleLayout =  (LinearLayout) inflater.inflate(R.layout.symbol_layer_info_window, null);
 
                     String name = feature.getStringProperty(PROPERTY_NAME);
-                    TextView titleTextView = bubbleLayout.findViewById(R.id.info_window_title);
-                    titleTextView.setText(name);
+                    TextView titleTextView = bubbleLayout.findViewById(R.id.tv_iw_name);
+                    titleTextView.setText(feature.getStringProperty(PROPERTY_NAME));
 
 //                    String style = feature.getStringProperty(PROPERTY_CAPITAL);
 //                    TextView descriptionTextView = bubbleLayout.findViewById(R.id.info_window_description);
@@ -246,7 +243,7 @@ public class NavFragment extends Fragment implements PermissionsListener, OnCame
 
                     float measuredWidth = bubbleLayout.getMeasuredWidth();
 
-                    bubbleLayout.setArrowPosition(measuredWidth / 2 - 5);
+                  //  bubbleLayout.setArrowPosition(measuredWidth / 2 - 5);
 
                     Bitmap bitmap = SymbolGenerator.generate(bubbleLayout);
                     imagesMap.put(name, bitmap);
@@ -381,7 +378,7 @@ public class NavFragment extends Fragment implements PermissionsListener, OnCame
                             iconAllowOverlap(true),
 
                             /* offset the info window to be above the marker */
-                            iconOffset(new Float[]{-2f, -28f})
+                            iconOffset(new Float[]{0f, -30f})
                     )
 /* add a filter to show only when selected feature property is true */
                     .withFilter(eq((get(PROPERTY_SELECTED)), literal(true))));
