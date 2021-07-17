@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:mapbox="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/navLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    mapbox:layout_constraintBottom_toBottomOf="parent"
+    mapbox:layout_constraintEnd_toEndOf="parent"
+    mapbox:layout_constraintStart_toStartOf="parent"
+    mapbox:layout_constraintTop_toTopOf="parent"
+    tools:context=".ui.nav.NavFragment">
+
+    <include
+        android:id="@+id/nav_toolbar"
+        layout="@layout/toolbar"
+        mapbox:layout_constraintEnd_toEndOf="parent"
+        mapbox:layout_constraintStart_toStartOf="parent"
+        mapbox:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraintLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        mapbox:layout_constraintEnd_toEndOf="parent"
+        mapbox:layout_constraintStart_toStartOf="parent"
+        mapbox:layout_constraintTop_toBottomOf="@+id/nav_toolbar">
+
+        <LinearLayout
+            android:id="@+id/Block1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:orientation="vertical"
+            android:outlineProvider="paddedBounds"
+            mapbox:layout_constraintEnd_toStartOf="@+id/Block2"
+            mapbox:layout_constraintStart_toStartOf="parent"
+            mapbox:layout_constraintTop_toTopOf="parent">
+
+            <com.dtsoftware.paraglidinggps.TextViewOutline
+                android:id="@+id/tvBearingLetter"
+                style="@style/OnScreenInfoBig"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/northWest" />
+
+            <TextView
+                android:id="@+id/tvBearing"
+                style="@style/OnScreenInfoUnits"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/default_bearing" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/Block2"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:gravity="bottom"
+            android:orientation="vertical"
+            mapbox:layout_constraintBottom_toBottomOf="@+id/Block1"
+            mapbox:layout_constraintEnd_toEndOf="parent"
+            mapbox:layout_constraintStart_toEndOf="@+id/Block1"
+            mapbox:layout_constraintTop_toTopOf="@+id/Block1">
+
+            <Chronometer
+                android:id="@+id/tvChronometer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:format="%02d:%02d:%02d"
+                android:padding="16dp"
+                android:textAlignment="center"
+                android:textColor="@color/black"
+                android:textSize="40sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvTimeLabel"
+                style="@style/OnScreenInfoUnits"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Time" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/Block3"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            mapbox:layout_constraintEnd_toStartOf="@id/Block4"
+            mapbox:layout_constraintStart_toStartOf="parent"
+            mapbox:layout_constraintTop_toBottomOf="@+id/Block1">
+
+            <com.dtsoftware.paraglidinggps.TextViewOutline
+                android:id="@+id/tvSpeed"
+                style="@style/OnScreenInfoLittle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/default_speed" />
+
+            <TextView
+                android:id="@+id/tvSpeedUnits"
+                style="@style/OnScreenInfoUnits"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/kmh_unit" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/Block4"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            mapbox:layout_constraintEnd_toStartOf="@+id/Block5"
+            mapbox:layout_constraintStart_toEndOf="@+id/Block3"
+            mapbox:layout_constraintTop_toTopOf="@+id/Block3">
+
+            <com.dtsoftware.paraglidinggps.TextViewOutline
+                android:id="@+id/tvAltitude"
+                style="@style/OnScreenInfoLittle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/default_altitude" />
+
+            <TextView
+                android:id="@+id/tvAltitudeUnits"
+                style="@style/OnScreenInfoUnits"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/meters_unit" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/Block5"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            mapbox:layout_constraintEnd_toEndOf="parent"
+            mapbox:layout_constraintStart_toEndOf="@+id/Block4"
+            mapbox:layout_constraintTop_toTopOf="@+id/Block3">
+
+            <com.dtsoftware.paraglidinggps.TextViewOutline
+                android:id="@+id/tvDistance"
+                style="@style/OnScreenInfoLittle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/default_distance" />
+
+            <TextView
+                android:id="@+id/tvDistanceUnits"
+                style="@style/OnScreenInfoUnits"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/distance_unit" />
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <View
+        android:id="@+id/divider"
+        style="@style/HorizontalDivider"
+        android:layout_marginTop="8dp"
+        mapbox:layout_constraintBottom_toTopOf="@id/frameLayout"
+        mapbox:layout_constraintEnd_toEndOf="parent"
+        mapbox:layout_constraintStart_toStartOf="parent"
+        mapbox:layout_constraintTop_toBottomOf="@+id/constraintLayout" />
+
+    <FrameLayout
+
+        android:id="@+id/frameLayout"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        mapbox:layout_constraintBottom_toBottomOf="parent"
+        mapbox:layout_constraintEnd_toEndOf="parent"
+        mapbox:layout_constraintStart_toStartOf="parent"
+        mapbox:layout_constraintTop_toBottomOf="@+id/divider">
+
+
+        <com.mapbox.mapboxsdk.maps.MapView
+            android:id="@+id/mv_nav_map"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            mapbox:mapbox_cameraZoom="14">
+
+        </com.mapbox.mapboxsdk.maps.MapView>
+
+
+        <androidx.coordinatorlayout.widget.CoordinatorLayout
+            android:id="@+id/screenInfo_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fabCompass"
+                style="@style/FabButtons"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|end"
+                android:layout_marginEnd="8dp"
+                android:layout_marginBottom="8dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:src="@drawable/compass_off"
+                mapbox:fabSize="mini" />
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fabLayers"
+                style="@style/FabButtons"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|end"
+                android:layout_marginEnd="8dp"
+                android:layout_marginBottom="60dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:src="@drawable/layers"
+                mapbox:fabSize="mini" />
+
+
+            <ToggleButton
+                android:id="@+id/tbStart"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|center"
+                android:layout_marginBottom="8dp"
+                android:background="@drawable/start_btn_selector"
+                android:checked="false"
+                android:clickable="true"
+                android:focusable="true"
+                android:fontFamily="sans-serif-condensed"
+                android:textColor="@color/white"
+                android:textOff="@string/start_button"
+                android:textOn="@string/stop_button"
+                android:textStyle="bold" />
+
+        </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+    </FrameLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

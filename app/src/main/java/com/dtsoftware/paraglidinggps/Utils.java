@@ -19,8 +19,11 @@ import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 public class Utils {
@@ -40,6 +43,8 @@ public class Utils {
     public static final String ALTITUDE_FORMAT = "%.0f";
     public static final String DURATION_FORMAT = "%02d:%02d:%02d";
     public static final String DATE_FORMAT = "dd/MM/yyyy";
+    public static final String FLIGHT_DATE_FORMAT = "HHmmss_ddMMyyyy";
+
 
     public static final double POLYGON_SIZE = .000025;
     public static final String GEO_JSON_ID = "source-id";
@@ -306,6 +311,18 @@ public class Utils {
         }
 
         return LatLngBounds.from(northLatitude, eastLongitude, southLatitude, westLongitude);
+    }
+
+    /**
+     * Genera nombres para los vuelos basandose en la fecha y hora actual
+     * @return string nombre del vuelo
+     */
+    public static String generateFlightName() {
+        Calendar calendar = Calendar.getInstance();
+        Date date = calendar.getTime();
+        SimpleDateFormat sdf;
+        sdf = new SimpleDateFormat(FLIGHT_DATE_FORMAT, Locale.getDefault());
+        return "Flight_" + sdf.format(date);
     }
 
 

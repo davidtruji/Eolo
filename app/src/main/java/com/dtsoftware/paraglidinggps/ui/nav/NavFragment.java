@@ -25,11 +25,13 @@ import android.widget.Chronometer;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import com.dtsoftware.paraglidinggps.Flight;
 import com.dtsoftware.paraglidinggps.FlightLocation;
 import com.dtsoftware.paraglidinggps.MainActivity;
 import com.dtsoftware.paraglidinggps.R;
+import com.dtsoftware.paraglidinggps.TextViewOutline;
 import com.dtsoftware.paraglidinggps.Utils;
 import com.dtsoftware.paraglidinggps.Waypoint;
 import com.dtsoftware.paraglidinggps.ui.flights.FlightsViewModel;
@@ -46,9 +48,9 @@ import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.FeatureCollection;
 import com.mapbox.geojson.Point;
 import com.mapbox.mapboxsdk.Mapbox;
-import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.location.LocationComponent;
 import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions;
+import com.mapbox.mapboxsdk.location.LocationComponentOptions;
 import com.mapbox.mapboxsdk.location.OnCameraTrackingChangedListener;
 import com.mapbox.mapboxsdk.location.modes.CameraMode;
 import com.mapbox.mapboxsdk.location.modes.RenderMode;
@@ -90,6 +92,7 @@ public class NavFragment extends Fragment implements PermissionsListener, OnCame
     private static final String IMAGE_NAME = "red_marker";
     private static final String PROPERTY_SELECTED = "selected";
     private static final String PROPERTY_NAME = "name";
+    private static final String PARAGLIDING_MAP_STYLE = "mapbox://styles/davidtruji/ckr6jbe9q0vz018mxsqd9yk3a";
 
 
     // Mapbox variables
@@ -104,31 +107,28 @@ public class NavFragment extends Fragment implements PermissionsListener, OnCame
     private FeatureCollection featureCollection;
 
     private List<Waypoint> waypoints = new ArrayList<>();
+
+    @SuppressLint("WrongConstant")
     private OnMapReadyCallback onMapReadyCallback = mapboxMap -> {
         NavFragment.this.mapboxMap = mapboxMap;
 
-        mapboxMap.setStyle(Style.OUTDOORS,
+        mapboxMap.setStyle(PARAGLIDING_MAP_STYLE,
                 style -> {
                     enableLocationComponent(style);
                     setWaypointsLayer();
                 });
 
-        mapboxMap.addOnMapClickListener(new MapboxMap.OnMapClickListener() {
-
-            @Override
-            public boolean onMapClick(@NonNull LatLng point) {
-                return handleClickIcon(mapboxMap.getProjection().toScreenLocation(point));
-            }
-
-        });
+        mapboxMap.addOnMapClickListener(point -> handleClickIcon(mapboxMap.getProjection().toScreenLocation(point)));
 
 
     };
 
     // Variables UI
-    private TextView tvDistance, tvSpeed, tvBearing, tvBearingLet, tvAltitude;
+    private TextView tvBearing;
+    private TextViewOutline tvBearingLet, tvDistance, tvSpeed, tvAltitude;
     private Chronometer tvChronometer;
-    private FloatingActionButton fabStartFly, fabLayers, fabCompass;
+    private FloatingActionButton fabLayers, fabCompass;
+    private ToggleButton tbStartFly;
 
     // Variables de vuelo
     private boolean flying = false;
@@ -143,7 +143,7 @@ public class NavFragment extends Fragment implements PermissionsListener, OnCame
         Mapbox.getInstance(getContext(), getString(R.string.mapbox_access_token));
 
         // This contains the MapView in XML and needs to be called after the access token is configured.
-        View root = inflater.inflate(R.layout.nav_fragment, container, false);
+        View root = inflater.inflate(R.layout.nav_fregment2, container, false);
         //TODO: Pulsación larga para cambiar los bloques visibles
         //TODO: Bariometro primitivo con el GPS
 
@@ -159,7 +159,7 @@ public class NavFragment extends Fragment implements PermissionsListener, OnCame
         tvChronometer = root.findViewById(R.id.tvChronometer);
 
 
-        fabStartFly = root.findViewById(R.id.fabPlay);
+        tbStartFly = root.findViewById(R.id.tbStart);
         fabLayers = root.findViewById(R.id.fabLayers);
         fabCompass = root.findViewById(R.id.fabCompass);
 
@@ -168,7 +168,7 @@ public class NavFragment extends Fragment implements PermissionsListener, OnCame
         mapView.onCreate(savedInstanceState);
 
 
-        fabStartFly.setOnClickListener(view -> {
+        tbStartFly.setOnClickListener(view -> {
             if (flying) {   // Usuario pulsó STOP
                 stopFly();
             } else {        // Usuario pulsó PLAY
@@ -227,7 +227,7 @@ public class NavFragment extends Fragment implements PermissionsListener, OnCame
 
                 for (Feature feature : featureCollection.features()) {
 
-                    LinearLayout bubbleLayout =  (LinearLayout) inflater.inflate(R.layout.symbol_layer_info_window, null);
+                    LinearLayout bubbleLayout = (LinearLayout) inflater.inflate(R.layout.symbol_layer_info_window, null);
 
                     String name = feature.getStringProperty(PROPERTY_NAME);
                     TextView titleTextView = bubbleLayout.findViewById(R.id.tv_iw_name);
@@ -243,7 +243,7 @@ public class NavFragment extends Fragment implements PermissionsListener, OnCame
 
                     float measuredWidth = bubbleLayout.getMeasuredWidth();
 
-                  //  bubbleLayout.setArrowPosition(measuredWidth / 2 - 5);
+                    //  bubbleLayout.setArrowPosition(measuredWidth / 2 - 5);
 
                     Bitmap bitmap = SymbolGenerator.generate(bubbleLayout);
                     imagesMap.put(name, bitmap);
@@ -323,6 +323,7 @@ public class NavFragment extends Fragment implements PermissionsListener, OnCame
             }
             return true;
         } else {
+            unselectAllWaypoints();
             return false;
         }
     }
@@ -404,6 +405,15 @@ public class NavFragment extends Fragment implements PermissionsListener, OnCame
         }
     }
 
+
+    private void unselectAllWaypoints() {
+        for (Feature feature : featureCollection.features()) {
+            setFeatureSelectState(feature, false);
+        }
+        refreshSource();
+    }
+
+
     /**
      * Selects the state of a feature
      *
@@ -435,7 +445,7 @@ public class NavFragment extends Fragment implements PermissionsListener, OnCame
     public void setImageGenResults(HashMap<String, Bitmap> imageMap) {
         if (mapboxMap != null) {
             mapboxMap.getStyle(style -> {
-// calling addImages is faster as separate addImage calls for each bitmap.
+                // calling addImages is faster as separate addImage calls for each bitmap.
                 style.addImages(imageMap);
             });
         }
@@ -460,6 +470,13 @@ public class NavFragment extends Fragment implements PermissionsListener, OnCame
         // Check if permissions are enabled and if not request
         if (PermissionsManager.areLocationPermissionsGranted(getContext())) {
 
+
+            LocationComponentOptions customLocationComponentOptions = LocationComponentOptions.builder(getContext())
+                    .elevation(5)
+                    .compassAnimationEnabled(false)
+                    .bearingDrawable(R.drawable.ic_compass)
+                    .build();
+
             // Get an instance of the component
             LocationComponent locationComponent = mapboxMap.getLocationComponent();
 
@@ -467,6 +484,7 @@ public class NavFragment extends Fragment implements PermissionsListener, OnCame
             LocationComponentActivationOptions locationComponentActivationOptions =
                     LocationComponentActivationOptions.builder(getContext(), loadedMapStyle)
                             .useDefaultLocationEngine(false)
+                            .locationComponentOptions(customLocationComponentOptions)
                             .build();
 
             // Activate with the LocationComponentActivationOptions object
@@ -477,7 +495,7 @@ public class NavFragment extends Fragment implements PermissionsListener, OnCame
 
             // Modo por defecto de la cámara al iniciar la app
             locationComponent.setCameraMode(CameraMode.TRACKING_GPS_NORTH);
-            locationComponent.zoomWhileTracking(14);
+            locationComponent.zoomWhileTracking(13);
             locationComponent.tiltWhileTracking(0);
 
             // Set the component's render mode
@@ -627,7 +645,6 @@ public class NavFragment extends Fragment implements PermissionsListener, OnCame
         mapboxMap.getLocationComponent().setCameraMode(CameraMode.TRACKING_COMPASS);
         ((MainActivity) getActivity()).hideSystemUI();
         getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);// Evitar que la pantalla se apague sola
-        fabStartFly.setImageDrawable(getActivity().getDrawable(R.drawable.stop));
         flying = true;
         tvChronometer.setBase(SystemClock.elapsedRealtime());
         tvChronometer.start();
@@ -642,7 +659,6 @@ public class NavFragment extends Fragment implements PermissionsListener, OnCame
         resetOnScreenInfo();
         ((MainActivity) getActivity()).showSystemUI();
         getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);// Permitir apagar la pantalla de nuevo
-        fabStartFly.setImageDrawable(getActivity().getDrawable(R.drawable.play));
         tvChronometer.setBase(SystemClock.elapsedRealtime());
         tvChronometer.stop();
 
@@ -651,9 +667,10 @@ public class NavFragment extends Fragment implements PermissionsListener, OnCame
     }
 
 
+    @SuppressLint("WrongConstant")
     private void changeCurrentMapLayer() {
         if (mapboxMap.getStyle().getUri().equalsIgnoreCase(Style.SATELLITE_STREETS))
-            mapboxMap.setStyle(Style.OUTDOORS);
+            mapboxMap.setStyle(PARAGLIDING_MAP_STYLE);
         else
             mapboxMap.setStyle(Style.SATELLITE_STREETS);
 
@@ -693,7 +710,7 @@ public class NavFragment extends Fragment implements PermissionsListener, OnCame
 
     public void saveFlight() {
         FlightsViewModel flightsViewModel = new ViewModelProvider(this).get(FlightsViewModel.class);
-        flightsViewModel.insert(new Flight("Flight", route));
+        flightsViewModel.insert(new Flight(Utils.generateFlightName(), route));
         Utils.showSnakcbar(getView().findViewById(R.id.screenInfo_layout), "Saved Flight");
     }
 

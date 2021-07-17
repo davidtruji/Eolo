@@ -35,7 +35,7 @@
     <string name="hours_counter">Flight hours</string>
     <!--Labels-->
 
-    <string name="north">N</string>
+    <string name="north"> N </string>
     <string name="northEast">NE</string>
     <string name="east">E</string>
     <string name="southEast">SE</string>
@@ -47,6 +47,9 @@
 
     <string name="tracking_compass_snack">Tracking device compass</string>
     <string name="tracking_gps_north_snack">GPS North Blocked</string>
+
+    <string name="start_button">Start</string>
+    <string name="stop_button">Stop</string>
 
     <string name="save_button">Save flight</string>
     <string name="discard_button">Discard flight</string>

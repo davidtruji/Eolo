@@ -3,7 +3,7 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_margin="4dp"
-    android:background="@drawable/info_block_background"
+    android:background="@drawable/info_window_background"
     android:orientation="vertical">
 
     <TextView
@@ -11,6 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="TextView"
+        android:textColor="#000000"
         android:textStyle="bold" />
 
 </LinearLayout>

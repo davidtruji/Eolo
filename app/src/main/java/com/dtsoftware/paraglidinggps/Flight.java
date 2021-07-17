@@ -3,6 +3,7 @@ package com.dtsoftware.paraglidinggps;
 import android.annotation.SuppressLint;
 
 import androidx.room.Entity;
+import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
 import java.util.ArrayList;
@@ -34,7 +35,7 @@ public class Flight {
     public Flight() {
         // Constructor vacio
     }
-
+    @Ignore
     public Flight(String locationName, ArrayList<FlightLocation> route) {
         this.route = route;
         this.locationName = locationName;
