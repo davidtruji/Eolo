@@ -10,12 +10,13 @@ import androidx.room.TypeConverters;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-@Database(entities = {Flight.class, Waypoint.class}, version = 1, exportSchema = false)
+@Database(entities = {Flight.class, Waypoint.class, Route.class}, version = 1, exportSchema = false)
 @TypeConverters({Converters.class})
 public abstract class AppRoomDatabase extends RoomDatabase {
 
     public abstract FlightDAO flightDAO();
     public abstract WaypointDAO waypointDAO();
+    public abstract RouteDAO routeDAO();
 
 
     private static volatile AppRoomDatabase INSTANCE;

@@ -30,8 +30,6 @@ public class Flight {
 
     private String locationName; // Nombre de la localización del vuelo
 
-    //TODO: Añadir más campos útiles a cada vuelo guardado
-
     public Flight() {
         // Constructor vacio
     }

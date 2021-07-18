@@ -96,8 +96,8 @@ public class MainActivity extends AppCompatActivity {
                             fragmentRoutes = new RoutesFragment();
                             fm.beginTransaction().add(R.id.nav_host_fragment, fragmentRoutes).commit();
                         }
-                        //   fm.beginTransaction().hide(activeFragment).show(fragmentRoutes).commit();
-
+                        Utils.hideAllFragments(fm);
+                        transaction.show(fragmentRoutes).commit();
                         break;
 
                 }
