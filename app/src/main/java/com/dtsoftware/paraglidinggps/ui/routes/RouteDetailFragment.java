@@ -1,4 +1,4 @@
-package com.dtsoftware.paraglidinggps.ui.flights;
+package com.dtsoftware.paraglidinggps.ui.routes;
 
 import android.content.DialogInterface;
 import android.graphics.Color;
@@ -20,7 +20,11 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.dtsoftware.paraglidinggps.Flight;
 import com.dtsoftware.paraglidinggps.R;
+import com.dtsoftware.paraglidinggps.Route;
 import com.dtsoftware.paraglidinggps.Utils;
+import com.dtsoftware.paraglidinggps.ui.flights.EditFlightFragment;
+import com.dtsoftware.paraglidinggps.ui.flights.FlightsViewModel;
+import com.dtsoftware.paraglidinggps.ui.flights.SharedFlightViewModel;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
@@ -37,14 +41,14 @@ import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.fillExtrusionHei
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.fillExtrusionOpacity;
 
 
-public class FlightDetailFragment extends Fragment {
-
+public class RouteDetailFragment extends Fragment {
+    //TODO: acabar detalles
     private MapboxMap mapboxMap;
     private MapView mapView;
-    private Flight mflight;
-    private SharedFlightViewModel sharedFlightViewModel;
-    private FlightsViewModel flightsViewModel;
-    private TextView tvName, tvDate, tvDistance, tvDuration, tvMaxAltitude, tvMinAltitude;
+    private Route route;
+    private SharedRouteViewModel sharedRouteViewModel;
+    private RoutesViewModel routesViewModel;
+    private TextView  tvDistance;
     private Toolbar toolbar;
 
     private OnMapReadyCallback onMapReadyCallback = new OnMapReadyCallback() {
@@ -56,22 +60,22 @@ public class FlightDetailFragment extends Fragment {
                 @Override
                 public void onStyleLoaded(@NonNull Style style) {
 
-                    if (mflight.getRoute().size() > 0) {
-                        GeoJsonSource geoJsonSource = Utils.getGeoJsonSourceFromRoute(mflight.getRoute());
-
-                        style.addSource(geoJsonSource);
-
-                        // Add FillExtrusion layer to map using GeoJSON data
-                        style.addLayer(new FillExtrusionLayer("course", Utils.GEO_JSON_ID).withProperties(
-                                fillExtrusionColor(Color.YELLOW),
-                                fillExtrusionOpacity(0.7f),
-                                fillExtrusionHeight(get("e"))));
-
-                        CameraPosition position = mapboxMap.getCameraForLatLngBounds(Utils.getBoundsOfRoute(mflight.getRoute()), new int[]{50, 50, 50, 50});
-
-                        mapboxMap.animateCamera(CameraUpdateFactory
-                                .newCameraPosition(position), 5000);
-                    }
+//                    if (mflight.getRoute().size() > 0) {
+//                        GeoJsonSource geoJsonSource = Utils.getGeoJsonSourceFromRoute(mflight.getRoute());
+//
+//                        style.addSource(geoJsonSource);
+//
+//                        // Add FillExtrusion layer to map using GeoJSON data
+//                        style.addLayer(new FillExtrusionLayer("course", Utils.GEO_JSON_ID).withProperties(
+//                                fillExtrusionColor(Color.YELLOW),
+//                                fillExtrusionOpacity(0.7f),
+//                                fillExtrusionHeight(get("e"))));
+//
+//                        CameraPosition position = mapboxMap.getCameraForLatLngBounds(Utils.getBoundsOfRoute(mflight.getRoute()), new int[]{50, 50, 50, 50});
+//
+//                        mapboxMap.animateCamera(CameraUpdateFactory
+//                                .newCameraPosition(position), 5000);
+//                    }
                 }
             });
 
@@ -88,30 +92,27 @@ public class FlightDetailFragment extends Fragment {
 
         View root = inflater.inflate(R.layout.fragment_flight_detail, container, false);
 
-        sharedFlightViewModel = new ViewModelProvider(getActivity()).get(SharedFlightViewModel.class);
-        flightsViewModel = new ViewModelProvider(getActivity()).get(FlightsViewModel.class);
+        sharedRouteViewModel = new ViewModelProvider(getActivity()).get(SharedRouteViewModel.class);
+        routesViewModel = new ViewModelProvider(getActivity()).get(RoutesViewModel.class);
 
         setHasOptionsMenu(true);
 
         mapView = root.findViewById(R.id.mv_rd_map);
         mapView.onCreate(savedInstanceState);
 
-        tvDate = root.findViewById(R.id.tv_rd_distance);
-        tvName = root.findViewById(R.id.tv_fd_name);
-        tvDistance = root.findViewById(R.id.tv_fd_distance);
-        tvDuration = root.findViewById(R.id.tv_fd_duration);
-        tvMaxAltitude = root.findViewById(R.id.tv_fd_max_altitude);
-        tvMinAltitude = root.findViewById(R.id.tv_fd_min_altitude);
 
-        sharedFlightViewModel.getSelectedFlight().observe(getViewLifecycleOwner(), new Observer<Flight>() {
+        tvDistance = root.findViewById(R.id.tv_fd_distance);
+
+
+        sharedRouteViewModel.getSelectedFlight().observe(getViewLifecycleOwner(), new Observer<Flight>() {
             @Override
             public void onChanged(Flight flight) {
-                bindFlight(flight); // ACTUALIZA LA UI
+               // bindFlight(flight); // ACTUALIZA LA UI
             }
         });
 
         toolbar = root.findViewById(R.id.rd_toolbar);
-        toolbar.setTitle("Details");
+        toolbar.setTitle("Route Detail");
         toolbar.inflateMenu(R.menu.fd_toolbar_menu);
         toolbar.setNavigationIcon(R.drawable.back);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
@@ -126,10 +127,10 @@ public class FlightDetailFragment extends Fragment {
 
                 switch (item.getItemId()) {
                     case R.id.action_delete:
-                        showDeleteDialog();
+                       // showDeleteDialog();
                         break;
                     case R.id.action_edit_flight:
-                        showEditFlightFragment();
+                       // showEditFlightFragment();
                         break;
                     default:
                         break;
@@ -144,55 +145,52 @@ public class FlightDetailFragment extends Fragment {
         return root;
     }
 
-    private void bindFlight(Flight flight) {
-        mflight = flight;
+    private void bindFlight(Route route) {
+        this.route = route;
 
         mapView.getMapAsync(onMapReadyCallback);
 
-        toolbar.setSubtitle(flight.getLocationName());
-        tvName.setText(flight.getLocationName());
-        tvDate.setText(flight.getDateString());
-        tvDistance.setText("Distance: " + flight.getDistanceString() + " km");
-        tvDuration.setText("Duration: " + flight.getDurationString() + " (hh:mm:ss)");
-        tvMaxAltitude.setText("Max. Altitude: " + flight.getMaxAltitudeString() + " m");
-        tvMinAltitude.setText("Min. Altitude: " + flight.getMinAltitudeString() + " m");
+        toolbar.setSubtitle(route.getRouteName());
+
+        //tvDistance.setText("Distance: " + toString(route.getDistance()) + " km");
+
     }
 
 
-    public void showDeleteDialog() {
+//    public void showDeleteDialog() {
+//
+//        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+//
+//        builder.setMessage("Are you sure of delete this flight?")
+//                .setTitle("Delete")
+//                .setPositiveButton("YES", new DialogInterface.OnClickListener() {
+//                    @Override
+//                    public void onClick(DialogInterface dialogInterface, int i) {
+//                        flightsViewModel.deleteFlightByID(mflight.getId());
+//                        getParentFragmentManager().popBackStack();
+//                    }
+//                })
+//                .setNegativeButton("NO", new DialogInterface.OnClickListener() {
+//                    @Override
+//                    public void onClick(DialogInterface dialogInterface, int i) {
+//                        //Do nothing
+//                    }
+//                });
+//
+//
+//        AlertDialog dialog = builder.create();
+//        dialog.show();
+//    }
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-
-        builder.setMessage("Are you sure of delete this flight?")
-                .setTitle("Delete")
-                .setPositiveButton("YES", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        flightsViewModel.deleteFlightByID(mflight.getId());
-                        getParentFragmentManager().popBackStack();
-                    }
-                })
-                .setNegativeButton("NO", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        //Do nothing
-                    }
-                });
-
-
-        AlertDialog dialog = builder.create();
-        dialog.show();
-    }
-
-    private void showEditFlightFragment() {
-        FragmentManager fragmentManager = getParentFragmentManager();
-        FragmentTransaction transaction = fragmentManager.beginTransaction();
-        EditFlightFragment editFlightFragment = new EditFlightFragment();
-        transaction.hide(FlightDetailFragment.this);
-        transaction.add(R.id.nav_host_fragment, editFlightFragment);
-        transaction.addToBackStack(null);
-        transaction.commit();
-    }
+//    private void showEditFlightFragment() {
+//        FragmentManager fragmentManager = getParentFragmentManager();
+//        FragmentTransaction transaction = fragmentManager.beginTransaction();
+//        EditFlightFragment editFlightFragment = new EditFlightFragment();
+//        transaction.hide(RouteDetailFragment.this);
+//        transaction.add(R.id.nav_host_fragment, editFlightFragment);
+//        transaction.addToBackStack(null);
+//        transaction.commit();
+//    }
 
 
     @Override

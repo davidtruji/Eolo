@@ -1,6 +1,5 @@
 package com.dtsoftware.paraglidinggps.ui.flights;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,10 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.dtsoftware.paraglidinggps.Flight;
 import com.dtsoftware.paraglidinggps.R;
-import com.dtsoftware.paraglidinggps.Utils;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 
 public class FlightListAdapter extends RecyclerView.Adapter<FlightListAdapter.FlightViewHolder> {
@@ -41,7 +37,7 @@ public class FlightListAdapter extends RecyclerView.Adapter<FlightListAdapter.Fl
             tvflightName = itemView.findViewById(R.id.tvFlightName);
             tvDistance = itemView.findViewById(R.id.tvFlightDistance);
             tvTime = itemView.findViewById(R.id.tvFlightTime);
-            tvDate = itemView.findViewById(R.id.tvFlightDate);
+            tvDate = itemView.findViewById(R.id.tvRouteDistance);
         }
 
         public void setClickListener(Flight flight, ClickListener clickListener) {

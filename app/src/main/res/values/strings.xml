@@ -2,9 +2,10 @@
     <string name="app_name">Paragliding GPS</string>
     <string name="title_nav">Navigation</string>
     <string name="title_waypoints">Waypoints</string>
-    <string name="title_route">Route</string>
+    <string name="title_routes">Routes</string>
     <string name="title_flights">Flights</string>
     <string name="title_aw">New Waypoint</string>
+    <string name="title_ar">New Route</string>
     <string name="debug_tag">DEBUG-INFO</string>
 
 
@@ -27,6 +28,7 @@
 
 
     <!--Labels-->
+    <string name="distance">Distance: </string>
     <string name="meters_unit">Altitude (m)</string>
     <string name="kmh_unit">Speed (km/h)</string>
     <string name="degrees_unit">(°)</string>
@@ -45,6 +47,11 @@
     <string name="northWest">NW</string>
 
 
+    <string name="default_route_name">My route</string>
+    <string name="route_name_hint">Route name</string>
+
+
+
     <string name="tracking_compass_snack">Tracking device compass</string>
     <string name="tracking_gps_north_snack">GPS North Blocked</string>
 
@@ -54,7 +61,6 @@
     <string name="save_button">Save flight</string>
     <string name="discard_button">Discard flight</string>
 
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="sample_text">Text</string>
 
 </resources>

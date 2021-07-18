@@ -2,6 +2,7 @@ package com.dtsoftware.paraglidinggps;
 
 
 import androidx.room.Entity;
+import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
 import com.mapbox.geojson.Point;
@@ -15,14 +16,19 @@ public class Route {
     @PrimaryKey(autoGenerate = true)
     private int id;
 
-    private float distance; // Distancia en metros
-
-    private ArrayList<Point> route; // Lista de todos los puntos de la ruta
-
     private String routeName; // Nombre de la ruta
+    private float distance; // Distancia en metros
+    private ArrayList<Point> route; // Lista de todos los puntos de la ruta
 
     public Route() {
         // Constructor vacio
+    }
+
+    @Ignore
+    public Route(String routeName, float distance, ArrayList<Point> route) {
+        this.distance = distance;
+        this.route = route;
+        this.routeName = routeName;
     }
 
     public int getId() {

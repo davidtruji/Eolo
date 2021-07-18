@@ -9,7 +9,7 @@
     <item
         android:id="@+id/navigation_route"
         android:icon="@drawable/route"
-        android:title="@string/title_route" />
+        android:title="@string/title_routes" />
 
     <item
         android:id="@+id/navigation_flights"

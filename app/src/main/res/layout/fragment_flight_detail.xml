@@ -9,7 +9,7 @@
     tools:context=".ui.flights.FlightDetailFragment">
 
     <include
-        android:id="@+id/fd_toolbar"
+        android:id="@+id/rd_toolbar"
         layout="@layout/toolbar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -17,13 +17,13 @@
 
 
     <com.mapbox.mapboxsdk.maps.MapView
-        android:id="@+id/mv_fd_map"
+        android:id="@+id/mv_rd_map"
         android:layout_width="0dp"
         android:layout_height="300dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/fd_toolbar"
+        app:layout_constraintTop_toBottomOf="@+id/rd_toolbar"
         mapbox:mapbox_cameraTargetLat="0"
         mapbox:mapbox_cameraTargetLng="0"
         mapbox:mapbox_cameraTilt="0"
@@ -32,7 +32,7 @@
     </com.mapbox.mapboxsdk.maps.MapView>
 
     <TextView
-        android:id="@+id/tv_fd_date"
+        android:id="@+id/tv_rd_distance"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
@@ -47,7 +47,7 @@
         android:text="@string/sample_text"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/mv_fd_map" />
+        app:layout_constraintTop_toBottomOf="@+id/mv_rd_map" />
 
     <TextView
         android:id="@+id/tv_fd_distance"
