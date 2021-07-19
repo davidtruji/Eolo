@@ -1,9 +1,10 @@
 package com.dtsoftware.paraglidinggps;
 
 import android.annotation.SuppressLint;
-import android.location.Location;
+import android.graphics.Color;
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
@@ -12,8 +13,12 @@ import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.FeatureCollection;
 import com.mapbox.geojson.Point;
 import com.mapbox.geojson.Polygon;
-import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.geometry.LatLngBounds;
+import com.mapbox.mapboxsdk.maps.Style;
+import com.mapbox.mapboxsdk.style.layers.CircleLayer;
+import com.mapbox.mapboxsdk.style.layers.LineLayer;
+import com.mapbox.mapboxsdk.style.layers.Property;
+import com.mapbox.mapboxsdk.style.layers.PropertyFactory;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 
 import java.text.ParseException;
@@ -23,8 +28,10 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
+
+import static com.mapbox.mapboxsdk.style.expressions.Expression.eq;
+import static com.mapbox.mapboxsdk.style.expressions.Expression.literal;
 
 public class Utils {
 
@@ -48,7 +55,8 @@ public class Utils {
 
     public static final double POLYGON_SIZE = .000025;
     public static final String GEO_JSON_ID = "source-id";
-
+    public static final String POINT_LAYER_ID = "point-layer-id";
+    public static final String LINE_LAYER_ID = "line-layer-id";
 
     public static String degreesToBearing(Float degrees) {
 
@@ -85,6 +93,10 @@ public class Utils {
         Snackbar snackbar;
         snackbar = Snackbar.make(coordinatorView, text, Snackbar.LENGTH_SHORT);
         snackbar.show();
+    }
+
+    public static String getDistanceString(float distance) {
+        return String.format(Locale.US, DISTANCE_FORMAT, distance/1000);
     }
 
 
@@ -182,7 +194,7 @@ public class Utils {
     }
 
     public static long StringDateToTimestamp(String dateString) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
+        SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT, Locale.getDefault());
         Date date = null;
         try {
             date = dateFormat.parse(dateString);
@@ -194,7 +206,7 @@ public class Utils {
 
 
     public static String DateToString(long dateTimestamp) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
+        SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT, Locale.getDefault());
         return dateFormat.format(new Date(dateTimestamp));
     }
 
@@ -315,6 +327,7 @@ public class Utils {
 
     /**
      * Genera nombres para los vuelos basandose en la fecha y hora actual
+     *
      * @return string nombre del vuelo
      */
     public static String generateFlightName() {
@@ -323,6 +336,47 @@ public class Utils {
         SimpleDateFormat sdf;
         sdf = new SimpleDateFormat(FLIGHT_DATE_FORMAT, Locale.getDefault());
         return "Flight_" + sdf.format(date);
+    }
+
+
+    public static void addPointsLayerToMap(@NonNull Style loadedMapStyle) {
+        // Create and style a CircleLayer that uses the Point Features' coordinates in the GeoJSON data
+        CircleLayer individualCirclesLayer = new CircleLayer(Utils.POINT_LAYER_ID, GEO_JSON_ID);
+        individualCirclesLayer.setProperties(
+                PropertyFactory.circleColor(Color.RED),
+                PropertyFactory.circleRadius(8f),
+                PropertyFactory.circleStrokeWidth(1f),
+                PropertyFactory.circleStrokeColor(Color.WHITE));
+        individualCirclesLayer.setFilter(eq(literal("$type"), literal("Point")));
+        loadedMapStyle.addLayer(individualCirclesLayer);
+    }
+
+
+    /**
+     * Añade la capa de lineas al recurso GEOJSON
+     *
+     * @param loadedMapStyle estilo del mapa
+     */
+    public static void addLinesLayerToMap(@NonNull Style loadedMapStyle) {
+        // Create and style a CircleLayer that uses the Point Features' coordinates in the GeoJSON data
+        LineLayer individualLineLayer = new LineLayer(LINE_LAYER_ID, GEO_JSON_ID);
+        individualLineLayer.setProperties(
+                PropertyFactory.lineCap(Property.LINE_CAP_ROUND),
+                PropertyFactory.lineJoin(Property.LINE_JOIN_ROUND),
+                PropertyFactory.lineWidth(3f),
+                PropertyFactory.lineColor(Color.RED));
+        individualLineLayer.setFilter(eq(literal("$type"), literal("LineString")));
+        loadedMapStyle.addLayer(individualLineLayer);
+    }
+
+
+    /**
+     * Añade las capas de puntos y lineas necesarias para visualizar rutas en un mapa
+     * @param loadedMapStyle estilo del mapa
+     */
+    public static void addRouteLayersToMap(@NonNull Style loadedMapStyle) {
+        addLinesLayerToMap(loadedMapStyle);
+        addPointsLayerToMap(loadedMapStyle);
     }
 
 

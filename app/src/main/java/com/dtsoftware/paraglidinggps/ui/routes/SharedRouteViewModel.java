@@ -8,11 +8,12 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.dtsoftware.paraglidinggps.AppRepository;
 import com.dtsoftware.paraglidinggps.Flight;
+import com.dtsoftware.paraglidinggps.Route;
 
 public class SharedRouteViewModel extends AndroidViewModel {
 
 
-    private MutableLiveData<Flight> selected = new MutableLiveData<>();
+    private MutableLiveData<Route> selected = new MutableLiveData<>();
     private AppRepository mRepository;
 
 
@@ -22,17 +23,17 @@ public class SharedRouteViewModel extends AndroidViewModel {
     }
 
 
-    public MutableLiveData<Flight> getSelectedFlight() {
+    public MutableLiveData<Route> getSelectedRoute() {
         return selected;
     }
 
-    public void setSelected(Flight flight) {
-        selected.setValue(flight);
+    public void setSelected(Route route) {
+        selected.setValue(route);
     }
 
-    public void updateFlight(Flight flight) {
-        setSelected(flight);
-        mRepository.updateFlight(flight);
+    public void updateRoute(Route route) {
+        setSelected(route);
+        mRepository.updateRoute(route);
     }
 
 

@@ -31,8 +31,8 @@ public class RoutesViewModel extends AndroidViewModel {
         mRepository.insert(route);
     }
 
-    public void deleteFlightByID(int id) {
-        mRepository.deleteFlightByID(id);
+    public void deleteRouteByID(int id) {
+        mRepository.deleteRouteByID(id);
     }
 
 

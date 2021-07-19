@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.dtsoftware.paraglidinggps.Flight;
 import com.dtsoftware.paraglidinggps.R;
 import com.dtsoftware.paraglidinggps.Route;
+import com.dtsoftware.paraglidinggps.Utils;
 
 import java.util.List;
 
@@ -62,7 +63,7 @@ public class RouteListAdapter extends RecyclerView.Adapter<RouteListAdapter.Rout
             Route current = routes.get(position);
 
             holder.tvRouteName.setText(current.getRouteName());
-            holder.tvRouteDistance.setText(current.getDistance() + " km");
+            holder.tvRouteDistance.setText(Utils.getDistanceString(current.getDistance())+ " Km");
 
             holder.setClickListener(current, itemClickListener);
 

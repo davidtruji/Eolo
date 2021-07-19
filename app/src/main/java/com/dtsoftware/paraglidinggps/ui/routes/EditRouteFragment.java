@@ -4,7 +4,6 @@ import android.animation.ObjectAnimator;
 import android.animation.TypeEvaluator;
 import android.animation.ValueAnimator;
 import android.content.DialogInterface;
-import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -20,12 +19,9 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.dtsoftware.paraglidinggps.Flight;
 import com.dtsoftware.paraglidinggps.R;
 import com.dtsoftware.paraglidinggps.Route;
 import com.dtsoftware.paraglidinggps.Utils;
-import com.dtsoftware.paraglidinggps.ui.flights.FlightsViewModel;
-import com.dtsoftware.paraglidinggps.ui.flights.SharedFlightViewModel;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.FeatureCollection;
@@ -39,7 +35,6 @@ import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.maps.Style;
-
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 
 import java.util.ArrayList;
@@ -48,7 +43,7 @@ import java.util.List;
 import static com.dtsoftware.paraglidinggps.Utils.GEO_JSON_ID;
 
 
-public class AddRouteFragment extends Fragment implements OnMapReadyCallback, MapboxMap.OnMapClickListener {
+public class EditRouteFragment extends Fragment implements OnMapReadyCallback, MapboxMap.OnMapClickListener {
 
 
     private MapView mapView;
@@ -67,7 +62,8 @@ public class AddRouteFragment extends Fragment implements OnMapReadyCallback, Ma
     private FloatingActionButton fabUndo, fabClean;
 
     RoutesViewModel routesViewModel;
-
+    SharedRouteViewModel sharedRouteViewModel;
+    Route editedRoute;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -77,18 +73,31 @@ public class AddRouteFragment extends Fragment implements OnMapReadyCallback, Ma
         View root = inflater.inflate(R.layout.fragment_add_route, container, false);
 
         routesViewModel = new ViewModelProvider(getActivity()).get(RoutesViewModel.class);
+        sharedRouteViewModel = new ViewModelProvider(getActivity()).get(SharedRouteViewModel.class);
 
-
+        sharedRouteViewModel.getSelectedRoute().observe(getViewLifecycleOwner(), new Observer<Route>() {
+            @Override
+            public void onChanged(Route route) {
+                bindRoute(route);
+            }
+        });
 
         toolbar = root.findViewById(R.id.ar_toolbar);
-        toolbar.setTitle(getString(R.string.title_ar));
+        toolbar.setTitle(getString(R.string.title_er));
         toolbar.setSubtitle("Tap to add a point to the route");
-        toolbar.inflateMenu(R.menu.ar_toolbar_menu);
+        toolbar.inflateMenu(R.menu.er_toolbar_menu);
         toolbar.setNavigationIcon(R.drawable.back);
         toolbar.setOnMenuItemClickListener(item -> {
-            if (item.getItemId() == R.id.action_save)
-                routesViewModel.insert(new Route(etName.getText().toString(), distance, (ArrayList<Point>) route));
 
+            if (item.getItemId() == R.id.action_save) {
+                editedRoute.setRouteName(etName.getText().toString());
+                editedRoute.setDistance(distance);
+                editedRoute.setRoute((ArrayList<Point>) route);
+                sharedRouteViewModel.updateRoute(editedRoute);
+
+            } else if (item.getItemId() == R.id.action_delete) {
+                showDeleteDialog();
+            }
 
             getParentFragmentManager().popBackStack();
 
@@ -97,6 +106,7 @@ public class AddRouteFragment extends Fragment implements OnMapReadyCallback, Ma
         toolbar.setNavigationOnClickListener(view -> getParentFragmentManager().popBackStack());
 
         setHasOptionsMenu(true);
+
 
         mapView = root.findViewById(R.id.mv_ar_map);
         tvDistance = root.findViewById(R.id.tv_ar_distance);
@@ -138,7 +148,7 @@ public class AddRouteFragment extends Fragment implements OnMapReadyCallback, Ma
 
         mapboxMap.setStyle(Style.SATELLITE_STREETS, style -> {
             setRoute();
-            mapboxMap.addOnMapClickListener(AddRouteFragment.this);
+            mapboxMap.addOnMapClickListener(EditRouteFragment.this);
         });
     }
 
@@ -264,12 +274,58 @@ public class AddRouteFragment extends Fragment implements OnMapReadyCallback, Ma
     }
 
 
+    private void bindRoute(Route route) {
+        editedRoute = route;
+        editedRoute.setId(route.getId());
+        toolbar.setSubtitle(route.getRouteName());
+        etName.setText(route.getRouteName());
+
+        this.route = route.getRoute();
+
+        routeLayerFeatureList.clear();
+
+        //Añado la linea
+        if (this.route.size() > 1)
+            routeLayerFeatureList.add(Feature.fromGeometry(LineString.fromLngLats(this.route)));
+
+        // Añado todos los puntos de la ruta
+        for (Point point : this.route)
+            routeLayerFeatureList.add(Feature.fromGeometry(point));
+
+        updateDistance();
+
+    }
+
+
     private void resetDistance() {
         distance = 0f;
         tvDistance.setText(String.format(getString(R.string.distance_format), distance));
     }
 
 
+    public void showDeleteDialog() {
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+
+        builder.setMessage("Are you sure of delete this route?")
+                .setTitle("Delete")
+                .setPositiveButton("YES", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        routesViewModel.deleteRouteByID(editedRoute.getId());
+                    }
+                })
+                .setNegativeButton("NO", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        //Do nothing
+                    }
+                });
+
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
 
 
     @Override

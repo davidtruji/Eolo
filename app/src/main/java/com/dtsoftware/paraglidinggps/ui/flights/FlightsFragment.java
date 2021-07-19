@@ -31,7 +31,7 @@ public class FlightsFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        View root = inflater.inflate(R.layout.flights_fragment, container, false);
+        View root = inflater.inflate(R.layout.fragment_flights_list, container, false);
         FragmentManager fragmentManager = getParentFragmentManager();
 
         Toolbar toolbar = root.findViewById(R.id.flights_toolbar);

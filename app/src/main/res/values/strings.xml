@@ -6,6 +6,7 @@
     <string name="title_flights">Flights</string>
     <string name="title_aw">New Waypoint</string>
     <string name="title_ar">New Route</string>
+    <string name="title_er">Edit Route</string>
     <string name="debug_tag">DEBUG-INFO</string>
 
 
@@ -62,5 +63,6 @@
     <string name="discard_button">Discard flight</string>
 
     <string name="sample_text">Text</string>
+    <string name="add_new_route_desc">Add new route</string>
 
 </resources>

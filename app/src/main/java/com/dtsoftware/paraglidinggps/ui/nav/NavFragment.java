@@ -143,7 +143,7 @@ public class NavFragment extends Fragment implements PermissionsListener, OnCame
         Mapbox.getInstance(getContext(), getString(R.string.mapbox_access_token));
 
         // This contains the MapView in XML and needs to be called after the access token is configured.
-        View root = inflater.inflate(R.layout.nav_fregment, container, false);
+        View root = inflater.inflate(R.layout.fragment_navigation, container, false);
         //TODO: Pulsación larga para cambiar los bloques visibles
         //TODO: Bariometro primitivo con el GPS
 
