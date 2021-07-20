@@ -21,7 +21,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.RotateAnimation;
 import android.widget.Chronometer;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -48,6 +51,7 @@ import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.FeatureCollection;
 import com.mapbox.geojson.Point;
 import com.mapbox.mapboxsdk.Mapbox;
+import com.mapbox.mapboxsdk.location.CompassListener;
 import com.mapbox.mapboxsdk.location.LocationComponent;
 import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions;
 import com.mapbox.mapboxsdk.location.LocationComponentOptions;
@@ -80,11 +84,11 @@ import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconOffset;
 
 
 @SuppressLint({"UseCompatLoadingForDrawables", "SetTextI18n"})
-public class NavFragment extends Fragment implements PermissionsListener, OnCameraTrackingChangedListener {
+public class NavFragment extends Fragment implements CompassListener, PermissionsListener, OnCameraTrackingChangedListener {
 
     // Constantes
-    private static final long DEFAULT_INTERVAL_IN_MILLISECONDS = 1000;
-    private static final long DEFAULT_MAX_WAIT_TIME = 0;
+    private final long DEFAULT_INTERVAL_IN_MILLISECONDS = 1000L;
+    private final long DEFAULT_MAX_WAIT_TIME = DEFAULT_INTERVAL_IN_MILLISECONDS * 5;
 
     private static final String SOURCE_ID = "wpt_source";
     private static final String ICON_LAYER_ID = "icon_layer";
@@ -129,12 +133,14 @@ public class NavFragment extends Fragment implements PermissionsListener, OnCame
     private Chronometer tvChronometer;
     private FloatingActionButton fabLayers, fabCompass;
     private ToggleButton tbStartFly;
+    private ImageView ivCompass;
 
     // Variables de vuelo
     private boolean flying = false;
     private Location prevLocation = null;
     private float distance = 0;
     private ArrayList<FlightLocation> route = new ArrayList<>();
+    float DegreeStart = 0f;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -157,6 +163,7 @@ public class NavFragment extends Fragment implements PermissionsListener, OnCame
         tvSpeed = root.findViewById(R.id.tvSpeed);
         tvAltitude = root.findViewById(R.id.tvAltitude);
         tvChronometer = root.findViewById(R.id.tvChronometer);
+        ivCompass = root.findViewById(R.id.compass);
 
 
         tbStartFly = root.findViewById(R.id.tbStart);
@@ -189,6 +196,8 @@ public class NavFragment extends Fragment implements PermissionsListener, OnCame
 
         return root;
     }
+
+
 
 
     /**
@@ -473,12 +482,13 @@ public class NavFragment extends Fragment implements PermissionsListener, OnCame
 
             LocationComponentOptions customLocationComponentOptions = LocationComponentOptions.builder(getContext())
                     .elevation(5)
-                    .compassAnimationEnabled(false)
-                    .bearingDrawable(R.drawable.ic_compass)
+                    .compassAnimationEnabled(true)
+                    .bearingDrawable(R.drawable.location)
                     .build();
 
             // Get an instance of the component
             LocationComponent locationComponent = mapboxMap.getLocationComponent();
+
 
             // Set the LocationComponent activation options
             LocationComponentActivationOptions locationComponentActivationOptions =
@@ -489,6 +499,7 @@ public class NavFragment extends Fragment implements PermissionsListener, OnCame
 
             // Activate with the LocationComponentActivationOptions object
             locationComponent.activateLocationComponent(locationComponentActivationOptions);
+
 
             // Enable to make component visible
             locationComponent.setLocationComponentEnabled(true);
@@ -504,6 +515,9 @@ public class NavFragment extends Fragment implements PermissionsListener, OnCame
             // Añado el Listener que vigila el estado de la cámara
             locationComponent.addOnCameraTrackingChangedListener(this);
 
+            locationComponent.getCompassEngine().addCompassListener(this);
+
+
             initLocationEngine();
         } else {
             permissionsManager = new PermissionsManager(this);
@@ -517,6 +531,7 @@ public class NavFragment extends Fragment implements PermissionsListener, OnCame
     @SuppressLint("MissingPermission")
     private void initLocationEngine() {
         locationEngine = LocationEngineProvider.getBestLocationEngine(getContext());
+
 
         LocationEngineRequest request = new LocationEngineRequest.Builder(DEFAULT_INTERVAL_IN_MILLISECONDS)
                 .setPriority(LocationEngineRequest.PRIORITY_HIGH_ACCURACY)
@@ -602,11 +617,7 @@ public class NavFragment extends Fragment implements PermissionsListener, OnCame
 
     private void updateFlightInfo(Location lastLocation) {
 
-        Float heading = (mapboxMap.getLocationComponent().getCompassEngine().getLastHeading() + 360) % 360;
-
-        tvBearingLet.setText(Utils.degreesToBearing(heading)); // Rumbo escrito en letras
-
-        tvBearing.setText(String.format(getString(R.string.bearing_format), heading) + " " + getString(R.string.degrees_unit)); // Rumbo en grados
+        //Float heading = mapboxMap.getLocationComponent().getCompassEngine().getLastHeading();
 
         tvAltitude.setText(String.format(getString(R.string.altitude_format), lastLocation.getAltitude())); // Altitud (m)
 
@@ -734,6 +745,58 @@ public class NavFragment extends Fragment implements PermissionsListener, OnCame
 
 
     }
+
+
+    @Override
+    public void onCompassChanged(float userHeading) {
+
+        tvBearingLet.setText(Utils.degreesToBearing((userHeading + 360) % 360)); // Rumbo escrito en letras
+
+        tvBearing.setText(String.format(getString(R.string.bearing_format), (userHeading + 360) % 360) + " " + getString(R.string.degrees_unit)); // Rumbo en grados
+
+        RotateAnimation ra = new RotateAnimation(DegreeStart,
+                -userHeading,
+                Animation.RELATIVE_TO_SELF, 0.5f,
+                Animation.RELATIVE_TO_SELF, 0.5f);
+
+        // set the compass animation after the end of the reservation status
+        ra.setFillAfter(true);
+
+        // set how long the animation for the compass image will take place
+        ra.setDuration(500);
+        // Start animation of compass image
+        ivCompass.startAnimation(ra);
+        DegreeStart = -userHeading;
+
+    }
+
+    @Override
+    public void onCompassAccuracyChange(int compassStatus) {
+
+    }
+
+
+//    public void animateCompass(float heading) {
+//
+//        // float DegreeStart = ivCompass.getRotation();
+//
+//
+//        RotateAnimation ra = new RotateAnimation(DegreeStart,
+//                -heading,
+//                Animation.RELATIVE_TO_SELF, 0.5f,
+//                Animation.RELATIVE_TO_SELF, 0.5f);
+//
+//        // set the compass animation after the end of the reservation status
+//        ra.setFillAfter(true);
+//
+//        // set how long the animation for the compass image will take place
+//        ra.setDuration(1500);
+//        // Start animation of compass image
+//        ivCompass.startAnimation(ra);
+//        DegreeStart = -heading;
+//
+//
+//    }
 
 
     @Override

@@ -41,13 +41,13 @@ public class RouteListAdapter extends RecyclerView.Adapter<RouteListAdapter.Rout
         }
 
         public void setClickListener(Route route, ClickListener clickListener) {
-            itemView.setOnClickListener(view -> clickListener.onItemClicked(route));
+            itemView.setOnClickListener(view -> clickListener.onItemClicked(route, view));
         }
 
     }
 
     public interface ClickListener {
-        void onItemClicked(Route route);
+        void onItemClicked(Route route, View view);
     }
 
     @NonNull
@@ -65,7 +65,9 @@ public class RouteListAdapter extends RecyclerView.Adapter<RouteListAdapter.Rout
             holder.tvRouteName.setText(current.getRouteName());
             holder.tvRouteDistance.setText(Utils.getDistanceString(current.getDistance())+ " Km");
 
+
             holder.setClickListener(current, itemClickListener);
+
 
         }  // Covers the case of data not being ready yet.
         // holder.wordItemView.setText("No Word");

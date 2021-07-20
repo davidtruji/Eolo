@@ -8,6 +8,7 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
+import com.dtsoftware.paraglidinggps.ui.nav.NavFragment;
 import com.google.android.material.snackbar.Snackbar;
 import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.FeatureCollection;
@@ -231,6 +232,14 @@ public class Utils {
         List<Fragment> fragmentList = fragmentManager.getFragments();
         for (Fragment f : fragmentList) {
             fragmentManager.beginTransaction().hide(f).commit();
+        }
+    }
+
+    public static void removeAllFragments(FragmentManager fragmentManager){
+        List<Fragment> fragmentList = fragmentManager.getFragments();
+        for (Fragment f : fragmentList) {
+            if(!(f instanceof NavFragment))
+            fragmentManager.beginTransaction().remove(f).commit();
         }
     }
 

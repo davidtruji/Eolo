@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:clickable="true"
-    android:background="?android:selectableItemBackground"
+    android:background="@color/item_route_list_background_selector"
     android:padding="12dp">
 
     <TextView
@@ -16,6 +16,7 @@
         android:text="@string/sample_text"
         android:textSize="18sp"
         android:textStyle="bold"
+        android:textColor="@color/item_route_list_text_selector"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/tvRouteDistance"
         app:layout_constraintHorizontal_bias="0.0"
@@ -27,6 +28,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/sample_text"
+        android:textColor="@color/item_route_list_text_selector"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

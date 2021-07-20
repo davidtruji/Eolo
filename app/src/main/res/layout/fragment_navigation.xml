@@ -187,7 +187,9 @@
             android:id="@+id/mv_nav_map"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            mapbox:mapbox_cameraZoom="14">
+            mapbox:mapbox_cameraZoom="14"
+
+            >
 
         </com.mapbox.mapboxsdk.maps.MapView>
 
@@ -196,6 +198,15 @@
             android:id="@+id/screenInfo_layout"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
+
+            <ImageView
+                android:id="@+id/compass"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal|center_vertical"
+                android:adjustViewBounds="true"
+                android:padding="12dp"
+                android:src="@drawable/ic_compass" />
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/fabClean"

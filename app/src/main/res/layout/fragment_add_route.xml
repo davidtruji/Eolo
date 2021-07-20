@@ -67,7 +67,7 @@
                 android:layout_marginBottom="60dp"
                 android:clickable="true"
                 android:focusable="true"
-                android:src="@drawable/ic_baseline_undo_24"
+                android:src="@drawable/undo"
                 mapbox:fabSize="mini" />
 
         </androidx.coordinatorlayout.widget.CoordinatorLayout>

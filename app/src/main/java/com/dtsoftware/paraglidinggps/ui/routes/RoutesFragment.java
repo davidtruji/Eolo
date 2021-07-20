@@ -5,6 +5,8 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -48,13 +50,8 @@ public class RoutesFragment extends Fragment implements OnMapReadyCallback {
     private MapboxMap mapboxMap;
     private RoutesViewModel mViewModel;
     private Route selectedRoute;
-    private FloatingActionButton fabAdd,fabEdit;
-    SharedRouteViewModel sharedRouteViewModel;
-
-
-    public static RoutesFragment newInstance() {
-        return new RoutesFragment();
-    }
+    private FloatingActionButton fabAdd, fabEdit;
+    private SharedRouteViewModel sharedRouteViewModel;
 
 
     @Override
@@ -107,17 +104,25 @@ public class RoutesFragment extends Fragment implements OnMapReadyCallback {
         });
 
 
-
         RecyclerView recyclerView = root.findViewById(R.id.rvRoutesList);
 
-        final RouteListAdapter adapter = new RouteListAdapter(getContext(), route -> {
+        final RouteListAdapter adapter = new RouteListAdapter(getContext(), (route, view) -> {
+
 
             selectedRoute = route;
             toolbar.setSubtitle(route.getRouteName());
             mapView.getMapAsync(this);
-            fabEdit.setVisibility(View.VISIBLE);
+            fabEdit.show();
+
+            int elements = recyclerView.getChildCount();
+
+            for (int i =0 ; i<elements;i++)
+                recyclerView.getChildAt(i).setSelected(false);
+
+            view.setSelected(true);
 
         });
+
 
         recyclerView.setAdapter(adapter);
         LinearLayoutManager layoutManager = new LinearLayoutManager(root.getContext());
@@ -130,6 +135,8 @@ public class RoutesFragment extends Fragment implements OnMapReadyCallback {
 
         routesViewModel.getAllRoutes().observe(getViewLifecycleOwner(), routes -> {
             adapter.setRoutes(routes);
+            if (selectedRoute != null)
+                toolbar.setSubtitle(selectedRoute.getRouteName());
         });
 
 
