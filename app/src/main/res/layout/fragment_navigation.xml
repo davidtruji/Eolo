@@ -208,6 +208,16 @@
                 android:padding="12dp"
                 android:src="@drawable/ic_compass" />
 
+            <ImageView
+                android:id="@+id/deo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal|center_vertical"
+                android:adjustViewBounds="true"
+                android:padding="12dp"
+                android:src="@drawable/deo_ruta"
+                android:visibility="invisible"/>
+
             <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/fabClean"
                 style="@style/FabButtons"

@@ -140,15 +140,18 @@ public class NavFragment extends Fragment implements CompassListener, Permission
     private Chronometer tvChronometer;
     private FloatingActionButton fabLayers, fabCompass;
     private ToggleButton tbStartFly;
-    private ImageView ivCompass;
+    private ImageView ivCompass, ivDeo;
 
 
     // Variables de vuelo
     private boolean flying = false;
+    private Location currentLocation = null;
     private Location prevLocation = null;
     private float distance = 0;
     private ArrayList<FlightLocation> flight = new ArrayList<>();
-    private float DegreeStart = 0f;
+    private float compassDegreeStart = 0f;
+    private float routeCompassDegreeStart = 0f;
+
     private Route route;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -174,7 +177,7 @@ public class NavFragment extends Fragment implements CompassListener, Permission
         tvAltitude = root.findViewById(R.id.tvAltitude);
         tvChronometer = root.findViewById(R.id.tvChronometer);
         ivCompass = root.findViewById(R.id.compass);
-
+        ivDeo = root.findViewById(R.id.deo);
 
         tbStartFly = root.findViewById(R.id.tbStart);
         fabLayers = root.findViewById(R.id.fabUndo);
@@ -206,12 +209,8 @@ public class NavFragment extends Fragment implements CompassListener, Permission
         });
 
         navViewModel.getSelectedRoute().observe(getViewLifecycleOwner(), route -> {
-            if (navViewModel.getRouteSelected()) {
-                this.route = route;
-                //TODO: Set Route in Map
-                setRoute();
-            }
-
+            this.route = route;
+            setRoute();
         });
 
 
@@ -610,7 +609,6 @@ public class NavFragment extends Fragment implements CompassListener, Permission
                 // Actualiza la información del HUD, Velocidad, Altura etc
                 activity.updateFlightInfo(result.getLastLocation());
 
-
                 // Pass the new location to the Maps SDK's LocationComponent
                 if (activity.mapboxMap != null && result.getLastLocation() != null) {
                     activity.mapboxMap.getLocationComponent().forceLocationUpdate(result.getLastLocation());
@@ -635,7 +633,7 @@ public class NavFragment extends Fragment implements CompassListener, Permission
 
     private void updateFlightInfo(Location lastLocation) {
 
-        //Float heading = mapboxMap.getLocationComponent().getCompassEngine().getLastHeading();
+        currentLocation = lastLocation;
 
         tvAltitude.setText(String.format(getString(R.string.altitude_format), lastLocation.getAltitude())); // Altitud (m)
 
@@ -770,6 +768,7 @@ public class NavFragment extends Fragment implements CompassListener, Permission
 
         userHeading = (userHeading + 360) % 360;
 
+        updateRouteBearing(userHeading);
 
         tvBearingLet.setText(Utils.degreesToBearing(userHeading)); // Rumbo escrito en letras
 
@@ -784,14 +783,14 @@ public class NavFragment extends Fragment implements CompassListener, Permission
             [DegreeStart > (-90º)   && -userHeading < (-270º)]
             [DegreeStart < (-270º)  && -userHeading > (-90º) ]
         */
-        if (DegreeStart > -90 && -userHeading < -270) {
+        if (compassDegreeStart > -90 && -userHeading < -270) {
             userHeading = -(360 - userHeading);
-        } else if (DegreeStart < -270 && -userHeading > -90) {
-            DegreeStart = (360 + DegreeStart);
+        } else if (compassDegreeStart < -270 && -userHeading > -90) {
+            compassDegreeStart = (360 + compassDegreeStart);
         }
 
 
-        RotateAnimation ra = new RotateAnimation(DegreeStart,
+        RotateAnimation ra = new RotateAnimation(compassDegreeStart,
                 -userHeading,
                 Animation.RELATIVE_TO_SELF, 0.5f,
                 Animation.RELATIVE_TO_SELF, 0.5f);
@@ -805,7 +804,40 @@ public class NavFragment extends Fragment implements CompassListener, Permission
         ivCompass.startAnimation(ra);
 
 
-        DegreeStart = -userHeading;
+        compassDegreeStart = -userHeading;
+
+
+    }
+
+    private void updateRouteBearing(float userHeading) {
+
+        if (navViewModel.getRouteSelected() && currentLocation != null) {
+
+            Point nextPoint = route.getRoute().get(0);
+            Location dest = new Location("dest");
+            dest.setLatitude(nextPoint.latitude());
+            dest.setLongitude(nextPoint.longitude());
+            float bearingToDest = currentLocation.bearingTo(dest);
+
+            bearingToDest+=userHeading;
+
+            RotateAnimation ra = new RotateAnimation(routeCompassDegreeStart,
+                    bearingToDest,
+                    Animation.RELATIVE_TO_SELF, 0.5f,
+                    Animation.RELATIVE_TO_SELF, 0.5f);
+
+            // set the compass animation after the end of the reservation status
+            ra.setFillAfter(true);
+
+            // set how long the animation for the compass image will take place
+            ra.setDuration(500);
+            // Start animation of compass image
+            ivDeo.startAnimation(ra);
+
+            routeCompassDegreeStart = bearingToDest;
+
+        }
+
 
 
     }
@@ -823,13 +855,19 @@ public class NavFragment extends Fragment implements CompassListener, Permission
 
         List<Feature> routeLayerFeatureList = new ArrayList<>();
 
-        //Añado la linea
-        if (route.getRoute().size() > 1)
-            routeLayerFeatureList.add(Feature.fromGeometry(LineString.fromLngLats(route.getRoute())));
+        ivDeo.setVisibility(View.VISIBLE);
 
-        // Añado todos los puntos de la ruta
-        for (Point point : route.getRoute())
-            routeLayerFeatureList.add(Feature.fromGeometry(point));
+        try {
+            //Añado la linea
+            if (route.getRoute().size() > 1)
+                routeLayerFeatureList.add(Feature.fromGeometry(LineString.fromLngLats(route.getRoute())));
+
+            // Añado todos los puntos de la ruta
+            for (Point point : route.getRoute())
+                routeLayerFeatureList.add(Feature.fromGeometry(point));
+        } catch (Exception e) {
+
+        }
 
 
         FeatureCollection featureCollection = FeatureCollection.fromFeatures(routeLayerFeatureList);

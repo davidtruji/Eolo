@@ -84,8 +84,8 @@ public class RoutesFragment extends Fragment implements OnMapReadyCallback {
 
 
             Log.d("ROUTE SETTED", selectedRoute.getRouteName());
-            navViewModel.setSelectedRoute(selectedRoute);
             navViewModel.setRouteSelected(true);
+            navViewModel.setSelectedRoute(selectedRoute);
 
             //TODO: Redirigir a el frament de navegacion al establecer ruta
 //            NavFragment navFragment = Utils.getNavFragment(getParentFragmentManager());
