@@ -81,6 +81,7 @@ import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconAnchor;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconIgnorePlacement;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconImage;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconOffset;
+import static java.lang.Math.abs;
 
 
 @SuppressLint({"UseCompatLoadingForDrawables", "SetTextI18n"})
@@ -196,8 +197,6 @@ public class NavFragment extends Fragment implements CompassListener, Permission
 
         return root;
     }
-
-
 
 
     /**
@@ -750,9 +749,28 @@ public class NavFragment extends Fragment implements CompassListener, Permission
     @Override
     public void onCompassChanged(float userHeading) {
 
-        tvBearingLet.setText(Utils.degreesToBearing((userHeading + 360) % 360)); // Rumbo escrito en letras
+        userHeading = (userHeading + 360) % 360;
 
-        tvBearing.setText(String.format(getString(R.string.bearing_format), (userHeading + 360) % 360) + " " + getString(R.string.degrees_unit)); // Rumbo en grados
+
+        tvBearingLet.setText(Utils.degreesToBearing(userHeading)); // Rumbo escrito en letras
+
+        String bearing = String.format(getString(R.string.bearing_format), userHeading);
+
+        if (!bearing.equals("360"))
+            tvBearing.setText(bearing + " " + getString(R.string.degrees_unit)); // Rumbo en grados
+
+
+        /*
+            Bug en los intervalos que pasan por 0º(N)
+            [DegreeStart > (-90º)   && -userHeading < (-270º)]
+            [DegreeStart < (-270º)  && -userHeading > (-90º) ]
+        */
+        if (DegreeStart > -90 && -userHeading < -270) {
+            userHeading = -(360 - userHeading);
+        } else if (DegreeStart < -270 && -userHeading > -90) {
+            DegreeStart = (360 + DegreeStart);
+        }
+
 
         RotateAnimation ra = new RotateAnimation(DegreeStart,
                 -userHeading,
@@ -766,7 +784,10 @@ public class NavFragment extends Fragment implements CompassListener, Permission
         ra.setDuration(500);
         // Start animation of compass image
         ivCompass.startAnimation(ra);
+
+
         DegreeStart = -userHeading;
+
 
     }
 
