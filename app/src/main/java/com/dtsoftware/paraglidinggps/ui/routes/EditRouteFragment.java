@@ -243,7 +243,7 @@ public class EditRouteFragment extends Fragment implements OnMapReadyCallback, M
             }
             style.addSource(geoJsonSource);
 
-            Utils.addRouteLayersToMap(style);
+            Utils.addRouteLayersToMap(style,GEO_JSON_ID);
 
         });
 

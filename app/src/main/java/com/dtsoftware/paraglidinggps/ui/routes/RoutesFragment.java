@@ -23,6 +23,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.dtsoftware.paraglidinggps.MainActivity;
 import com.dtsoftware.paraglidinggps.R;
 import com.dtsoftware.paraglidinggps.Route;
 import com.dtsoftware.paraglidinggps.Utils;
@@ -82,16 +83,17 @@ public class RoutesFragment extends Fragment implements OnMapReadyCallback {
         toolbar.setOnMenuItemClickListener(item -> {
 
 
-            //TODO: Set Route in view model of nav
             Log.d("ROUTE SETTED", selectedRoute.getRouteName());
             navViewModel.setSelectedRoute(selectedRoute);
+            navViewModel.setRouteSelected(true);
 
-            NavFragment navFragment = Utils.getNavFragment(getParentFragmentManager());
-            FragmentTransaction transaction = fragmentManager.beginTransaction();
-            transaction.remove(this);
-            transaction.show(navFragment);
-            transaction.addToBackStack(null);
-            transaction.commit();
+            //TODO: Redirigir a el frament de navegacion al establecer ruta
+//            NavFragment navFragment = Utils.getNavFragment(getParentFragmentManager());
+//            FragmentTransaction transaction = fragmentManager.beginTransaction();
+//            transaction.remove(RoutesFragment.this);
+//            transaction.show(navFragment);
+//            transaction.addToBackStack(null);
+//            transaction.commitNow();
 
             return true;
         });
@@ -221,7 +223,7 @@ public class RoutesFragment extends Fragment implements OnMapReadyCallback {
             }
             style.addSource(geoJsonSource);
 
-            Utils.addRouteLayersToMap(style);
+            Utils.addRouteLayersToMap(style,GEO_JSON_ID);
 
         });
 

@@ -361,9 +361,9 @@ public class Utils {
     }
 
 
-    public static void addPointsLayerToMap(@NonNull Style loadedMapStyle) {
+    public static void addPointsLayerToMap(@NonNull Style loadedMapStyle, String source_id) {
         // Create and style a CircleLayer that uses the Point Features' coordinates in the GeoJSON data
-        CircleLayer individualCirclesLayer = new CircleLayer(Utils.POINT_LAYER_ID, GEO_JSON_ID);
+        CircleLayer individualCirclesLayer = new CircleLayer(Utils.POINT_LAYER_ID, source_id);
         individualCirclesLayer.setProperties(
                 PropertyFactory.circleColor(Color.RED),
                 PropertyFactory.circleRadius(8f),
@@ -379,9 +379,9 @@ public class Utils {
      *
      * @param loadedMapStyle estilo del mapa
      */
-    public static void addLinesLayerToMap(@NonNull Style loadedMapStyle) {
+    public static void addLinesLayerToMap(@NonNull Style loadedMapStyle, String source_id) {
         // Create and style a CircleLayer that uses the Point Features' coordinates in the GeoJSON data
-        LineLayer individualLineLayer = new LineLayer(LINE_LAYER_ID, GEO_JSON_ID);
+        LineLayer individualLineLayer = new LineLayer(LINE_LAYER_ID, source_id);
         individualLineLayer.setProperties(
                 PropertyFactory.lineCap(Property.LINE_CAP_ROUND),
                 PropertyFactory.lineJoin(Property.LINE_JOIN_ROUND),
@@ -397,9 +397,9 @@ public class Utils {
      *
      * @param loadedMapStyle estilo del mapa
      */
-    public static void addRouteLayersToMap(@NonNull Style loadedMapStyle) {
-        addLinesLayerToMap(loadedMapStyle);
-        addPointsLayerToMap(loadedMapStyle);
+    public static void addRouteLayersToMap(@NonNull Style loadedMapStyle, String source_id) {
+        addLinesLayerToMap(loadedMapStyle, source_id);
+        addPointsLayerToMap(loadedMapStyle, source_id);
     }
 
 

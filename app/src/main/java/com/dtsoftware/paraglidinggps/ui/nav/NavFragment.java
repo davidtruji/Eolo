@@ -34,6 +34,7 @@ import com.dtsoftware.paraglidinggps.Flight;
 import com.dtsoftware.paraglidinggps.FlightLocation;
 import com.dtsoftware.paraglidinggps.MainActivity;
 import com.dtsoftware.paraglidinggps.R;
+import com.dtsoftware.paraglidinggps.Route;
 import com.dtsoftware.paraglidinggps.TextViewOutline;
 import com.dtsoftware.paraglidinggps.Utils;
 import com.dtsoftware.paraglidinggps.Waypoint;
@@ -49,6 +50,7 @@ import com.mapbox.android.core.permissions.PermissionsListener;
 import com.mapbox.android.core.permissions.PermissionsManager;
 import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.FeatureCollection;
+import com.mapbox.geojson.LineString;
 import com.mapbox.geojson.Point;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.location.CompassListener;
@@ -72,6 +74,7 @@ import java.util.List;
 
 
 import static android.os.Looper.getMainLooper;
+import static com.dtsoftware.paraglidinggps.Utils.GEO_JSON_ID;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.eq;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.get;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.literal;
@@ -81,7 +84,6 @@ import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconAnchor;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconIgnorePlacement;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconImage;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconOffset;
-import static java.lang.Math.abs;
 
 
 @SuppressLint({"UseCompatLoadingForDrawables", "SetTextI18n"})
@@ -91,7 +93,9 @@ public class NavFragment extends Fragment implements CompassListener, Permission
     private final long DEFAULT_INTERVAL_IN_MILLISECONDS = 1000L;
     private final long DEFAULT_MAX_WAIT_TIME = DEFAULT_INTERVAL_IN_MILLISECONDS * 5;
 
-    private static final String SOURCE_ID = "wpt_source";
+    private static final String WPT_SOURCE_ID = "wpt_source";
+    private static final String ROUTE_SOURCE_ID = "route_source";
+
     private static final String ICON_LAYER_ID = "icon_layer";
     private static final String WINDOW_LAYER_ID = "window_layer";
     private static final String IMAGE_NAME = "red_marker";
@@ -108,8 +112,8 @@ public class NavFragment extends Fragment implements CompassListener, Permission
     private LocationChangeListeningActivityLocationCallback callback =
             new LocationChangeListeningActivityLocationCallback(this);
 
-    private GeoJsonSource source;
-    private FeatureCollection featureCollection;
+    private GeoJsonSource wptSource, routeSource;
+    private FeatureCollection wptFeatureCollection, routeFeatureCollection;
 
     private List<Waypoint> waypoints = new ArrayList<>();
 
@@ -129,6 +133,8 @@ public class NavFragment extends Fragment implements CompassListener, Permission
     };
 
     // Variables UI
+    private NavViewModel navViewModel;
+    private WaypointsViewModel waypointsViewModel;
     private TextView tvBearing;
     private TextViewOutline tvBearingLet, tvDistance, tvSpeed, tvAltitude;
     private Chronometer tvChronometer;
@@ -136,12 +142,14 @@ public class NavFragment extends Fragment implements CompassListener, Permission
     private ToggleButton tbStartFly;
     private ImageView ivCompass;
 
+
     // Variables de vuelo
     private boolean flying = false;
     private Location prevLocation = null;
     private float distance = 0;
-    private ArrayList<FlightLocation> route = new ArrayList<>();
-    float DegreeStart = 0f;
+    private ArrayList<FlightLocation> flight = new ArrayList<>();
+    private float DegreeStart = 0f;
+    private Route route;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -157,6 +165,7 @@ public class NavFragment extends Fragment implements CompassListener, Permission
 
         Toolbar toolbar = root.findViewById(R.id.nav_toolbar);
         toolbar.setTitle(getString(R.string.title_nav));
+
 
         tvDistance = root.findViewById(R.id.tvDistance);
         tvBearing = root.findViewById(R.id.tvBearing);
@@ -179,7 +188,7 @@ public class NavFragment extends Fragment implements CompassListener, Permission
         tbStartFly.setOnClickListener(view -> {
             if (flying) {   // Usuario pulsó STOP
                 stopFly();
-            } else {        // Usuario pulsó PLAY
+            } else {        // Usuario pulsó START
                 startFly();
             }
         });
@@ -188,10 +197,21 @@ public class NavFragment extends Fragment implements CompassListener, Permission
 
         fabCompass.setOnClickListener(view -> changeCameraMode());
 
-        WaypointsViewModel waypointsViewModel = new ViewModelProvider(getActivity()).get(WaypointsViewModel.class);
+        waypointsViewModel = new ViewModelProvider(getActivity()).get(WaypointsViewModel.class);
+        navViewModel = new ViewModelProvider(getActivity()).get(NavViewModel.class);
+
         waypointsViewModel.getAllWaypoints().observe(getViewLifecycleOwner(), waypoints -> {
             NavFragment.this.waypoints = waypoints;
             mapView.getMapAsync(onMapReadyCallback);
+        });
+
+        navViewModel.getSelectedRoute().observe(getViewLifecycleOwner(), route -> {
+            if (navViewModel.getRouteSelected()) {
+                this.route = route;
+                //TODO: Set Route in Map
+                setRoute();
+            }
+
         });
 
 
@@ -203,10 +223,9 @@ public class NavFragment extends Fragment implements CompassListener, Permission
      * AsyncTask to generate Bitmap from Views to be used as iconImage in a SymbolLayer.
      * <p>
      * Call be optionally be called to update the underlying data source after execution.
-     * </p>
+     * <p>
      * <p>
      * Generating Views on background thread since we are not going to be adding them to the view hierarchy.
-     * </p>
      */
     private static class GenerateViewIconTask extends AsyncTask<FeatureCollection, Void, HashMap<String, Bitmap>> {
 
@@ -317,7 +336,7 @@ public class NavFragment extends Fragment implements CompassListener, Permission
         List<Feature> features = mapboxMap.queryRenderedFeatures(screenPoint, ICON_LAYER_ID);
         if (!features.isEmpty()) {
             String name = features.get(0).getStringProperty(PROPERTY_NAME);
-            List<Feature> featureList = featureCollection.features();
+            List<Feature> featureList = wptFeatureCollection.features();
             if (featureList != null) {
                 for (int i = 0; i < featureList.size(); i++) {
                     if (featureList.get(i).getStringProperty(PROPERTY_NAME).equals(name)) {
@@ -348,13 +367,13 @@ public class NavFragment extends Fragment implements CompassListener, Permission
             symbolLayerIconFeatureList.add(feature);
         }
 
-        featureCollection = FeatureCollection.fromFeatures(symbolLayerIconFeatureList);
+        wptFeatureCollection = FeatureCollection.fromFeatures(symbolLayerIconFeatureList);
 
 
         mapboxMap.getStyle(style -> {
             if (style.getLayer(ICON_LAYER_ID) != null) {
                 style.removeLayer(ICON_LAYER_ID);
-                style.removeSource(SOURCE_ID);
+                style.removeSource(WPT_SOURCE_ID);
 
             } else {
 
@@ -364,18 +383,18 @@ public class NavFragment extends Fragment implements CompassListener, Permission
             }
 
 
-            source = new GeoJsonSource(SOURCE_ID, featureCollection);
+            wptSource = new GeoJsonSource(WPT_SOURCE_ID, wptFeatureCollection);
 
-            style.addSource(source);
+            style.addSource(wptSource);
 
-            style.addLayer(new SymbolLayer(ICON_LAYER_ID, SOURCE_ID)
+            style.addLayer(new SymbolLayer(ICON_LAYER_ID, WPT_SOURCE_ID)
                     .withProperties(
                             iconImage(IMAGE_NAME),
                             iconAllowOverlap(true),
                             iconIgnorePlacement(true)
                     ));
 
-            style.addLayer(new SymbolLayer(WINDOW_LAYER_ID, SOURCE_ID)
+            style.addLayer(new SymbolLayer(WINDOW_LAYER_ID, WPT_SOURCE_ID)
                     .withProperties(
                             /* show image with id title based on the value of the name feature property */
                             iconImage("{name}"),
@@ -389,10 +408,10 @@ public class NavFragment extends Fragment implements CompassListener, Permission
                             /* offset the info window to be above the marker */
                             iconOffset(new Float[]{0f, -30f})
                     )
-/* add a filter to show only when selected feature property is true */
+                    /* add a filter to show only when selected feature property is true */
                     .withFilter(eq((get(PROPERTY_SELECTED)), literal(true))));
 
-            new GenerateViewIconTask(this).execute(featureCollection);
+            new GenerateViewIconTask(this).execute(wptFeatureCollection);
 
 
         });
@@ -406,8 +425,8 @@ public class NavFragment extends Fragment implements CompassListener, Permission
      * @param index the index of selected feature
      */
     private void setSelected(int index) {
-        if (featureCollection.features() != null) {
-            Feature feature = featureCollection.features().get(index);
+        if (wptFeatureCollection.features() != null) {
+            Feature feature = wptFeatureCollection.features().get(index);
             setFeatureSelectState(feature, true);
             refreshSource();
         }
@@ -415,7 +434,7 @@ public class NavFragment extends Fragment implements CompassListener, Permission
 
 
     private void unselectAllWaypoints() {
-        for (Feature feature : featureCollection.features()) {
+        for (Feature feature : wptFeatureCollection.features()) {
             setFeatureSelectState(feature, false);
         }
         refreshSource();
@@ -441,10 +460,10 @@ public class NavFragment extends Fragment implements CompassListener, Permission
      * @return true if "selected" is true. False if the boolean property is false.
      */
     private boolean featureSelectStatus(int index) {
-        if (featureCollection == null) {
+        if (wptFeatureCollection == null) {
             return false;
         }
-        return featureCollection.features().get(index).getBooleanProperty(PROPERTY_SELECTED);
+        return wptFeatureCollection.features().get(index).getBooleanProperty(PROPERTY_SELECTED);
     }
 
     /**
@@ -464,8 +483,8 @@ public class NavFragment extends Fragment implements CompassListener, Permission
      * Updates the display of data on the map after the FeatureCollection has been modified
      */
     private void refreshSource() {
-        if (source != null && featureCollection != null) {
-            source.setGeoJson(featureCollection);
+        if (wptSource != null && wptFeatureCollection != null) {
+            wptSource.setGeoJson(wptFeatureCollection);
         }
     }
 
@@ -624,7 +643,7 @@ public class NavFragment extends Fragment implements CompassListener, Permission
 
         if (flying) {
             updateDistance(lastLocation); // Distancia del vuelo (Km)
-            route.add(new FlightLocation(lastLocation));
+            flight.add(new FlightLocation(lastLocation));
         }
 
 
@@ -650,7 +669,7 @@ public class NavFragment extends Fragment implements CompassListener, Permission
     }
 
     private void startFly() {
-        route.clear();
+        flight.clear();
         mapboxMap.getGesturesManager().getMoveGestureDetector().setEnabled(false);
         mapboxMap.getLocationComponent().setCameraMode(CameraMode.TRACKING_COMPASS);
         ((MainActivity) getActivity()).hideSystemUI();
@@ -672,7 +691,7 @@ public class NavFragment extends Fragment implements CompassListener, Permission
         tvChronometer.setBase(SystemClock.elapsedRealtime());
         tvChronometer.stop();
 
-        Log.i(getString(R.string.debug_tag), "Vuelo finalizado: " + "distancia: " + Utils.getRouteDistance(route) + "m" + " duracion: " + Utils.getRouteDuration(route) / 1000 + "\"");
+        Log.i(getString(R.string.debug_tag), "Vuelo finalizado: " + "distancia: " + Utils.getRouteDistance(flight) + "m" + " duracion: " + Utils.getRouteDuration(flight) / 1000 + "\"");
         saveFlight();
     }
 
@@ -720,7 +739,7 @@ public class NavFragment extends Fragment implements CompassListener, Permission
 
     public void saveFlight() {
         FlightsViewModel flightsViewModel = new ViewModelProvider(this).get(FlightsViewModel.class);
-        flightsViewModel.insert(new Flight(Utils.generateFlightName(), route));
+        flightsViewModel.insert(new Flight(Utils.generateFlightName(), flight));
         Utils.showSnakcbar(getView().findViewById(R.id.screenInfo_layout), "Saved Flight");
     }
 
@@ -797,27 +816,41 @@ public class NavFragment extends Fragment implements CompassListener, Permission
     }
 
 
-//    public void animateCompass(float heading) {
-//
-//        // float DegreeStart = ivCompass.getRotation();
-//
-//
-//        RotateAnimation ra = new RotateAnimation(DegreeStart,
-//                -heading,
-//                Animation.RELATIVE_TO_SELF, 0.5f,
-//                Animation.RELATIVE_TO_SELF, 0.5f);
-//
-//        // set the compass animation after the end of the reservation status
-//        ra.setFillAfter(true);
-//
-//        // set how long the animation for the compass image will take place
-//        ra.setDuration(1500);
-//        // Start animation of compass image
-//        ivCompass.startAnimation(ra);
-//        DegreeStart = -heading;
-//
-//
-//    }
+    /**
+     * Añade las capas al estilo del mapa y actualiza el recurso GEOJSON
+     */
+    private void setRoute() {
+
+        List<Feature> routeLayerFeatureList = new ArrayList<>();
+
+        //Añado la linea
+        if (route.getRoute().size() > 1)
+            routeLayerFeatureList.add(Feature.fromGeometry(LineString.fromLngLats(route.getRoute())));
+
+        // Añado todos los puntos de la ruta
+        for (Point point : route.getRoute())
+            routeLayerFeatureList.add(Feature.fromGeometry(point));
+
+
+        FeatureCollection featureCollection = FeatureCollection.fromFeatures(routeLayerFeatureList);
+
+        GeoJsonSource geoJsonSource = new GeoJsonSource(ROUTE_SOURCE_ID, featureCollection);
+
+        mapboxMap.getStyle(style -> {
+
+            if (style.getLayer(Utils.POINT_LAYER_ID) != null) {
+                style.removeLayer(Utils.POINT_LAYER_ID);
+                style.removeLayer(Utils.LINE_LAYER_ID);
+                style.removeSource(ROUTE_SOURCE_ID);
+            }
+            style.addSource(geoJsonSource);
+
+            Utils.addRouteLayersToMap(style, ROUTE_SOURCE_ID);
+
+        });
+
+
+    }
 
 
     @Override
