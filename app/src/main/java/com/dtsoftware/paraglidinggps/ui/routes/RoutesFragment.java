@@ -18,6 +18,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -25,6 +27,8 @@ import com.dtsoftware.paraglidinggps.R;
 import com.dtsoftware.paraglidinggps.Route;
 import com.dtsoftware.paraglidinggps.Utils;
 import com.dtsoftware.paraglidinggps.ui.flights.SharedFlightViewModel;
+import com.dtsoftware.paraglidinggps.ui.nav.NavFragment;
+import com.dtsoftware.paraglidinggps.ui.nav.NavViewModel;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.FeatureCollection;
@@ -37,6 +41,7 @@ import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.maps.Style;
+import com.mapbox.mapboxsdk.style.layers.Property;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 
 import java.util.ArrayList;
@@ -51,8 +56,10 @@ public class RoutesFragment extends Fragment implements OnMapReadyCallback {
     private RoutesViewModel mViewModel;
     private Route selectedRoute;
     private FloatingActionButton fabAdd, fabEdit;
-    private SharedRouteViewModel sharedRouteViewModel;
 
+    private SharedRouteViewModel sharedRouteViewModel;
+    private NavViewModel navViewModel;
+    private RoutesViewModel routesViewModel;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -64,13 +71,30 @@ public class RoutesFragment extends Fragment implements OnMapReadyCallback {
         View root = inflater.inflate(R.layout.fragment_routes_list, container, false);
         FragmentManager fragmentManager = getParentFragmentManager();
 
-        SharedRouteViewModel sharedRouteViewModel = new ViewModelProvider(getActivity()).get(SharedRouteViewModel.class);
-        RoutesViewModel routesViewModel = new ViewModelProvider(getActivity()).get(RoutesViewModel.class);
+        sharedRouteViewModel = new ViewModelProvider(getActivity()).get(SharedRouteViewModel.class);
+        routesViewModel = new ViewModelProvider(getActivity()).get(RoutesViewModel.class);
+        navViewModel = new ViewModelProvider(getActivity()).get(NavViewModel.class);
 
         Toolbar toolbar = root.findViewById(R.id.routes_toolbar);
         toolbar.setTitle(getString(R.string.title_routes));
         toolbar.setSubtitle("Tap a route to see in the map");
+        toolbar.inflateMenu(R.menu.routes_toolbar_menu);
+        toolbar.setOnMenuItemClickListener(item -> {
 
+
+            //TODO: Set Route in view model of nav
+            Log.d("ROUTE SETTED", selectedRoute.getRouteName());
+            navViewModel.setSelectedRoute(selectedRoute);
+
+            NavFragment navFragment = Utils.getNavFragment(getParentFragmentManager());
+            FragmentTransaction transaction = fragmentManager.beginTransaction();
+            transaction.remove(this);
+            transaction.show(navFragment);
+            transaction.addToBackStack(null);
+            transaction.commit();
+
+            return true;
+        });
         fabAdd = root.findViewById(R.id.fab_add_route);
         fabEdit = root.findViewById(R.id.fab_edit_route);
         mapView = root.findViewById(R.id.mv_rd_map);
@@ -111,12 +135,18 @@ public class RoutesFragment extends Fragment implements OnMapReadyCallback {
 
             selectedRoute = route;
             toolbar.setSubtitle(route.getRouteName());
+
+            Menu menu = toolbar.getMenu();
+            MenuItem item = menu.findItem(R.id.action_set_route);
+            item.setVisible(true);
+
+
             mapView.getMapAsync(this);
             fabEdit.show();
 
             int elements = recyclerView.getChildCount();
 
-            for (int i =0 ; i<elements;i++)
+            for (int i = 0; i < elements; i++)
                 recyclerView.getChildAt(i).setSelected(false);
 
             view.setSelected(true);

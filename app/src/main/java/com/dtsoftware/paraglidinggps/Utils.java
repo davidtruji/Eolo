@@ -97,7 +97,7 @@ public class Utils {
     }
 
     public static String getDistanceString(float distance) {
-        return String.format(Locale.US, DISTANCE_FORMAT, distance/1000);
+        return String.format(Locale.US, DISTANCE_FORMAT, distance / 1000);
     }
 
 
@@ -235,12 +235,25 @@ public class Utils {
         }
     }
 
-    public static void removeAllFragments(FragmentManager fragmentManager){
+    public static void removeAllFragments(FragmentManager fragmentManager) {
         List<Fragment> fragmentList = fragmentManager.getFragments();
         for (Fragment f : fragmentList) {
-            if(!(f instanceof NavFragment))
-            fragmentManager.beginTransaction().remove(f).commit();
+            if (!(f instanceof NavFragment))
+                fragmentManager.beginTransaction().remove(f).commit();
         }
+    }
+
+    public static NavFragment getNavFragment(FragmentManager fragmentManager) {
+        List<Fragment> fragmentList = fragmentManager.getFragments();
+        NavFragment navFragment = null;
+
+        for (Fragment f : fragmentList) {
+            if ((f instanceof NavFragment))
+                navFragment = (NavFragment) f;
+
+            break;
+        }
+        return navFragment;
     }
 
     public static GeoJsonSource getGeoJsonSourceFromRoute(ArrayList<FlightLocation> route) {
@@ -381,6 +394,7 @@ public class Utils {
 
     /**
      * Añade las capas de puntos y lineas necesarias para visualizar rutas en un mapa
+     *
      * @param loadedMapStyle estilo del mapa
      */
     public static void addRouteLayersToMap(@NonNull Style loadedMapStyle) {

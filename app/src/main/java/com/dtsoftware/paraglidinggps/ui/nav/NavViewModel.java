@@ -1,17 +1,31 @@
 package com.dtsoftware.paraglidinggps.ui.nav;
 
+import android.app.Application;
+
+import androidx.annotation.NonNull;
+import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.ViewModel;
+
+import com.dtsoftware.paraglidinggps.AppRepository;
+import com.dtsoftware.paraglidinggps.Route;
 
 
-public class NavViewModel extends ViewModel {
-    private MutableLiveData<Float> distance;
+public class NavViewModel extends AndroidViewModel {
 
-    public NavViewModel() {
-        distance = new MutableLiveData<>();
+    private MutableLiveData<Route> selectedRoute = new MutableLiveData<>();
+    private AppRepository mRepository;
+
+    public NavViewModel(@NonNull Application application) {
+        super(application);
     }
 
-    public MutableLiveData<Float> getDistance() {
-        return distance;
+    public MutableLiveData<Route> getSelectedRoute() {
+        return selectedRoute;
     }
+
+    public void setSelectedRoute(Route route) {
+        selectedRoute.setValue(route);
+    }
+
+
 }

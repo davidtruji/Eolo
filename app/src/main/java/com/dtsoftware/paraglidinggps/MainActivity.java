@@ -60,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
                 for (int i = 0; i < fm.getBackStackEntryCount(); i++)
                     fm.popBackStack();
 
+
                 switch (item.getItemId()) {
                     case R.id.navigation_nav:
 

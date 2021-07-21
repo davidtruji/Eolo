@@ -64,5 +64,6 @@
 
     <string name="sample_text">Text</string>
     <string name="add_new_route_desc">Add new route</string>
+    <string name="set_route">Set Route</string>
 
 </resources>
