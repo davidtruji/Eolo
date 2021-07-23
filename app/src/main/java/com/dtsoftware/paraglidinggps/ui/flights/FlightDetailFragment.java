@@ -56,7 +56,7 @@ public class FlightDetailFragment extends Fragment {
                 @Override
                 public void onStyleLoaded(@NonNull Style style) {
 
-                    if (mflight.getRoute().size() > 0) {
+                    if (mflight.getRoute() != null) {
                         GeoJsonSource geoJsonSource = Utils.getGeoJsonSourceFromRoute(mflight.getRoute());
 
                         style.addSource(geoJsonSource);
@@ -235,7 +235,7 @@ public class FlightDetailFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-
+        mapView.onDestroy();
     }
 
 

@@ -3,6 +3,9 @@ package com.dtsoftware.paraglidinggps;
 import android.annotation.SuppressLint;
 import android.graphics.Color;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.RotateAnimation;
+import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -400,6 +403,20 @@ public class Utils {
     public static void addRouteLayersToMap(@NonNull Style loadedMapStyle, String source_id) {
         addLinesLayerToMap(loadedMapStyle, source_id);
         addPointsLayerToMap(loadedMapStyle, source_id);
+    }
+
+    public static void rotateImage(ImageView img, float startDegree, float endDegree) {
+        RotateAnimation ra = new RotateAnimation(startDegree,
+                endDegree,
+                Animation.RELATIVE_TO_SELF, 0.5f,
+                Animation.RELATIVE_TO_SELF, 0.5f);
+
+        ra.setFillAfter(true);
+
+        // set how long the animation for the compass image will take place
+        ra.setDuration(500);
+        // Start animation of compass image
+        img.startAnimation(ra);
     }
 
 

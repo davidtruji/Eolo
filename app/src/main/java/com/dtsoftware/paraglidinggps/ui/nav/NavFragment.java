@@ -84,6 +84,7 @@ import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconAnchor;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconIgnorePlacement;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconImage;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconOffset;
+import static java.lang.Math.abs;
 
 
 @SuppressLint({"UseCompatLoadingForDrawables", "SetTextI18n"})
@@ -210,6 +211,7 @@ public class NavFragment extends Fragment implements CompassListener, Permission
 
         navViewModel.getSelectedRoute().observe(getViewLifecycleOwner(), route -> {
             this.route = route;
+            resetRouteCompass();
             setRoute();
         });
 
@@ -772,40 +774,22 @@ public class NavFragment extends Fragment implements CompassListener, Permission
 
         tvBearingLet.setText(Utils.degreesToBearing(userHeading)); // Rumbo escrito en letras
 
-        String bearing = String.format(getString(R.string.bearing_format), userHeading);
+        String bearing = String.format(getContext().getString(R.string.bearing_format), userHeading);
 
-        if (!bearing.equals("360"))
-            tvBearing.setText(bearing + " " + getString(R.string.degrees_unit)); // Rumbo en grados
+        tvBearing.setText(bearing + " " + getString(R.string.degrees_unit)); // Rumbo en grados
 
 
-        /*
-            Bug en los intervalos que pasan por 0º(N)
-            [DegreeStart > (-90º)   && -userHeading < (-270º)]
-            [DegreeStart < (-270º)  && -userHeading > (-90º) ]
-        */
-        if (compassDegreeStart > -90 && -userHeading < -270) {
-            userHeading = -(360 - userHeading);
-        } else if (compassDegreeStart < -270 && -userHeading > -90) {
-            compassDegreeStart = (360 + compassDegreeStart);
+        // No se permite que la brujula gire mas de 180º
+        if (abs(compassDegreeStart + userHeading) > 180) {
+            if (compassDegreeStart < -userHeading)
+                compassDegreeStart += 360;
+            else
+                compassDegreeStart -= 360;
         }
 
-
-        RotateAnimation ra = new RotateAnimation(compassDegreeStart,
-                -userHeading,
-                Animation.RELATIVE_TO_SELF, 0.5f,
-                Animation.RELATIVE_TO_SELF, 0.5f);
-
-        // set the compass animation after the end of the reservation status
-        ra.setFillAfter(true);
-
-        // set how long the animation for the compass image will take place
-        ra.setDuration(500);
-        // Start animation of compass image
-        ivCompass.startAnimation(ra);
-
+        Utils.rotateImage(ivCompass, compassDegreeStart, -userHeading);
 
         compassDegreeStart = -userHeading;
-
 
     }
 
@@ -819,28 +803,30 @@ public class NavFragment extends Fragment implements CompassListener, Permission
             dest.setLongitude(nextPoint.longitude());
             float bearingToDest = currentLocation.bearingTo(dest);
 
-            bearingToDest+=userHeading;
+            bearingToDest = (360 + ((bearingToDest + 360) % 360) - userHeading) % 360;
 
-            RotateAnimation ra = new RotateAnimation(routeCompassDegreeStart,
-                    bearingToDest,
-                    Animation.RELATIVE_TO_SELF, 0.5f,
-                    Animation.RELATIVE_TO_SELF, 0.5f);
+            // No se permite que la brujula gire mas de 180º
+            if (abs(routeCompassDegreeStart - bearingToDest) > 180) {
+                if (routeCompassDegreeStart < bearingToDest)
+                    routeCompassDegreeStart += 360;
+                else
+                    routeCompassDegreeStart -= 360;
+            }
 
-            // set the compass animation after the end of the reservation status
-            ra.setFillAfter(true);
-
-            // set how long the animation for the compass image will take place
-            ra.setDuration(500);
-            // Start animation of compass image
-            ivDeo.startAnimation(ra);
+            Utils.rotateImage(ivDeo, routeCompassDegreeStart, bearingToDest);
 
             routeCompassDegreeStart = bearingToDest;
 
         }
 
 
-
     }
+
+    private void resetRouteCompass() {
+        ivDeo.setRotation(0);
+        routeCompassDegreeStart = 0f;
+    }
+
 
     @Override
     public void onCompassAccuracyChange(int compassStatus) {
@@ -934,6 +920,7 @@ public class NavFragment extends Fragment implements CompassListener, Permission
         // Prevent leaks
         if (locationEngine != null) {
             locationEngine.removeLocationUpdates(callback);
+        mapboxMap.getLocationComponent().getCompassEngine().removeCompassListener(this);
         }
         mapView.onDestroy();
     }
