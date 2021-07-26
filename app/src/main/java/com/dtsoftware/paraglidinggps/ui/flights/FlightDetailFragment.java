@@ -93,7 +93,7 @@ public class FlightDetailFragment extends Fragment {
 
         setHasOptionsMenu(true);
 
-        mapView = root.findViewById(R.id.mv_rd_map);
+        mapView = root.findViewById(R.id.mv_route_map);
         mapView.onCreate(savedInstanceState);
 
         tvDate = root.findViewById(R.id.tv_rd_distance);

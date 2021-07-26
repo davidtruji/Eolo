@@ -11,11 +11,9 @@ public class AppRepository {
 
     private FlightDAO mFlightDAO;
     private WaypointDAO waypointDAO;
-    private RouteDAO routeDAO;
 
     private LiveData<List<Flight>> mAllFlights;
     private LiveData<List<Waypoint>> allWaypoints;
-    private LiveData<List<Route>> allRoutes;
 
 
     // Note that in order to unit test the WordRepository, you have to remove the Application
@@ -26,11 +24,9 @@ public class AppRepository {
         AppRoomDatabase db = AppRoomDatabase.getDatabase(application);
         mFlightDAO = db.flightDAO();
         waypointDAO = db.waypointDAO();
-        routeDAO = db.routeDAO();
 
         mAllFlights = mFlightDAO.getFlights();
         allWaypoints = waypointDAO.getWaypoints();
-        allRoutes = routeDAO.getRoutes();
     }
 
 
@@ -85,30 +81,6 @@ public class AppRepository {
 
     public void deleteAllWaypoints() {
         AppRoomDatabase.databaseWriteExecutor.execute(() -> waypointDAO.deleteAll());
-    }
-
-    /*
-        Metodos de Rutas
-     */
-
-    public LiveData<List<Route>> getAllRoutes() {
-        return allRoutes;
-    }
-
-    public void insert(Route route) {
-        AppRoomDatabase.databaseWriteExecutor.execute(() -> routeDAO.insert(route));
-    }
-
-    public void updateRoute(Route route) {
-        AppRoomDatabase.databaseWriteExecutor.execute(() -> routeDAO.updateRoute(route));
-    }
-
-    public void deleteRouteByID(int id) {
-        AppRoomDatabase.databaseWriteExecutor.execute(() -> routeDAO.deleteRouteById(id));
-    }
-
-    public void deleteAllRoutes() {
-        AppRoomDatabase.databaseWriteExecutor.execute(() -> routeDAO.deleteAll());
     }
 
 }

@@ -2,7 +2,7 @@
     <string name="app_name">Paragliding GPS</string>
     <string name="title_nav">Navigation</string>
     <string name="title_waypoints">Waypoints</string>
-    <string name="title_routes">Routes</string>
+    <string name="title_route">Route</string>
     <string name="title_flights">Flights</string>
     <string name="title_aw">New Waypoint</string>
     <string name="title_ar">New Route</string>

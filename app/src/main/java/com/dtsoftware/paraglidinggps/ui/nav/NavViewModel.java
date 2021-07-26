@@ -1,41 +1,47 @@
 package com.dtsoftware.paraglidinggps.ui.nav;
 
 import android.app.Application;
+import android.location.Location;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.MutableLiveData;
 
-import com.dtsoftware.paraglidinggps.AppRepository;
-import com.dtsoftware.paraglidinggps.Route;
+import com.mapbox.mapboxsdk.geometry.LatLng;
 
 
 public class NavViewModel extends AndroidViewModel {
 
-    private Boolean isRouteSelected;
-    private MutableLiveData<Route> selectedRoute = new MutableLiveData<>();
-    private AppRepository mRepository;
+    private Boolean isSelectedWaypoint;
+    private MutableLiveData<LatLng> selectedWaypoint = new MutableLiveData<>();
+    private MutableLiveData<Location> lastLocation = new MutableLiveData<>();
 
     public NavViewModel(@NonNull Application application) {
         super(application);
-        isRouteSelected = false;
+        isSelectedWaypoint = false;
     }
 
-    public Boolean getRouteSelected() {
-        return isRouteSelected;
+    public MutableLiveData<Location> getLastLocation() {
+        return lastLocation;
     }
 
-    public void setRouteSelected(Boolean routeSelected) {
-        isRouteSelected = routeSelected;
+    public void setLastLocation(Location lastLocation) {
+        this.lastLocation.setValue(lastLocation);
     }
 
-    public MutableLiveData<Route> getSelectedRoute() {
-        return selectedRoute;
+    public Boolean isWaypointSelected() {
+        return isSelectedWaypoint;
     }
 
-    public void setSelectedRoute(Route route) {
-        selectedRoute.setValue(route);
+    public void setIsSelectedWaypoint(Boolean isSelected) {
+        isSelectedWaypoint = isSelected;
     }
 
+    public MutableLiveData<LatLng> getSelectedWaypoint() {
+        return selectedWaypoint;
+    }
 
+    public void setSelectedWaypoint(LatLng selectedWaypoint) {
+        this.selectedWaypoint.setValue(selectedWaypoint);
+    }
 }

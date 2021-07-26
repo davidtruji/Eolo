@@ -209,7 +209,7 @@
                 android:src="@drawable/north_arrow" />
 
             <ImageView
-                android:id="@+id/deo"
+                android:id="@+id/route_compass"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal|center_vertical"

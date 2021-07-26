@@ -10,6 +10,7 @@ import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
 
+import androidx.annotation.ColorRes;
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
@@ -21,8 +22,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.view.animation.Animation;
-import android.view.animation.RotateAnimation;
 import android.widget.Chronometer;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -34,7 +33,6 @@ import com.dtsoftware.paraglidinggps.Flight;
 import com.dtsoftware.paraglidinggps.FlightLocation;
 import com.dtsoftware.paraglidinggps.MainActivity;
 import com.dtsoftware.paraglidinggps.R;
-import com.dtsoftware.paraglidinggps.Route;
 import com.dtsoftware.paraglidinggps.TextViewOutline;
 import com.dtsoftware.paraglidinggps.Utils;
 import com.dtsoftware.paraglidinggps.Waypoint;
@@ -53,6 +51,7 @@ import com.mapbox.geojson.FeatureCollection;
 import com.mapbox.geojson.LineString;
 import com.mapbox.geojson.Point;
 import com.mapbox.mapboxsdk.Mapbox;
+import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.location.CompassListener;
 import com.mapbox.mapboxsdk.location.LocationComponent;
 import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions;
@@ -64,6 +63,10 @@ import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.maps.Style;
+import com.mapbox.mapboxsdk.style.layers.Layer;
+import com.mapbox.mapboxsdk.style.layers.LineLayer;
+import com.mapbox.mapboxsdk.style.layers.Property;
+import com.mapbox.mapboxsdk.style.layers.PropertyFactory;
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 
@@ -74,7 +77,6 @@ import java.util.List;
 
 
 import static android.os.Looper.getMainLooper;
-import static com.dtsoftware.paraglidinggps.Utils.GEO_JSON_ID;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.eq;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.get;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.literal;
@@ -91,14 +93,15 @@ import static java.lang.Math.abs;
 public class NavFragment extends Fragment implements CompassListener, PermissionsListener, OnCameraTrackingChangedListener {
 
     // Constantes
-    private final long DEFAULT_INTERVAL_IN_MILLISECONDS = 1000L;
+    private final long DEFAULT_INTERVAL_IN_MILLISECONDS = 100L;
     private final long DEFAULT_MAX_WAIT_TIME = DEFAULT_INTERVAL_IN_MILLISECONDS * 5;
-
     private static final String WPT_SOURCE_ID = "wpt_source";
-    private static final String ROUTE_SOURCE_ID = "route_source";
-
+    private static final String ROUTE_ICON_SOURCE_ID = "route_icon_source";
+    private static final String ROUTE_LINE_SOURCE_ID = "route_line_source";
+    private static final String ROUTE_LINE_LAYER_ID = "route_line_layer";
     private static final String ICON_LAYER_ID = "icon_layer";
     private static final String WINDOW_LAYER_ID = "window_layer";
+    private static final String ROUTE_ICON_LAYER_ID = "route_icon_layer";
     private static final String IMAGE_NAME = "red_marker";
     private static final String PROPERTY_SELECTED = "selected";
     private static final String PROPERTY_NAME = "name";
@@ -112,11 +115,8 @@ public class NavFragment extends Fragment implements CompassListener, Permission
     private LocationEngine locationEngine;
     private LocationChangeListeningActivityLocationCallback callback =
             new LocationChangeListeningActivityLocationCallback(this);
-
-    private GeoJsonSource wptSource, routeSource;
-    private FeatureCollection wptFeatureCollection, routeFeatureCollection;
-
-    private List<Waypoint> waypoints = new ArrayList<>();
+    private GeoJsonSource wptSource;
+    private FeatureCollection wptFeatureCollection;
 
     @SuppressLint("WrongConstant")
     private OnMapReadyCallback onMapReadyCallback = mapboxMap -> {
@@ -124,12 +124,13 @@ public class NavFragment extends Fragment implements CompassListener, Permission
 
         mapboxMap.setStyle(PARAGLIDING_MAP_STYLE,
                 style -> {
+                    style.addImage("route_icon", BitmapFactory.decodeResource(
+                            getResources(), R.drawable.flag));
                     enableLocationComponent(style);
                     setWaypointsLayer();
                 });
 
         mapboxMap.addOnMapClickListener(point -> handleClickIcon(mapboxMap.getProjection().toScreenLocation(point)));
-
 
     };
 
@@ -141,8 +142,7 @@ public class NavFragment extends Fragment implements CompassListener, Permission
     private Chronometer tvChronometer;
     private FloatingActionButton fabLayers, fabCompass;
     private ToggleButton tbStartFly;
-    private ImageView ivCompass, ivDeo;
-
+    private ImageView ivCompass, ivRouteCompass;
 
     // Variables de vuelo
     private boolean flying = false;
@@ -152,8 +152,9 @@ public class NavFragment extends Fragment implements CompassListener, Permission
     private ArrayList<FlightLocation> flight = new ArrayList<>();
     private float compassDegreeStart = 0f;
     private float routeCompassDegreeStart = 0f;
+    private LatLng routeWaypoint;
+    private List<Waypoint> waypoints = new ArrayList<>();
 
-    private Route route;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -163,13 +164,9 @@ public class NavFragment extends Fragment implements CompassListener, Permission
 
         // This contains the MapView in XML and needs to be called after the access token is configured.
         View root = inflater.inflate(R.layout.fragment_navigation, container, false);
-        //TODO: Pulsación larga para cambiar los bloques visibles
-        //TODO: Bariometro primitivo con el GPS
-
 
         Toolbar toolbar = root.findViewById(R.id.nav_toolbar);
         toolbar.setTitle(getString(R.string.title_nav));
-
 
         tvDistance = root.findViewById(R.id.tvDistance);
         tvBearing = root.findViewById(R.id.tvBearing);
@@ -178,16 +175,14 @@ public class NavFragment extends Fragment implements CompassListener, Permission
         tvAltitude = root.findViewById(R.id.tvAltitude);
         tvChronometer = root.findViewById(R.id.tvChronometer);
         ivCompass = root.findViewById(R.id.compass);
-        ivDeo = root.findViewById(R.id.deo);
+        ivRouteCompass = root.findViewById(R.id.route_compass);
 
         tbStartFly = root.findViewById(R.id.tbStart);
         fabLayers = root.findViewById(R.id.fabUndo);
         fabCompass = root.findViewById(R.id.fabClean);
 
-
         mapView = root.findViewById(R.id.mv_nav_map);
         mapView.onCreate(savedInstanceState);
-
 
         tbStartFly.setOnClickListener(view -> {
             if (flying) {   // Usuario pulsó STOP
@@ -198,7 +193,6 @@ public class NavFragment extends Fragment implements CompassListener, Permission
         });
 
         fabLayers.setOnClickListener(view -> changeCurrentMapLayer());
-
         fabCompass.setOnClickListener(view -> changeCameraMode());
 
         waypointsViewModel = new ViewModelProvider(getActivity()).get(WaypointsViewModel.class);
@@ -209,10 +203,12 @@ public class NavFragment extends Fragment implements CompassListener, Permission
             mapView.getMapAsync(onMapReadyCallback);
         });
 
-        navViewModel.getSelectedRoute().observe(getViewLifecycleOwner(), route -> {
-            this.route = route;
+        navViewModel.getSelectedWaypoint().observe(getViewLifecycleOwner(), waypoint -> {
+            this.routeWaypoint = waypoint;
             resetRouteCompass();
+            setRouteLine();
             setRoute();
+            ivRouteCompass.setVisibility(View.VISIBLE);
         });
 
 
@@ -261,17 +257,9 @@ public class NavFragment extends Fragment implements CompassListener, Permission
                     TextView titleTextView = bubbleLayout.findViewById(R.id.tv_iw_name);
                     titleTextView.setText(feature.getStringProperty(PROPERTY_NAME));
 
-//                    String style = feature.getStringProperty(PROPERTY_CAPITAL);
-//                    TextView descriptionTextView = bubbleLayout.findViewById(R.id.info_window_description);
-//                    descriptionTextView.setText(
-//                            String.format(activity.getString(R.string.capital), style));
 
                     int measureSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
                     bubbleLayout.measure(measureSpec, measureSpec);
-
-                    float measuredWidth = bubbleLayout.getMeasuredWidth();
-
-                    //  bubbleLayout.setArrowPosition(measuredWidth / 2 - 5);
 
                     Bitmap bitmap = SymbolGenerator.generate(bubbleLayout);
                     imagesMap.put(name, bitmap);
@@ -603,9 +591,8 @@ public class NavFragment extends Fragment implements CompassListener, Permission
             if (activity != null) {
                 Location location = result.getLastLocation();
 
-                if (location == null) {
+                if (location == null)
                     return;
-                }
 
 
                 // Actualiza la información del HUD, Velocidad, Altura etc
@@ -636,6 +623,9 @@ public class NavFragment extends Fragment implements CompassListener, Permission
     private void updateFlightInfo(Location lastLocation) {
 
         currentLocation = lastLocation;
+        navViewModel.setLastLocation(lastLocation);
+
+        setRouteLine();
 
         tvAltitude.setText(String.format(getString(R.string.altitude_format), lastLocation.getAltitude())); // Altitud (m)
 
@@ -704,6 +694,13 @@ public class NavFragment extends Fragment implements CompassListener, Permission
             mapboxMap.setStyle(Style.SATELLITE_STREETS);
 
         setWaypointsLayer();
+        setRoute();
+
+        mapboxMap.getStyle(style -> {
+            for (Layer layer : style.getLayers())
+                Log.i("LAYER", layer.getId());
+
+        });
     }
 
 
@@ -795,12 +792,11 @@ public class NavFragment extends Fragment implements CompassListener, Permission
 
     private void updateRouteBearing(float userHeading) {
 
-        if (navViewModel.getRouteSelected() && currentLocation != null) {
+        if (navViewModel.isWaypointSelected() && currentLocation != null) {
 
-            Point nextPoint = route.getRoute().get(0);
             Location dest = new Location("dest");
-            dest.setLatitude(nextPoint.latitude());
-            dest.setLongitude(nextPoint.longitude());
+            dest.setLatitude(routeWaypoint.getLatitude());
+            dest.setLongitude(routeWaypoint.getLongitude());
             float bearingToDest = currentLocation.bearingTo(dest);
 
             bearingToDest = (360 + ((bearingToDest + 360) % 360) - userHeading) % 360;
@@ -813,7 +809,7 @@ public class NavFragment extends Fragment implements CompassListener, Permission
                     routeCompassDegreeStart -= 360;
             }
 
-            Utils.rotateImage(ivDeo, routeCompassDegreeStart, bearingToDest);
+            Utils.rotateImage(ivRouteCompass, routeCompassDegreeStart, bearingToDest);
 
             routeCompassDegreeStart = bearingToDest;
 
@@ -823,7 +819,7 @@ public class NavFragment extends Fragment implements CompassListener, Permission
     }
 
     private void resetRouteCompass() {
-        ivDeo.setRotation(0);
+        ivRouteCompass.setRotation(0);
         routeCompassDegreeStart = 0f;
     }
 
@@ -833,47 +829,71 @@ public class NavFragment extends Fragment implements CompassListener, Permission
 
     }
 
-
-    /**
-     * Añade las capas al estilo del mapa y actualiza el recurso GEOJSON
-     */
     private void setRoute() {
 
-        List<Feature> routeLayerFeatureList = new ArrayList<>();
+        if (routeWaypoint != null && navViewModel.isWaypointSelected()) {
 
-        ivDeo.setVisibility(View.VISIBLE);
 
-        try {
-            //Añado la linea
-            if (route.getRoute().size() > 1)
-                routeLayerFeatureList.add(Feature.fromGeometry(LineString.fromLngLats(route.getRoute())));
+            GeoJsonSource geoJsonSource = new GeoJsonSource(ROUTE_ICON_SOURCE_ID,
+                    Feature.fromGeometry(Point.fromLngLat(routeWaypoint.getLongitude(),
+                            routeWaypoint.getLatitude())));
 
-            // Añado todos los puntos de la ruta
-            for (Point point : route.getRoute())
-                routeLayerFeatureList.add(Feature.fromGeometry(point));
-        } catch (Exception e) {
+            mapboxMap.getStyle(style -> {
 
+                if (style.getLayer(ROUTE_ICON_LAYER_ID) != null) {
+                    style.removeLayer(ROUTE_ICON_LAYER_ID);
+                    style.removeSource(ROUTE_ICON_SOURCE_ID);
+                }
+
+                style.addSource(geoJsonSource);
+                style.addLayer(new SymbolLayer(ROUTE_ICON_LAYER_ID, ROUTE_ICON_SOURCE_ID)
+                        .withProperties(
+                                PropertyFactory.iconImage("route_icon"),
+                                PropertyFactory.iconIgnorePlacement(true),
+                                PropertyFactory.iconAllowOverlap(true),
+                                PropertyFactory.iconAnchor(Property.ICON_ANCHOR_BOTTOM_LEFT)
+                                //PropertyFactory.textField("PRUEBANDO BRO")
+                                //PropertyFactory.iconSize(0.5f)
+                                //iconOffset(new Float[]{0f, -30f})
+                        ));
+            });
         }
+    }
 
 
-        FeatureCollection featureCollection = FeatureCollection.fromFeatures(routeLayerFeatureList);
+    private void setRouteLine() {
 
-        GeoJsonSource geoJsonSource = new GeoJsonSource(ROUTE_SOURCE_ID, featureCollection);
+        if (routeWaypoint != null && navViewModel.isWaypointSelected() && currentLocation != null) {
 
-        mapboxMap.getStyle(style -> {
+            List<Point> linePoints = new ArrayList<>();
 
-            if (style.getLayer(Utils.POINT_LAYER_ID) != null) {
-                style.removeLayer(Utils.POINT_LAYER_ID);
-                style.removeLayer(Utils.LINE_LAYER_ID);
-                style.removeSource(ROUTE_SOURCE_ID);
-            }
-            style.addSource(geoJsonSource);
-
-            Utils.addRouteLayersToMap(style, ROUTE_SOURCE_ID);
-
-        });
+            linePoints.add(Point.fromLngLat(currentLocation.getLongitude(), currentLocation.getLatitude()));
+            linePoints.add(Point.fromLngLat(routeWaypoint.getLongitude(), routeWaypoint.getLatitude()));
 
 
+            GeoJsonSource geoJsonSource = new GeoJsonSource(ROUTE_LINE_SOURCE_ID,
+                    Feature.fromGeometry(LineString.fromLngLats(linePoints)));
+
+            mapboxMap.getStyle(style -> {
+
+                if (style.getLayer(ROUTE_LINE_LAYER_ID) != null) {
+                    style.removeLayer(ROUTE_LINE_LAYER_ID);
+                    style.removeSource(ROUTE_LINE_SOURCE_ID);
+                }
+
+                style.addSource(geoJsonSource);
+
+
+                style.addLayerBelow(new LineLayer(ROUTE_LINE_LAYER_ID, ROUTE_LINE_SOURCE_ID)
+                        .withProperties(
+                                PropertyFactory.lineWidth(2f),
+                                PropertyFactory.lineColor(Color.DKGRAY),
+                                PropertyFactory.lineDasharray(new Float[]{3f, 1.5f})
+                        ), "mapbox-location-shadow-layer");
+
+
+            });
+        }
     }
 
 
@@ -920,7 +940,7 @@ public class NavFragment extends Fragment implements CompassListener, Permission
         // Prevent leaks
         if (locationEngine != null) {
             locationEngine.removeLocationUpdates(callback);
-        mapboxMap.getLocationComponent().getCompassEngine().removeCompassListener(this);
+            mapboxMap.getLocationComponent().getCompassEngine().removeCompassListener(this);
         }
         mapView.onDestroy();
     }
