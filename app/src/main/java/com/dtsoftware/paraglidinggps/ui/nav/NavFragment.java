@@ -1,7 +1,6 @@
 package com.dtsoftware.paraglidinggps.ui.nav;
 
 import android.annotation.SuppressLint;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -14,10 +13,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.preference.PreferenceManager;
@@ -31,7 +27,6 @@ import android.view.WindowManager;
 import android.widget.Chronometer;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -82,7 +77,6 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 
 import static android.os.Looper.getMainLooper;
@@ -148,23 +142,28 @@ public class NavFragment extends Fragment implements CompassListener, Permission
     // Variables UI
     private NavViewModel navViewModel;
     private WaypointsViewModel waypointsViewModel;
-    private TextView tvBlock1Label, tvBlock3Label, tvBlock4Label, tvBlock5Label;
-    private TextViewOutline tvBlock1, tvBlock3, tvBlock4, tvBlock5;
+    private TextView tvBlock1Label, tvBlock2Label, tvBlock3Label, tvBlock4Label;
+    private TextViewOutline tvBlock1, tvBlock2, tvBlock3, tvBlock4;
     private Chronometer tvChronometer;
     private FloatingActionButton fabLayers, fabCompass;
     private ToggleButton tbStartFly;
     private ImageView ivCompass, ivRouteCompass;
+
+    private ArrayList<Integer> bearingBlocks = new ArrayList<>();
+    private ArrayList<Integer> speedBlocks = new ArrayList<>();
+    private ArrayList<Integer> altitudeBlocks = new ArrayList<>();
+    private ArrayList<Integer> distanceBlocks = new ArrayList<>();
+    private ArrayList<Integer> distanceWPTBlocks = new ArrayList<>();
+    private ArrayList<Integer> timeToArrivalBlocks = new ArrayList<>();
 
 
     // Variables de vuelo
     private boolean flying = false;
     private Location currentLocation = null;
     private Location prevLocation = null;
+    private float distance = 0, distanceWPT = 0;
+    private int minutesETA = 0;
 
-    private float distance = 0;
-    private int speed = 0;
-    private float distanceWPT = 0;
-    private int altitude = 0;
 
     private ArrayList<FlightLocation> flight = new ArrayList<>();
     private float compassDegreeStart = 0f;
@@ -194,12 +193,20 @@ public class NavFragment extends Fragment implements CompassListener, Permission
         });
 
 
-        tvBlock5 = root.findViewById(R.id.tvBlock5);
-        tvBlock1Label = root.findViewById(R.id.tvBlock1Label);
         tvBlock1 = root.findViewById(R.id.tvBlock1);
+        tvBlock1Label = root.findViewById(R.id.tvBlock1Label);
+
+        tvBlock2 = root.findViewById(R.id.tvBlock2);
+        tvBlock2Label = root.findViewById(R.id.tvBlock2Label);
+
         tvBlock3 = root.findViewById(R.id.tvBlock3);
+        tvBlock3Label = root.findViewById(R.id.tvBlock3Label);
+
         tvBlock4 = root.findViewById(R.id.tvBlock4);
+        tvBlock4Label = root.findViewById(R.id.tvBlock4Label);
+
         tvChronometer = root.findViewById(R.id.tvChronometer);
+
         ivCompass = root.findViewById(R.id.compass);
         ivRouteCompass = root.findViewById(R.id.route_compass);
 
@@ -237,6 +244,8 @@ public class NavFragment extends Fragment implements CompassListener, Permission
             setRoute();
             ivRouteCompass.setVisibility(View.VISIBLE);
         });
+
+        setupNavigationPrecefences();
 
 
         return root;
@@ -653,22 +662,24 @@ public class NavFragment extends Fragment implements CompassListener, Permission
         navViewModel.setLastLocation(lastLocation);
 
 
-        //updateInfo(infoScreen.);
-
-
-        // blockInfo.tvAltitude.setText(String.format(getString(R.string.altitude_format), lastLocation.getAltitude())); // Altitud (m)
-        //tvSpeed.setText(String.format(getString(R.string.speed_format), lastLocation.getSpeed() * 3.6)); // Velocidad en Km/h (m/s * 3.6)
-
         if (flying) {
             updateDistance(lastLocation); // Distancia del vuelo (Km)
             flight.add(new FlightLocation(lastLocation));
         }
 
+        updateAltitude((int) lastLocation.getAltitude());// meters
+        updateSpeed((int) (lastLocation.getSpeed() * 3.6));// m/s to Km/h
+        updateDistance(distance);// Km
+
         setRouteLine();
         updateRouteInfo();
 
+        updateDistanceWPT(distanceWPT / 1000);
+        updateTimeToArrival(minutesETA);
+
 
     }
+
 
     private void updateRouteInfo() {
         if (navViewModel.isWaypointSelected() && currentLocation != null) {
@@ -678,10 +689,8 @@ public class NavFragment extends Fragment implements CompassListener, Permission
             waypointLocation.setLongitude(routeWaypoint.getLongitude());
             waypointLocation.setLatitude(routeWaypoint.getLatitude());
 
-            float distance = currentLocation.distanceTo(waypointLocation);
-
-
-            int minutesETA = (int) ((distance / currentLocation.getSpeed()) / 60);
+            distanceWPT = currentLocation.distanceTo(waypointLocation);
+            minutesETA = (int) ((distanceWPT / currentLocation.getSpeed()) / 60);
 
         }
     }
@@ -700,7 +709,6 @@ public class NavFragment extends Fragment implements CompassListener, Permission
             distance = 0;
         } else {
             distance += prevLocation.distanceTo(lastLocation) / 1000;
-            //  tvDistance.setText(String.format(getString(R.string.distance_format), distance));
         }
         prevLocation = lastLocation;
     }
@@ -814,14 +822,8 @@ public class NavFragment extends Fragment implements CompassListener, Permission
 
         userHeading = (userHeading + 360) % 360;
 
+        updateBearing(userHeading);
         updateRouteBearing(userHeading);
-
-        //tvBearingLet.setText(Utils.degreesToBearing(userHeading)); // Rumbo escrito en letras
-
-        String bearing = String.format(getContext().getString(R.string.bearing_format), userHeading);
-
-        //tvBearing.setText(bearing + " " + getString(R.string.degrees_unit)); // Rumbo en grados
-
 
         // No se permite que la brujula gire mas de 180º
         if (abs(compassDegreeStart + userHeading) > 180) {
@@ -943,8 +945,243 @@ public class NavFragment extends Fragment implements CompassListener, Permission
         }
     }
 
-    private void setupNavigationPrecefences(){
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+
+    private void updateBearing(float bearing) {
+
+
+        String brg = Utils.degreesToBearing(bearing);
+        String brg_degrees = String.format(getContext().getString(R.string.bearing_format), bearing) + "º";
+
+        for (Integer block : bearingBlocks) {
+
+            switch (block) {
+                case 1:
+                    tvBlock1.setText(brg);
+                    tvBlock1Label.setText(brg_degrees);
+                    break;
+                case 2:
+                    tvBlock2.setText(brg);
+                    tvBlock2Label.setText(brg_degrees);
+                    break;
+                case 3:
+                    tvBlock3.setText(brg);
+                    tvBlock3Label.setText(brg_degrees);
+                    break;
+                case 4:
+                    tvBlock4.setText(brg);
+                    tvBlock4Label.setText(brg_degrees);
+                    break;
+                default:
+                    break;
+            }
+
+
+        }
+
+    }
+
+    private void updateTimeToArrival(int minutes) {
+
+
+        String min = String.valueOf(minutes);
+        String label = getString(R.string.time_to_arrival_label);
+
+        for (Integer block : timeToArrivalBlocks) {
+
+            switch (block) {
+                case 1:
+                    tvBlock1.setText(min);
+                    tvBlock1Label.setText(label);
+                    break;
+                case 2:
+                    tvBlock2.setText(min);
+                    tvBlock2Label.setText(label);
+                    break;
+                case 3:
+                    tvBlock3.setText(min);
+                    tvBlock3Label.setText(label);
+                    break;
+                case 4:
+                    tvBlock4.setText(min);
+                    tvBlock4Label.setText(label);
+                    break;
+                default:
+                    break;
+            }
+
+
+        }
+
+    }
+
+
+    private void updateAltitude(int altitude) {
+
+        String alt = String.valueOf(altitude);
+        String label = getString(R.string.altitude_label);
+
+        for (Integer block : altitudeBlocks) {
+            switch (block) {
+                case 1:
+                    tvBlock1.setText(alt);
+                    tvBlock1Label.setText(label);
+                    break;
+                case 2:
+                    tvBlock2.setText(alt);
+                    tvBlock2Label.setText(label);
+                    break;
+                case 3:
+                    tvBlock3.setText(alt);
+                    tvBlock3Label.setText(label);
+                    break;
+                case 4:
+                    tvBlock4.setText(alt);
+                    tvBlock4Label.setText(label);
+                    break;
+                default:
+                    break;
+            }
+
+        }
+
+    }
+
+    private void updateSpeed(int speed) {
+
+        String spd = String.valueOf(speed);
+        String label = getString(R.string.speed_label);
+
+        for (Integer block : speedBlocks) {
+            switch (block) {
+                case 1:
+                    tvBlock1.setText(spd);
+                    tvBlock1Label.setText(label);
+                    break;
+                case 2:
+                    tvBlock2.setText(spd);
+                    tvBlock2Label.setText(label);
+                    break;
+                case 3:
+                    tvBlock3.setText(spd);
+                    tvBlock3Label.setText(label);
+                    break;
+                case 4:
+                    tvBlock4.setText(spd);
+                    tvBlock4Label.setText(label);
+                    break;
+                default:
+                    break;
+            }
+
+        }
+
+    }
+
+    private void updateDistance(float distance) {
+
+        String dst = String.valueOf(distance);
+        String label = getString(R.string.distance_label);
+
+        for (Integer block : distanceBlocks) {
+            switch (block) {
+                case 1:
+                    tvBlock1.setText(dst);
+                    tvBlock1Label.setText(label);
+                    break;
+                case 2:
+                    tvBlock2.setText(dst);
+                    tvBlock2Label.setText(label);
+                    break;
+                case 3:
+                    tvBlock3.setText(dst);
+                    tvBlock3Label.setText(label);
+                    break;
+                case 4:
+                    tvBlock4.setText(dst);
+                    tvBlock4Label.setText(label);
+                    break;
+                default:
+                    break;
+            }
+
+        }
+
+    }
+
+    private void updateDistanceWPT(float distance) {
+
+        String dst = String.valueOf(distance);
+        String label = getString(R.string.distanceWPT_label);
+
+        for (Integer block : distanceWPTBlocks) {
+            switch (block) {
+                case 1:
+                    tvBlock1.setText(dst);
+                    tvBlock1Label.setText(label);
+                    break;
+                case 2:
+                    tvBlock2.setText(dst);
+                    tvBlock2Label.setText(label);
+                    break;
+                case 3:
+                    tvBlock3.setText(dst);
+                    tvBlock3Label.setText(label);
+                    break;
+                case 4:
+                    tvBlock4.setText(dst);
+                    tvBlock4Label.setText(label);
+                    break;
+                default:
+                    break;
+            }
+
+        }
+
+    }
+
+
+    private void setupNavigationPrecefences() {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this.getContext());
+        String value = "null";
+
+        value = sharedPreferences.getString("space1", "NULL");
+        addBlockToArray(1, value);
+
+        value = sharedPreferences.getString("space2", "NULL");
+        addBlockToArray(2, value);
+
+        value = sharedPreferences.getString("space3", "NULL");
+        addBlockToArray(3, value);
+
+        value = sharedPreferences.getString("space4", "NULL");
+        addBlockToArray(4, value);
+
+    }
+
+    private void addBlockToArray(int block, String array) {
+
+        switch (array) {
+
+            case "bearing":
+                bearingBlocks.add(block);
+                break;
+            case "altitude":
+                altitudeBlocks.add(block);
+                break;
+            case "speed":
+                speedBlocks.add(block);
+                break;
+            case "distance":
+                distanceBlocks.add(block);
+                break;
+            case "distance_wpt":
+                distanceWPTBlocks.add(block);
+                break;
+            case "time_to_arrival":
+                timeToArrivalBlocks.add(block);
+                break;
+        }
+
 
     }
 

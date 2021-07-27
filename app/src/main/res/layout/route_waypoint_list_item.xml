@@ -58,7 +58,7 @@
         app:layout_constraintTop_toBottomOf="@+id/tv_wli_name" />
 
     <TextView
-        android:id="@+id/tvBlock5"
+        android:id="@+id/tvBlock4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"

@@ -30,10 +30,12 @@
 
     <!--Labels-->
     <string name="distance">Distance: </string>
-    <string name="meters_unit">Altitude (m)</string>
-    <string name="kmh_unit">Speed (km/h)</string>
+    <string name="altitude_label">Altitude (m)</string>
+    <string name="speed_label">Speed (km/h)</string>
+    <string name="time_to_arrival_label">Time to arrival (\')</string>
     <string name="degrees_unit">(°)</string>
-    <string name="distance_unit">Distance (Km)</string>
+    <string name="distance_label">Distance (Km)</string>
+    <string name="distanceWPT_label">Distance to WPT (Km)</string>
     <string name="flights_counter">Flights</string>
     <string name="hours_counter">Flight hours</string>
     <!--Labels-->

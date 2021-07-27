@@ -35,7 +35,7 @@
             android:layout_weight="2"
             android:orientation="vertical"
             android:outlineProvider="paddedBounds"
-            mapbox:layout_constraintEnd_toStartOf="@+id/Block2"
+            mapbox:layout_constraintEnd_toStartOf="@+id/BlockTimer"
             mapbox:layout_constraintStart_toStartOf="parent"
             mapbox:layout_constraintTop_toTopOf="parent">
 
@@ -43,20 +43,18 @@
                 android:id="@+id/tvBlock1"
                 style="@style/OnScreenInfoBig"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/northWest" />
+                android:layout_height="wrap_content" />
 
             <TextView
                 android:id="@+id/tvBlock1Label"
-                style="@style/OnScreenInfoUnits"
+                style="@style/OnScreenInfoLabel"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/default_bearing" />
+                android:layout_height="wrap_content" />
 
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/Block2"
+            android:id="@+id/BlockTimer"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_weight="1"
@@ -80,10 +78,34 @@
 
             <TextView
                 android:id="@+id/tvTimeLabel"
-                style="@style/OnScreenInfoUnits"
+                style="@style/OnScreenInfoLabel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Time" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/Block2"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            mapbox:layout_constraintEnd_toStartOf="@id/Block3"
+            mapbox:layout_constraintStart_toStartOf="parent"
+            mapbox:layout_constraintTop_toBottomOf="@+id/Block1">
+
+            <com.dtsoftware.paraglidinggps.TextViewOutline
+                android:id="@+id/tvBlock2"
+                style="@style/OnScreenInfoLittle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:id="@+id/tvBlock2Label"
+                style="@style/OnScreenInfoLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="" />
         </LinearLayout>
 
         <LinearLayout
@@ -92,23 +114,22 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:orientation="vertical"
-            mapbox:layout_constraintEnd_toStartOf="@id/Block4"
-            mapbox:layout_constraintStart_toStartOf="parent"
-            mapbox:layout_constraintTop_toBottomOf="@+id/Block1">
+            mapbox:layout_constraintEnd_toStartOf="@+id/Block4"
+            mapbox:layout_constraintStart_toEndOf="@+id/Block2"
+            mapbox:layout_constraintTop_toTopOf="@+id/Block2">
 
             <com.dtsoftware.paraglidinggps.TextViewOutline
                 android:id="@+id/tvBlock3"
                 style="@style/OnScreenInfoLittle"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/default_speed" />
+                android:layout_height="wrap_content" />
 
             <TextView
                 android:id="@+id/tvBlock3Label"
-                style="@style/OnScreenInfoUnits"
+                style="@style/OnScreenInfoLabel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/kmh_unit" />
+                android:text="" />
         </LinearLayout>
 
         <LinearLayout
@@ -117,48 +138,21 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:orientation="vertical"
-            mapbox:layout_constraintEnd_toStartOf="@+id/Block5"
+            mapbox:layout_constraintEnd_toEndOf="parent"
             mapbox:layout_constraintStart_toEndOf="@+id/Block3"
-            mapbox:layout_constraintTop_toTopOf="@+id/Block3">
+            mapbox:layout_constraintTop_toTopOf="@+id/Block2">
 
             <com.dtsoftware.paraglidinggps.TextViewOutline
                 android:id="@+id/tvBlock4"
                 style="@style/OnScreenInfoLittle"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/default_altitude" />
+                android:layout_height="wrap_content" />
 
             <TextView
                 android:id="@+id/tvBlock4Label"
-                style="@style/OnScreenInfoUnits"
+                style="@style/OnScreenInfoLabel"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/meters_unit" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/Block5"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            mapbox:layout_constraintEnd_toEndOf="parent"
-            mapbox:layout_constraintStart_toEndOf="@+id/Block4"
-            mapbox:layout_constraintTop_toTopOf="@+id/Block3">
-
-            <com.dtsoftware.paraglidinggps.TextViewOutline
-                android:id="@+id/tvBlock5"
-                style="@style/OnScreenInfoLittle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/default_distance" />
-
-            <TextView
-                android:id="@+id/tvBlockLabel"
-                style="@style/OnScreenInfoUnits"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/distance_unit" />
+                android:layout_height="wrap_content" />
         </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>

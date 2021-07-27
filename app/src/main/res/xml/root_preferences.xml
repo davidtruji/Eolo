@@ -4,14 +4,18 @@
     <PreferenceCategory app:title="Map settings">
 
         <ListPreference
+            android:icon="@drawable/layers"
             app:defaultValue="terrain"
             app:entries="@array/map_layer"
             app:entryValues="@array/map_layer_values"
             app:key="map_layer"
             app:title="Map layer"
-            app:useSimpleSummaryProvider="true" />
+            app:useSimpleSummaryProvider="true"
+            android:enabled="false"/>
 
         <ListPreference
+            android:icon="@drawable/regla"
+            android:enabled="false"
             app:defaultValue="metric"
             app:entries="@array/units"
             app:entryValues="@array/units_values"
@@ -30,6 +34,7 @@
         />
 
         <ListPreference
+            android:icon="@drawable/one"
             app:defaultValue="bearing"
             app:entries="@array/info"
             app:entryValues="@array/info_values"
@@ -38,6 +43,7 @@
             app:useSimpleSummaryProvider="true" />
 
         <ListPreference
+            android:icon="@drawable/two"
             app:defaultValue="speed"
             app:entries="@array/info"
             app:entryValues="@array/info_values"
@@ -46,6 +52,7 @@
             app:useSimpleSummaryProvider="true" />
 
         <ListPreference
+            android:icon="@drawable/three"
             app:defaultValue="distance_wpt"
             app:entries="@array/info"
             app:entryValues="@array/info_values"
@@ -54,6 +61,7 @@
             app:useSimpleSummaryProvider="true" />
 
         <ListPreference
+            android:icon="@drawable/four"
             app:defaultValue="altitude"
             app:entries="@array/info"
             app:entryValues="@array/info_values"
