@@ -1,0 +1,42 @@
+<resources>
+    <!-- Reply Preference -->
+    <string-array name="units">
+        <item>Imperial system</item>
+        <item>Metric system</item>
+    </string-array>
+
+    <string-array name="units_values">
+        <item>imperial</item>
+        <item>metric</item>
+    </string-array>
+
+    <string-array name="map_layer">
+        <item>Satellite</item>
+        <item>Terrain</item>
+    </string-array>
+
+    <string-array name="map_layer_values">
+        <item>satellite</item>
+        <item>terrain</item>
+    </string-array>
+
+    <string-array name="info">
+        <item>Bearing</item>
+        <item>Speed</item>
+        <item>Distance</item>
+        <item>Altitude</item>
+        <item>Distance to WPT</item>
+        <item>Time to arrival</item>
+    </string-array>
+
+    <string-array name="info_values">
+        <item>bearing</item>
+        <item>speed</item>
+        <item>distance</item>
+        <item>altitude</item>
+        <item>distance_wpt</item>
+        <item>time_to_arrival</item>
+    </string-array>
+
+
+</resources>

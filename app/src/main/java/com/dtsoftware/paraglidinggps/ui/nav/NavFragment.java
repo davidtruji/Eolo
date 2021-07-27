@@ -1,6 +1,9 @@
 package com.dtsoftware.paraglidinggps.ui.nav;
 
 import android.annotation.SuppressLint;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -10,11 +13,14 @@ import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
 
-import androidx.annotation.ColorRes;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.preference.PreferenceManager;
 
 import android.os.SystemClock;
 import android.util.Log;
@@ -25,6 +31,7 @@ import android.view.WindowManager;
 import android.widget.Chronometer;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -33,6 +40,7 @@ import com.dtsoftware.paraglidinggps.Flight;
 import com.dtsoftware.paraglidinggps.FlightLocation;
 import com.dtsoftware.paraglidinggps.MainActivity;
 import com.dtsoftware.paraglidinggps.R;
+import com.dtsoftware.paraglidinggps.SettingsActivity;
 import com.dtsoftware.paraglidinggps.TextViewOutline;
 import com.dtsoftware.paraglidinggps.Utils;
 import com.dtsoftware.paraglidinggps.Waypoint;
@@ -74,11 +82,13 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 import static android.os.Looper.getMainLooper;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.eq;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.get;
+import static com.mapbox.mapboxsdk.style.expressions.Expression.in;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.literal;
 import static com.mapbox.mapboxsdk.style.layers.Property.ICON_ANCHOR_BOTTOM;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconAllowOverlap;
@@ -91,6 +101,7 @@ import static java.lang.Math.abs;
 
 @SuppressLint({"UseCompatLoadingForDrawables", "SetTextI18n"})
 public class NavFragment extends Fragment implements CompassListener, PermissionsListener, OnCameraTrackingChangedListener {
+
 
     // Constantes
     private final long DEFAULT_INTERVAL_IN_MILLISECONDS = 100L;
@@ -137,18 +148,24 @@ public class NavFragment extends Fragment implements CompassListener, Permission
     // Variables UI
     private NavViewModel navViewModel;
     private WaypointsViewModel waypointsViewModel;
-    private TextView tvBearing;
-    private TextViewOutline tvBearingLet, tvDistance, tvSpeed, tvAltitude;
+    private TextView tvBlock1Label, tvBlock3Label, tvBlock4Label, tvBlock5Label;
+    private TextViewOutline tvBlock1, tvBlock3, tvBlock4, tvBlock5;
     private Chronometer tvChronometer;
     private FloatingActionButton fabLayers, fabCompass;
     private ToggleButton tbStartFly;
     private ImageView ivCompass, ivRouteCompass;
 
+
     // Variables de vuelo
     private boolean flying = false;
     private Location currentLocation = null;
     private Location prevLocation = null;
+
     private float distance = 0;
+    private int speed = 0;
+    private float distanceWPT = 0;
+    private int altitude = 0;
+
     private ArrayList<FlightLocation> flight = new ArrayList<>();
     private float compassDegreeStart = 0f;
     private float routeCompassDegreeStart = 0f;
@@ -167,12 +184,21 @@ public class NavFragment extends Fragment implements CompassListener, Permission
 
         Toolbar toolbar = root.findViewById(R.id.nav_toolbar);
         toolbar.setTitle(getString(R.string.title_nav));
+        toolbar.inflateMenu(R.menu.nav_toolbar_menu);
+        toolbar.setOnMenuItemClickListener(item -> {
+            if (item.getItemId() == R.id.action_settings) {
+                Intent settingsIntent = new Intent(getActivity(), SettingsActivity.class);
+                startActivity(settingsIntent);
+            }
+            return true;
+        });
 
-        tvDistance = root.findViewById(R.id.tvDistance);
-        tvBearing = root.findViewById(R.id.tvBearing);
-        tvBearingLet = root.findViewById(R.id.tvBearingLetter);
-        tvSpeed = root.findViewById(R.id.tvSpeed);
-        tvAltitude = root.findViewById(R.id.tvAltitude);
+
+        tvBlock5 = root.findViewById(R.id.tvBlock5);
+        tvBlock1Label = root.findViewById(R.id.tvBlock1Label);
+        tvBlock1 = root.findViewById(R.id.tvBlock1);
+        tvBlock3 = root.findViewById(R.id.tvBlock3);
+        tvBlock4 = root.findViewById(R.id.tvBlock4);
         tvChronometer = root.findViewById(R.id.tvChronometer);
         ivCompass = root.findViewById(R.id.compass);
         ivRouteCompass = root.findViewById(R.id.route_compass);
@@ -194,6 +220,7 @@ public class NavFragment extends Fragment implements CompassListener, Permission
 
         fabLayers.setOnClickListener(view -> changeCurrentMapLayer());
         fabCompass.setOnClickListener(view -> changeCameraMode());
+
 
         waypointsViewModel = new ViewModelProvider(getActivity()).get(WaypointsViewModel.class);
         navViewModel = new ViewModelProvider(getActivity()).get(NavViewModel.class);
@@ -625,26 +652,46 @@ public class NavFragment extends Fragment implements CompassListener, Permission
         currentLocation = lastLocation;
         navViewModel.setLastLocation(lastLocation);
 
-        setRouteLine();
 
-        tvAltitude.setText(String.format(getString(R.string.altitude_format), lastLocation.getAltitude())); // Altitud (m)
+        //updateInfo(infoScreen.);
 
-        tvSpeed.setText(String.format(getString(R.string.speed_format), lastLocation.getSpeed() * 3.6)); // Velocidad en Km/h (m/s * 3.6)
+
+        // blockInfo.tvAltitude.setText(String.format(getString(R.string.altitude_format), lastLocation.getAltitude())); // Altitud (m)
+        //tvSpeed.setText(String.format(getString(R.string.speed_format), lastLocation.getSpeed() * 3.6)); // Velocidad en Km/h (m/s * 3.6)
 
         if (flying) {
             updateDistance(lastLocation); // Distancia del vuelo (Km)
             flight.add(new FlightLocation(lastLocation));
         }
 
+        setRouteLine();
+        updateRouteInfo();
 
+
+    }
+
+    private void updateRouteInfo() {
+        if (navViewModel.isWaypointSelected() && currentLocation != null) {
+
+            Location waypointLocation = new Location("waypointLocation");
+
+            waypointLocation.setLongitude(routeWaypoint.getLongitude());
+            waypointLocation.setLatitude(routeWaypoint.getLatitude());
+
+            float distance = currentLocation.distanceTo(waypointLocation);
+
+
+            int minutesETA = (int) ((distance / currentLocation.getSpeed()) / 60);
+
+        }
     }
 
     private void resetOnScreenInfo() {
         distance = 0;
-        tvDistance.setText(getString(R.string.default_distance));
-        tvSpeed.setText(getString(R.string.default_speed));
-        tvAltitude.setText(getString(R.string.default_altitude));
-        tvBearing.setText(getString(R.string.default_bearing));
+//        tvDistance.setText(getString(R.string.default_distance));
+//        tvSpeed.setText(getString(R.string.default_speed));
+//        tvAltitude.setText(getString(R.string.default_altitude));
+//        tvBearing.setText(getString(R.string.default_bearing));
     }
 
     private void updateDistance(Location lastLocation) {
@@ -653,7 +700,7 @@ public class NavFragment extends Fragment implements CompassListener, Permission
             distance = 0;
         } else {
             distance += prevLocation.distanceTo(lastLocation) / 1000;
-            tvDistance.setText(String.format(getString(R.string.distance_format), distance));
+            //  tvDistance.setText(String.format(getString(R.string.distance_format), distance));
         }
         prevLocation = lastLocation;
     }
@@ -769,11 +816,11 @@ public class NavFragment extends Fragment implements CompassListener, Permission
 
         updateRouteBearing(userHeading);
 
-        tvBearingLet.setText(Utils.degreesToBearing(userHeading)); // Rumbo escrito en letras
+        //tvBearingLet.setText(Utils.degreesToBearing(userHeading)); // Rumbo escrito en letras
 
         String bearing = String.format(getContext().getString(R.string.bearing_format), userHeading);
 
-        tvBearing.setText(bearing + " " + getString(R.string.degrees_unit)); // Rumbo en grados
+        //tvBearing.setText(bearing + " " + getString(R.string.degrees_unit)); // Rumbo en grados
 
 
         // No se permite que la brujula gire mas de 180º
@@ -894,6 +941,11 @@ public class NavFragment extends Fragment implements CompassListener, Permission
 
             });
         }
+    }
+
+    private void setupNavigationPrecefences(){
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+
     }
 
 

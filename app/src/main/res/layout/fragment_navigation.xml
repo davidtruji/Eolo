@@ -20,9 +20,10 @@
         mapbox:layout_constraintTop_toTopOf="parent" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/constraintLayout"
+        android:id="@+id/infoLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:padding="8dp"
         mapbox:layout_constraintEnd_toEndOf="parent"
         mapbox:layout_constraintStart_toStartOf="parent"
         mapbox:layout_constraintTop_toBottomOf="@+id/nav_toolbar">
@@ -39,14 +40,14 @@
             mapbox:layout_constraintTop_toTopOf="parent">
 
             <com.dtsoftware.paraglidinggps.TextViewOutline
-                android:id="@+id/tvBearingLetter"
+                android:id="@+id/tvBlock1"
                 style="@style/OnScreenInfoBig"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/northWest" />
 
             <TextView
-                android:id="@+id/tvBearing"
+                android:id="@+id/tvBlock1Label"
                 style="@style/OnScreenInfoUnits"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -96,14 +97,14 @@
             mapbox:layout_constraintTop_toBottomOf="@+id/Block1">
 
             <com.dtsoftware.paraglidinggps.TextViewOutline
-                android:id="@+id/tvSpeed"
+                android:id="@+id/tvBlock3"
                 style="@style/OnScreenInfoLittle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/default_speed" />
 
             <TextView
-                android:id="@+id/tvSpeedUnits"
+                android:id="@+id/tvBlock3Label"
                 style="@style/OnScreenInfoUnits"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -121,14 +122,14 @@
             mapbox:layout_constraintTop_toTopOf="@+id/Block3">
 
             <com.dtsoftware.paraglidinggps.TextViewOutline
-                android:id="@+id/tvAltitude"
+                android:id="@+id/tvBlock4"
                 style="@style/OnScreenInfoLittle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/default_altitude" />
 
             <TextView
-                android:id="@+id/tvAltitudeUnits"
+                android:id="@+id/tvBlock4Label"
                 style="@style/OnScreenInfoUnits"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -146,14 +147,14 @@
             mapbox:layout_constraintTop_toTopOf="@+id/Block3">
 
             <com.dtsoftware.paraglidinggps.TextViewOutline
-                android:id="@+id/tvDistance"
+                android:id="@+id/tvBlock5"
                 style="@style/OnScreenInfoLittle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/default_distance" />
 
             <TextView
-                android:id="@+id/tvDistanceUnits"
+                android:id="@+id/tvBlockLabel"
                 style="@style/OnScreenInfoUnits"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -165,11 +166,10 @@
     <View
         android:id="@+id/divider"
         style="@style/HorizontalDivider"
-        android:layout_marginTop="8dp"
         mapbox:layout_constraintBottom_toTopOf="@id/frameLayout"
         mapbox:layout_constraintEnd_toEndOf="parent"
         mapbox:layout_constraintStart_toStartOf="parent"
-        mapbox:layout_constraintTop_toBottomOf="@+id/constraintLayout" />
+        mapbox:layout_constraintTop_toBottomOf="@id/infoLayout" />
 
     <FrameLayout
 

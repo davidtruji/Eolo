@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/preferenceLayout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="32dp"
+    android:background="@drawable/preference_layout_background">
+
+    <LinearLayout
+        android:id="@+id/Block1"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="2"
+        android:background="@drawable/block_layout_background"
+        android:orientation="vertical"
+        android:outlineProvider="paddedBounds"
+        app:layout_constraintBottom_toTopOf="@+id/Block3"
+        app:layout_constraintEnd_toStartOf="@+id/Block2"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:layout_constraintEnd_toStartOf="@+id/Block2"
+        tools:layout_constraintStart_toStartOf="parent"
+        tools:layout_constraintTop_toTopOf="parent">
+
+        <com.dtsoftware.paraglidinggps.TextViewOutline
+            android:id="@+id/tvBlock1"
+            style="@style/OnScreenInfoBigPreference"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="1" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/Block2"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="@drawable/block_layout_background"
+        android:gravity="bottom"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="@+id/Block1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/Block1"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:layout_constraintBottom_toBottomOf="@+id/Block1"
+        tools:layout_constraintEnd_toEndOf="parent"
+        tools:layout_constraintStart_toEndOf="@+id/Block1"
+        tools:layout_constraintTop_toTopOf="@+id/Block1">
+
+        <TextView
+            android:id="@+id/textView6"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/Block3"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:background="@drawable/block_layout_background"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/Block4"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/Block1"
+        tools:layout_constraintEnd_toStartOf="@id/Block4"
+        tools:layout_constraintStart_toStartOf="parent"
+        tools:layout_constraintTop_toBottomOf="@+id/Block1">
+
+        <com.dtsoftware.paraglidinggps.TextViewOutline
+            android:id="@+id/tvBlock3"
+            style="@style/OnScreenInfoLittlepreference"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="2" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/Block4"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:background="@drawable/block_layout_background"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/Block5"
+        app:layout_constraintStart_toEndOf="@+id/Block3"
+        app:layout_constraintTop_toBottomOf="@+id/Block1"
+        tools:layout_constraintEnd_toStartOf="@+id/Block5"
+        tools:layout_constraintStart_toEndOf="@+id/Block3"
+        tools:layout_constraintTop_toTopOf="@+id/Block3">
+
+        <com.dtsoftware.paraglidinggps.TextViewOutline
+            android:id="@+id/tvBlock4"
+            style="@style/OnScreenInfoLittlepreference"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="3" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/Block5"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:background="@drawable/block_layout_background"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/Block4"
+        app:layout_constraintTop_toBottomOf="@+id/Block1"
+        tools:layout_constraintEnd_toEndOf="parent"
+        tools:layout_constraintStart_toEndOf="@+id/Block4"
+        tools:layout_constraintTop_toTopOf="@+id/Block3">
+
+        <com.dtsoftware.paraglidinggps.TextViewOutline
+            android:id="@+id/tvBlock5"
+            style="@style/OnScreenInfoLittlepreference"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="4" />
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

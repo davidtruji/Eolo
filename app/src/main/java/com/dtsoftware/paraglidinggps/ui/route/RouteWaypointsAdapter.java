@@ -16,7 +16,6 @@ import com.dtsoftware.paraglidinggps.R;
 import com.dtsoftware.paraglidinggps.Waypoint;
 import com.dtsoftware.paraglidinggps.ui.nav.NavViewModel;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class RouteWaypointsAdapter extends RecyclerView.Adapter<RouteWaypointsAdapter.RouteWaypointsViewHolder> {
@@ -45,7 +44,7 @@ public class RouteWaypointsAdapter extends RecyclerView.Adapter<RouteWaypointsAd
             tvName = itemView.findViewById(R.id.tv_wli_name);
             tvLat = itemView.findViewById(R.id.tv_wli_lat);
             tvLong = itemView.findViewById(R.id.tv_wli_lng);
-            tvDistance = itemView.findViewById(R.id.tvDistance);
+            tvDistance = itemView.findViewById(R.id.tvBlock5);
         }
 
         public void setClickListener(Waypoint waypoint, int position, ClickListener clickListener) {
