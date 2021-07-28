@@ -31,6 +31,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import com.dtsoftware.paraglidinggps.ChronometerOutline;
 import com.dtsoftware.paraglidinggps.Flight;
 import com.dtsoftware.paraglidinggps.FlightLocation;
 import com.dtsoftware.paraglidinggps.MainActivity;
@@ -59,6 +60,7 @@ import com.mapbox.mapboxsdk.location.CompassListener;
 import com.mapbox.mapboxsdk.location.LocationComponent;
 import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions;
 import com.mapbox.mapboxsdk.location.LocationComponentOptions;
+import com.mapbox.mapboxsdk.location.LocationUpdate;
 import com.mapbox.mapboxsdk.location.OnCameraTrackingChangedListener;
 import com.mapbox.mapboxsdk.location.modes.CameraMode;
 import com.mapbox.mapboxsdk.location.modes.RenderMode;
@@ -94,7 +96,7 @@ import static java.lang.Math.abs;
 
 
 @SuppressLint({"UseCompatLoadingForDrawables", "SetTextI18n"})
-public class NavFragment extends Fragment implements CompassListener, PermissionsListener, OnCameraTrackingChangedListener {
+public class NavFragment extends Fragment implements CompassListener, PermissionsListener, OnCameraTrackingChangedListener, SharedPreferences.OnSharedPreferenceChangeListener {
 
 
     // Constantes
@@ -118,13 +120,13 @@ public class NavFragment extends Fragment implements CompassListener, Permission
     private MapView mapView;
     private PermissionsManager permissionsManager;
     private LocationEngine locationEngine;
-    private LocationChangeListeningActivityLocationCallback callback =
+    private final LocationChangeListeningActivityLocationCallback callback =
             new LocationChangeListeningActivityLocationCallback(this);
     private GeoJsonSource wptSource;
     private FeatureCollection wptFeatureCollection;
 
     @SuppressLint("WrongConstant")
-    private OnMapReadyCallback onMapReadyCallback = mapboxMap -> {
+    private final OnMapReadyCallback onMapReadyCallback = mapboxMap -> {
         NavFragment.this.mapboxMap = mapboxMap;
 
         mapboxMap.setStyle(PARAGLIDING_MAP_STYLE,
@@ -144,17 +146,17 @@ public class NavFragment extends Fragment implements CompassListener, Permission
     private WaypointsViewModel waypointsViewModel;
     private TextView tvBlock1Label, tvBlock2Label, tvBlock3Label, tvBlock4Label;
     private TextViewOutline tvBlock1, tvBlock2, tvBlock3, tvBlock4;
-    private Chronometer tvChronometer;
+    private ChronometerOutline tvChronometer;
     private FloatingActionButton fabLayers, fabCompass;
     private ToggleButton tbStartFly;
     private ImageView ivCompass, ivRouteCompass;
 
-    private ArrayList<Integer> bearingBlocks = new ArrayList<>();
-    private ArrayList<Integer> speedBlocks = new ArrayList<>();
-    private ArrayList<Integer> altitudeBlocks = new ArrayList<>();
-    private ArrayList<Integer> distanceBlocks = new ArrayList<>();
-    private ArrayList<Integer> distanceWPTBlocks = new ArrayList<>();
-    private ArrayList<Integer> timeToArrivalBlocks = new ArrayList<>();
+    private final ArrayList<Integer> bearingBlocks = new ArrayList<>();
+    private final ArrayList<Integer> speedBlocks = new ArrayList<>();
+    private final ArrayList<Integer> altitudeBlocks = new ArrayList<>();
+    private final ArrayList<Integer> distanceBlocks = new ArrayList<>();
+    private final ArrayList<Integer> distanceWPTBlocks = new ArrayList<>();
+    private final ArrayList<Integer> timeToArrivalBlocks = new ArrayList<>();
 
 
     // Variables de vuelo
@@ -245,7 +247,7 @@ public class NavFragment extends Fragment implements CompassListener, Permission
             ivRouteCompass.setVisibility(View.VISIBLE);
         });
 
-        setupNavigationPrecefences();
+        setupSharedPreferences();
 
 
         return root;
@@ -636,7 +638,11 @@ public class NavFragment extends Fragment implements CompassListener, Permission
 
                 // Pass the new location to the Maps SDK's LocationComponent
                 if (activity.mapboxMap != null && result.getLastLocation() != null) {
-                    activity.mapboxMap.getLocationComponent().forceLocationUpdate(result.getLastLocation());
+                    LocationUpdate locationUpdate = new LocationUpdate.Builder()
+                            .location(result.getLastLocation())
+                            .animationDuration(2000L)
+                            .build();
+                    activity.mapboxMap.getLocationComponent().forceLocationUpdate(locationUpdate);
                 }
             }
         }
@@ -697,10 +703,12 @@ public class NavFragment extends Fragment implements CompassListener, Permission
 
     private void resetOnScreenInfo() {
         distance = 0;
-//        tvDistance.setText(getString(R.string.default_distance));
-//        tvSpeed.setText(getString(R.string.default_speed));
-//        tvAltitude.setText(getString(R.string.default_altitude));
-//        tvBearing.setText(getString(R.string.default_bearing));
+        updateDistance(0);
+        updateTimeToArrival(0);
+        updateDistanceWPT(0);
+        updateSpeed(0);
+        updateAltitude(0);
+        updateBearing(0);
     }
 
     private void updateDistance(Location lastLocation) {
@@ -722,7 +730,6 @@ public class NavFragment extends Fragment implements CompassListener, Permission
         flying = true;
         tvChronometer.setBase(SystemClock.elapsedRealtime());
         tvChronometer.start();
-        Log.i(getString(R.string.debug_tag), "Vuelo Iniciado");
     }
 
 
@@ -735,8 +742,6 @@ public class NavFragment extends Fragment implements CompassListener, Permission
         getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);// Permitir apagar la pantalla de nuevo
         tvChronometer.setBase(SystemClock.elapsedRealtime());
         tvChronometer.stop();
-
-        Log.i(getString(R.string.debug_tag), "Vuelo finalizado: " + "distancia: " + Utils.getRouteDistance(flight) + "m" + " duracion: " + Utils.getRouteDuration(flight) / 1000 + "\"");
         saveFlight();
     }
 
@@ -764,19 +769,13 @@ public class NavFragment extends Fragment implements CompassListener, Permission
 
         if (locationComponent.getCameraMode() == CameraMode.TRACKING_COMPASS) {
             locationComponent.setCameraMode(CameraMode.TRACKING_GPS_NORTH);
-            Log.i(getString(R.string.debug_tag), "Modo de cámara cambia de TRACKING_COMPASS a TRACKING_GPS_NORTH");
             Utils.showSnakcbar(getView().findViewById(R.id.screenInfo_layout), getString(R.string.tracking_gps_north_snack));
-
         } else if (locationComponent.getCameraMode() == CameraMode.TRACKING_GPS_NORTH) {
             locationComponent.setCameraMode(CameraMode.TRACKING_COMPASS);
-            Log.i(getString(R.string.debug_tag), "Modo de cámara cambia de TRACKING_GPS_NORTH a TRACKING_COMPASS");
             Utils.showSnakcbar(getView().findViewById(R.id.screenInfo_layout), getString(R.string.tracking_compass_snack));
-
         } else {
             locationComponent.setCameraMode(CameraMode.TRACKING_GPS_NORTH);
-            Log.i(getString(R.string.debug_tag), "Modo de cámara cambia de NONE a TRACKING_GPS_NORTH");
             Utils.showSnakcbar(getView().findViewById(R.id.screenInfo_layout), getString(R.string.tracking_gps_north_snack));
-
         }
 
 
@@ -813,6 +812,33 @@ public class NavFragment extends Fragment implements CompassListener, Permission
                 break;
         }
 
+
+    }
+
+    public void setupSharedPreferences() {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this.getContext());
+        setNavigationInformationPrecefences();
+        sharedPreferences.registerOnSharedPreferenceChangeListener(this);
+    }
+
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+
+        switch (key) {
+            case "space1":
+            case "space2":
+            case "space3":
+            case "space4":
+                setNavigationInformationPrecefences();
+                updateDistance(0);
+                updateTimeToArrival(0);
+                updateDistanceWPT(0);
+                updateSpeed(0);
+                updateAltitude(0);
+                updateBearing(0);
+                break;
+        }
 
     }
 
@@ -982,8 +1008,13 @@ public class NavFragment extends Fragment implements CompassListener, Permission
 
     private void updateTimeToArrival(int minutes) {
 
+        String min;
 
-        String min = String.valueOf(minutes);
+        if (minutes < 1440)
+            min = String.valueOf(minutes);
+        else
+            min = "∞";
+
         String label = getString(R.string.time_to_arrival_label);
 
         for (Integer block : timeToArrivalBlocks) {
@@ -1079,7 +1110,7 @@ public class NavFragment extends Fragment implements CompassListener, Permission
 
     private void updateDistance(float distance) {
 
-        String dst = String.valueOf(distance);
+        String dst = String.format(getString(R.string.distance_format), distance);
         String label = getString(R.string.distance_label);
 
         for (Integer block : distanceBlocks) {
@@ -1110,7 +1141,7 @@ public class NavFragment extends Fragment implements CompassListener, Permission
 
     private void updateDistanceWPT(float distance) {
 
-        String dst = String.valueOf(distance);
+        String dst = String.format(getString(R.string.distance_format), distance);
         String label = getString(R.string.distanceWPT_label);
 
         for (Integer block : distanceWPTBlocks) {
@@ -1140,20 +1171,27 @@ public class NavFragment extends Fragment implements CompassListener, Permission
     }
 
 
-    private void setupNavigationPrecefences() {
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this.getContext());
-        String value = "null";
+    private void setNavigationInformationPrecefences() {
+        altitudeBlocks.clear();
+        speedBlocks.clear();
+        bearingBlocks.clear();
+        distanceBlocks.clear();
+        distanceWPTBlocks.clear();
+        timeToArrivalBlocks.clear();
 
-        value = sharedPreferences.getString("space1", "NULL");
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this.getContext());
+        String value;
+
+        value = sharedPreferences.getString(getString(R.string.space1_key), "NULL");
         addBlockToArray(1, value);
 
-        value = sharedPreferences.getString("space2", "NULL");
+        value = sharedPreferences.getString(getString(R.string.space2_key), "NULL");
         addBlockToArray(2, value);
 
-        value = sharedPreferences.getString("space3", "NULL");
+        value = sharedPreferences.getString(getString(R.string.space3_key), "NULL");
         addBlockToArray(3, value);
 
-        value = sharedPreferences.getString("space4", "NULL");
+        value = sharedPreferences.getString(getString(R.string.space4_key), "NULL");
         addBlockToArray(4, value);
 
     }
@@ -1179,6 +1217,8 @@ public class NavFragment extends Fragment implements CompassListener, Permission
                 break;
             case "time_to_arrival":
                 timeToArrivalBlocks.add(block);
+                break;
+            default:
                 break;
         }
 
@@ -1232,6 +1272,9 @@ public class NavFragment extends Fragment implements CompassListener, Permission
             mapboxMap.getLocationComponent().getCompassEngine().removeCompassListener(this);
         }
         mapView.onDestroy();
+        PreferenceManager.getDefaultSharedPreferences(this.getContext()).unregisterOnSharedPreferenceChangeListener(this);
+
+
     }
 
 

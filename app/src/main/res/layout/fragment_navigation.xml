@@ -65,23 +65,20 @@
             mapbox:layout_constraintStart_toEndOf="@+id/Block1"
             mapbox:layout_constraintTop_toTopOf="@+id/Block1">
 
-            <Chronometer
+            <com.dtsoftware.paraglidinggps.ChronometerOutline
                 android:id="@+id/tvChronometer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:format="%02d:%02d:%02d"
-                android:padding="16dp"
-                android:textAlignment="center"
-                android:textColor="@color/black"
-                android:textSize="40sp"
-                android:textStyle="bold" />
+                style="@style/OnScreenInfoChronometer"
+                />
 
             <TextView
                 android:id="@+id/tvTimeLabel"
                 style="@style/OnScreenInfoLabel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Time" />
+                android:text="@string/chronometer_label" />
         </LinearLayout>
 
         <LinearLayout

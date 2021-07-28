@@ -55,7 +55,6 @@ public class MainActivity extends AppCompatActivity {
 
         fm = getSupportFragmentManager();
 
-        Log.i(getString(R.string.debug_tag), "Creado el NavFragment");
         fm.beginTransaction().add(R.id.nav_host_fragment, fragmentNav, TAG_NAVIGATION_FRAGMENT).commit();
         activeFragment = fragmentNav;
 

@@ -58,7 +58,6 @@ public class FlightsFragment extends Fragment {
 
         final FlightListAdapter adapter = new FlightListAdapter(getContext(), flight -> {
 
-            Log.d(getString(R.string.debug_tag), "onItemClick: " + flight.getLocationName());
 
             SharedFlightViewModel sharedFlightViewModel = new ViewModelProvider(getActivity()).get(SharedFlightViewModel.class);
             sharedFlightViewModel.setSelected(flight);

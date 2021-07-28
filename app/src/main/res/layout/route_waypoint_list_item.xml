@@ -62,7 +62,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:text="@string/default_distance"
         android:textColor="@color/item_route_list_text_selector"
         android:textSize="18sp"
         android:visibility="invisible"
