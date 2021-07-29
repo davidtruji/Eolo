@@ -8,38 +8,54 @@
             app:defaultValue="terrain"
             app:entries="@array/map_layer"
             app:entryValues="@array/map_layer_values"
-            app:key="map_layer"
-            app:title="Map layer"
-            app:useSimpleSummaryProvider="true"
-            android:enabled="false"/>
-
-        <ListPreference
-            android:icon="@drawable/regla"
-            android:enabled="false"
-            app:defaultValue="metric"
-            app:entries="@array/units"
-            app:entryValues="@array/units_values"
-            app:key="unit"
-            app:title="Units"
+            app:key="@string/layer_key"
+            app:title="@string/layer_title"
             app:useSimpleSummaryProvider="true" />
 
 
     </PreferenceCategory>
 
+    <PreferenceCategory app:title="Units">
+        <ListPreference
+            android:icon="@drawable/speed"
+            app:entries="@array/speed_units"
+            app:entryValues="@array/speed_units_values"
+            app:key="speed_unit"
+            app:title="Speed units"
+            app:useSimpleSummaryProvider="true" />
+
+        <ListPreference
+            android:icon="@drawable/regla"
+            app:entries="@array/distance_units"
+            app:entryValues="@array/distance_units_values"
+            app:key="distance_unit"
+            app:title="Distance units"
+            app:useSimpleSummaryProvider="true" />
+
+        <ListPreference
+            android:icon="@drawable/speed"
+            app:entries="@array/altitude_units"
+            app:entryValues="@array/altitude_units_values"
+            app:key="altitude_unit"
+            app:title="Altitude units"
+            app:useSimpleSummaryProvider="true" />
+
+    </PreferenceCategory>
+
+
     <PreferenceCategory app:title="On Screen information">
 
         <Preference
             android:layout="@layout/preference_on_screen_info"
-            android:selectable="false"
-        />
+            android:selectable="false" />
 
         <ListPreference
             android:icon="@drawable/one"
             app:defaultValue="bearing"
             app:entries="@array/info"
             app:entryValues="@array/info_values"
-            app:key="space1"
-            app:title="Space 1"
+            app:key="@string/space1_key"
+            app:title="@string/space1_title"
             app:useSimpleSummaryProvider="true" />
 
         <ListPreference
@@ -47,8 +63,8 @@
             app:defaultValue="speed"
             app:entries="@array/info"
             app:entryValues="@array/info_values"
-            app:key="space2"
-            app:title="Space 2"
+            app:key="@string/space2_key"
+            app:title="@string/space2_title"
             app:useSimpleSummaryProvider="true" />
 
         <ListPreference
@@ -56,8 +72,8 @@
             app:defaultValue="distance_wpt"
             app:entries="@array/info"
             app:entryValues="@array/info_values"
-            app:key="space3"
-            app:title="Space 3"
+            app:key="@string/space3_key"
+            app:title="@string/space3_title"
             app:useSimpleSummaryProvider="true" />
 
         <ListPreference
@@ -65,8 +81,8 @@
             app:defaultValue="altitude"
             app:entries="@array/info"
             app:entryValues="@array/info_values"
-            app:key="space4"
-            app:title="Space 4"
+            app:key="@string/space4_key"
+            app:title="@string/space4_title"
             app:useSimpleSummaryProvider="true" />
 
 

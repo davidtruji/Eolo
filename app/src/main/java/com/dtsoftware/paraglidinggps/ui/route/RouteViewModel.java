@@ -1,9 +1,11 @@
 package com.dtsoftware.paraglidinggps.ui.route;
 
 import android.app.Application;
+import android.location.Location;
 
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 
 import com.dtsoftware.paraglidinggps.AppRepository;
 import com.dtsoftware.paraglidinggps.Waypoint;
@@ -14,26 +16,25 @@ import java.util.List;
 public class RouteViewModel extends AndroidViewModel {
 
     private AppRepository mRepository;
-    private LiveData<List<Waypoint>> allWaypoints;
-    private LatLng currentWpt;
-
+    private MutableLiveData<LatLng> selectedWaypoint = new MutableLiveData<>();
+    private LiveData<List<Waypoint>> waypoints;
 
     public RouteViewModel(Application application) {
         super(application);
         mRepository = new AppRepository(application);
-        allWaypoints = mRepository.getAllWaypoints();
-        currentWpt = null;
+        waypoints = mRepository.getAllWaypoints();
+    }
+
+    public MutableLiveData<LatLng> getSelectedWaypoint() {
+        return selectedWaypoint;
+    }
+
+    public void setSelectedWaypoint(LatLng waypoint) {
+        selectedWaypoint.setValue(waypoint);
     }
 
     public LiveData<List<Waypoint>> getWaypoints() {
-        return allWaypoints;
+        return waypoints;
     }
 
-    public LatLng getCurrentWpt() {
-        return currentWpt;
-    }
-
-    public void setCurrentWpt(LatLng currentWpt) {
-        this.currentWpt = currentWpt;
-    }
 }

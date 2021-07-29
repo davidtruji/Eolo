@@ -6,20 +6,18 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
+import android.widget.Button;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.dtsoftware.paraglidinggps.R;
 import com.dtsoftware.paraglidinggps.Utils;
-import com.dtsoftware.paraglidinggps.Waypoint;
 import com.dtsoftware.paraglidinggps.ui.nav.NavViewModel;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.mapbox.geojson.Feature;
@@ -37,16 +35,14 @@ import com.mapbox.mapboxsdk.style.layers.PropertyFactory;
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 
-import java.util.List;
+import static com.dtsoftware.paraglidinggps.Utils.GEO_JSON_ID;
 
 public class RouteFragment extends Fragment implements OnMapReadyCallback, MapboxMap.OnMapClickListener {
 
     private MapView mapView;
     private MapboxMap mapboxMap;
-    private RouteViewModel mViewModel;
-    private LatLng currentPosition = new LatLng(0, 0);
-    private GeoJsonSource geoJsonSource;
-    private FloatingActionButton fabSetRoute;
+    private LatLng currentPosition;
+    private Button btnSetRoute, btnRemoveRoute;
     private NavViewModel navViewModel;
     private RouteViewModel routeViewModel;
     private RecyclerView recyclerView;
@@ -69,32 +65,30 @@ public class RouteFragment extends Fragment implements OnMapReadyCallback, Mapbo
         toolbar.setSubtitle("Select a waypoint or tap the map");
         toolbar.inflateMenu(R.menu.routes_toolbar_menu);
 
-        fabSetRoute = root.findViewById(R.id.fab_set_route);
+        btnSetRoute = root.findViewById(R.id.btn_set);
+        btnRemoveRoute = root.findViewById(R.id.bnt_remove);
         mapView = root.findViewById(R.id.mv_route_map);
 
-        fabSetRoute.setOnClickListener(view -> {
-            navViewModel.setIsSelectedWaypoint(true);
-            navViewModel.setSelectedWaypoint(currentPosition);
+        btnSetRoute.setOnClickListener(view -> {
+            routeViewModel.setSelectedWaypoint(currentPosition);
             Utils.showSnakcbar(getView().findViewById(R.id.coordinatorLy), "Established route");
+        });
+
+        btnRemoveRoute.setOnClickListener(view -> {
+            routeViewModel.setSelectedWaypoint(null);
+            Utils.showSnakcbar(getView().findViewById(R.id.coordinatorLy), "The route has been deleted");
         });
 
 
         recyclerView = root.findViewById(R.id.rvWaypointsList);
 
-        adapter = new RouteWaypointsAdapter(getContext(), new RouteWaypointsAdapter.ClickListener() {
-            @Override
-            public void onItemClicked(Waypoint waypoint, int position) {
-
-                adapter.setSelectedItem(position);
-
-                LatLng point = new LatLng(waypoint.getLatitude(), waypoint.getLongitude());
-                currentPosition = point;
-                setWaypointLayer();
-                setCameraPosition(point, 15);
-
-                fabSetRoute.show();
-
-            }
+        adapter = new RouteWaypointsAdapter(getContext(), (waypoint, position) -> {
+            adapter.setSelectedItem(position);
+            LatLng point = new LatLng(waypoint.getLatitude(), waypoint.getLongitude());
+            currentPosition = point;
+            setWaypointLayer();
+            setCameraPosition(point, 15);
+            btnSetRoute.setEnabled(true);
         }
 
 
@@ -104,16 +98,27 @@ public class RouteFragment extends Fragment implements OnMapReadyCallback, Mapbo
         LinearLayoutManager layoutManager = new LinearLayoutManager(root.getContext());
         recyclerView.setLayoutManager(layoutManager);
 
-        routeViewModel.getWaypoints().observe(getViewLifecycleOwner(), new Observer<List<Waypoint>>() {
-            @Override
-            public void onChanged(List<Waypoint> waypoints) {
-                adapter.setWaypoints(waypoints);
+        routeViewModel.getWaypoints().observe(getViewLifecycleOwner(), waypoints -> adapter.setWaypoints(waypoints));
+        routeViewModel.getSelectedWaypoint().observe(getViewLifecycleOwner(), latLng -> {
+
+            if (latLng != null) {
+                currentPosition = latLng;
+                btnRemoveRoute.setEnabled(true);
+            } else {
+                btnRemoveRoute.setEnabled(false);
+                btnSetRoute.setEnabled(false);
+                if (currentPosition != null) {
+                    currentPosition = null;
+                    removeRoute();
+                }
+
             }
+
         });
+
 
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
-
 
         return root;
     }
@@ -124,14 +129,20 @@ public class RouteFragment extends Fragment implements OnMapReadyCallback, Mapbo
         this.mapboxMap = mapboxMap;
         mapboxMap.addOnMapClickListener(RouteFragment.this);
         mapboxMap.setStyle(Style.SATELLITE_STREETS);
-        Location location = navViewModel.getLastLocation().getValue();
-        if (location != null)
-            setCameraPosition(new LatLng(location.getLatitude(), location.getLongitude()), 10);
+
+        if (currentPosition != null) {
+            setWaypointLayer();
+            setCameraPosition(currentPosition, 10);
+        } else {
+            Location location = navViewModel.getLastLocation().getValue();
+            if (location != null)
+                setCameraPosition(new LatLng(location.getLatitude(), location.getLongitude()), 10);
+        }
     }
 
     @Override
     public boolean onMapClick(@NonNull LatLng point) {
-        fabSetRoute.show();
+        btnSetRoute.setEnabled(true);
         currentPosition = point;
         setWaypointLayer();
         setCameraPosition(point, mapboxMap.getCameraPosition().zoom);
@@ -140,7 +151,7 @@ public class RouteFragment extends Fragment implements OnMapReadyCallback, Mapbo
 
     private void setWaypointLayer() {
 
-        geoJsonSource = new GeoJsonSource(Utils.GEO_JSON_ID,
+        GeoJsonSource geoJsonSource = new GeoJsonSource(GEO_JSON_ID,
                 Feature.fromGeometry(Point.fromLngLat(currentPosition.getLongitude(),
                         currentPosition.getLatitude())));
 
@@ -151,7 +162,7 @@ public class RouteFragment extends Fragment implements OnMapReadyCallback, Mapbo
 
             style.addSource(geoJsonSource);
 
-            style.addLayer(new SymbolLayer("layer-id", Utils.GEO_JSON_ID)
+            style.addLayer(new SymbolLayer("layer-id", GEO_JSON_ID)
                     .withProperties(
                             PropertyFactory.iconImage("marker_icon"),
                             PropertyFactory.iconIgnorePlacement(true),
@@ -170,6 +181,12 @@ public class RouteFragment extends Fragment implements OnMapReadyCallback, Mapbo
 
         mapboxMap.animateCamera(CameraUpdateFactory
                 .newCameraPosition(cameraPosition), 3000);
+    }
+
+    private void removeRoute() {
+        if (mapboxMap != null) {
+            mapboxMap.setStyle(Style.SATELLITE_STREETS);
+        }
     }
 
 

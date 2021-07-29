@@ -65,6 +65,10 @@
         <item name="backgroundTint">#FFFFFF</item>
     </style>
 
+    <style name="ToolButtons">
+
+    </style>
+
     <style name="HorizontalDivider">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">@dimen/divider_width</item>

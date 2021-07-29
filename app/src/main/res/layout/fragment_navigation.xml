@@ -222,19 +222,6 @@
                 android:src="@drawable/compass_off"
                 mapbox:fabSize="mini" />
 
-            <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/fabUndo"
-                style="@style/FabButtons"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="bottom|end"
-                android:layout_marginEnd="8dp"
-                android:layout_marginBottom="60dp"
-                android:clickable="true"
-                android:focusable="true"
-                android:src="@drawable/layers"
-                mapbox:fabSize="mini" />
-
 
             <ToggleButton
                 android:id="@+id/tbStart"

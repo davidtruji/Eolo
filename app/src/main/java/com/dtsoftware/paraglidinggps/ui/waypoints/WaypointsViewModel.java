@@ -13,7 +13,6 @@ import java.util.List;
 public class WaypointsViewModel extends AndroidViewModel {
 
     private AppRepository mRepository;
-
     private LiveData<List<Waypoint>> allWaypoints;
 
     public WaypointsViewModel(Application application) {

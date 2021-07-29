@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Paragliding GPS</string>
     <string name="title_nav">Navigation</string>
     <string name="title_waypoints">Waypoints</string>
@@ -10,7 +10,7 @@
     <string name="TAG">DEBUG-INFO</string>
 
 
-    <string name="mapbox_access_token">pk.eyJ1IjoiZGF2aWR0cnVqaSIsImEiOiJja2N5eHk1azQwZWNwMnVwNGdhdmI0NjFjIn0.fmvbTZB2ja54sltI3znqZA</string>
+    <string name="mapbox_access_token" tools:ignore="Typos">pk.eyJ1IjoiZGF2aWR0cnVqaSIsImEiOiJja2N5eHk1azQwZWNwMnVwNGdhdmI0NjFjIn0.fmvbTZB2ja54sltI3znqZA</string>
     <string name="user_location_permission_explanation">Location access needed</string>
     <string name="user_location_permission_not_granted">No location access</string>
 
@@ -47,12 +47,22 @@
     <string name="northWest">NW</string>
     <!--Compass Letters-->
 
-    <!--    Preference Keys-->
-    <string name="space1_key">space1</string>
+    <!--Preference Title-->
+    <string name="layer_title">Map Layer</string>
+    <string name="space1_title">Space 1</string>
+    <string name="space2_title">Space 2</string>
+    <string name="space3_title">Space 3</string>
+    <string name="space4_title">Space 4</string>
+    <!--Preference Title-->
+
+
+    <!--Preference Keys-->
+    <string name="layer_key">layer</string>
+    <string name="space1_key" tools:ignore="Typos">space1</string>
     <string name="space2_key">space2</string>
     <string name="space3_key">space3</string>
     <string name="space4_key">space4</string>
-    <!--    Preference Keys-->
+    <!--Preference Keys-->
 
 
     <string name="default_route_name">My route</string>
@@ -64,6 +74,9 @@
 
     <string name="start_button">Start</string>
     <string name="stop_button">Stop</string>
+
+    <string name="set_route_btn">Set route</string>
+    <string name="remove_route_btn">Remove route</string>
 
     <string name="save_button">Save flight</string>
     <string name="discard_button">Discard flight</string>
