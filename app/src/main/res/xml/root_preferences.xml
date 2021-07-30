@@ -20,24 +20,24 @@
             android:icon="@drawable/speed"
             app:entries="@array/speed_units"
             app:entryValues="@array/speed_units_values"
-            app:key="speed_unit"
-            app:title="Speed units"
+            app:key="@string/speed_unit_key"
+            app:title="@string/speed_unit_title"
             app:useSimpleSummaryProvider="true" />
 
         <ListPreference
             android:icon="@drawable/regla"
             app:entries="@array/distance_units"
             app:entryValues="@array/distance_units_values"
-            app:key="distance_unit"
-            app:title="Distance units"
+            app:key="@string/distance_unit_key"
+            app:title="@string/distance_unit_title"
             app:useSimpleSummaryProvider="true" />
 
         <ListPreference
             android:icon="@drawable/speed"
             app:entries="@array/altitude_units"
             app:entryValues="@array/altitude_units_values"
-            app:key="altitude_unit"
-            app:title="Altitude units"
+            app:key="@string/altitude_unit_key"
+            app:title="@string/altitude_unit_title"
             app:useSimpleSummaryProvider="true" />
 
     </PreferenceCategory>

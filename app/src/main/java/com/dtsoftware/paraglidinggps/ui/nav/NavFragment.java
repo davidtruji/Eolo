@@ -157,6 +157,13 @@ public class NavFragment extends Fragment implements CompassListener, Permission
     private final ArrayList<Integer> distanceWPTBlocks = new ArrayList<>();
     private final ArrayList<Integer> timeToArrivalBlocks = new ArrayList<>();
 
+    private String speedUnit;
+    private String distanceUnit;
+    private String altitudeUnit;
+
+    private float speedMult;
+    private float altitudeMult;
+    private float distanceMult;
 
     // Variables de vuelo
     private boolean flying = false;
@@ -680,13 +687,13 @@ public class NavFragment extends Fragment implements CompassListener, Permission
         }
 
         updateAltitude((int) lastLocation.getAltitude());// meters
-        updateSpeed((int) (lastLocation.getSpeed() * 3.6));// m/s to Km/h
+        updateSpeed((int) (lastLocation.getSpeed()));// m/s to Km/h
         updateDistance(distance);// Km
 
         setRouteLine();
         updateRouteInfo();
 
-        updateDistanceWPT(distanceWPT / 1000);
+        updateDistanceWPT(distanceWPT);
         updateTimeToArrival(minutesETA);
 
 
@@ -722,7 +729,7 @@ public class NavFragment extends Fragment implements CompassListener, Permission
         if (prevLocation == null) {
             distance = 0;
         } else {
-            distance += prevLocation.distanceTo(lastLocation) / 1000;
+            distance += prevLocation.distanceTo(lastLocation);
         }
         prevLocation = lastLocation;
     }
@@ -814,8 +821,9 @@ public class NavFragment extends Fragment implements CompassListener, Permission
 
     public void setupSharedPreferences() {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this.getContext());
-        setNavigationInformationPrecefences();
-        setMapLayerPrecefences();
+        setNavigationInformationPreferences();
+        setMapLayerPreferences();
+        setUnitsPreferences();
         sharedPreferences.registerOnSharedPreferenceChangeListener(this);
     }
 
@@ -825,20 +833,25 @@ public class NavFragment extends Fragment implements CompassListener, Permission
 
         switch (key) {
             case "layer":
-                setMapLayerPrecefences();
+                setMapLayerPreferences();
                 setCurrentMapLayer();
                 break;
             case "space1":
             case "space2":
             case "space3":
             case "space4":
-                setNavigationInformationPrecefences();
+                setNavigationInformationPreferences();
                 updateDistance(0);
                 updateTimeToArrival(0);
                 updateDistanceWPT(0);
                 updateSpeed(0);
                 updateAltitude(0);
                 updateBearing(0);
+                break;
+            case "speed_unit":
+            case "altitude_unit":
+            case "distance_unit":
+                setUnitsPreferences();
                 break;
         }
 
@@ -1063,8 +1076,8 @@ public class NavFragment extends Fragment implements CompassListener, Permission
 
     private void updateAltitude(int altitude) {
 
-        String alt = String.valueOf(altitude);
-        String label = getString(R.string.altitude_label);
+        String alt = String.valueOf((int) (altitude * altitudeMult));
+        String label = "Altitude " + altitudeUnit;
 
         for (Integer block : altitudeBlocks) {
             switch (block) {
@@ -1094,8 +1107,8 @@ public class NavFragment extends Fragment implements CompassListener, Permission
 
     private void updateSpeed(int speed) {
 
-        String spd = String.valueOf(speed);
-        String label = getString(R.string.speed_label);
+        String spd = String.valueOf((int) (speed * speedMult));
+        String label = "Speed " + speedUnit;
 
         for (Integer block : speedBlocks) {
             switch (block) {
@@ -1125,8 +1138,8 @@ public class NavFragment extends Fragment implements CompassListener, Permission
 
     private void updateDistance(float distance) {
 
-        String dst = String.format(getString(R.string.distance_format), distance);
-        String label = getString(R.string.distance_label);
+        String dst = String.format(getString(R.string.distance_format), distance * distanceMult);
+        String label = "Distance " + distanceUnit;
 
         for (Integer block : distanceBlocks) {
             switch (block) {
@@ -1156,8 +1169,8 @@ public class NavFragment extends Fragment implements CompassListener, Permission
 
     private void updateDistanceWPT(float distance) {
 
-        String dst = String.format(getString(R.string.distance_format), distance);
-        String label = getString(R.string.distanceWPT_label);
+        String dst = String.format(getString(R.string.distance_format), distance * distanceMult);
+        String label = "Distance to WPT " + distanceUnit;
 
         for (Integer block : distanceWPTBlocks) {
             switch (block) {
@@ -1186,7 +1199,7 @@ public class NavFragment extends Fragment implements CompassListener, Permission
     }
 
 
-    private void setMapLayerPrecefences() {
+    private void setMapLayerPreferences() {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this.getContext());
         String value;
 
@@ -1200,8 +1213,22 @@ public class NavFragment extends Fragment implements CompassListener, Permission
 
     }
 
+    private void setUnitsPreferences() {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this.getContext());
+        String value;
 
-    private void setNavigationInformationPrecefences() {
+        value = sharedPreferences.getString(getString(R.string.altitude_unit_key), "NULL");
+        setUnits(value);
+
+        value = sharedPreferences.getString(getString(R.string.speed_unit_key), "NULL");
+        setUnits(value);
+
+        value = sharedPreferences.getString(getString(R.string.distance_unit_key), "NULL");
+        setUnits(value);
+    }
+
+
+    private void setNavigationInformationPreferences() {
         altitudeBlocks.clear();
         speedBlocks.clear();
         bearingBlocks.clear();
@@ -1249,6 +1276,57 @@ public class NavFragment extends Fragment implements CompassListener, Permission
                 timeToArrivalBlocks.add(block);
                 break;
             default:
+                break;
+        }
+
+
+    }
+
+    private void setUnits(String unit_value) {
+
+
+        switch (unit_value) {
+
+            // Distance
+            case "km":
+                distanceMult = 0.001f;
+                distanceUnit = "km";
+                break;
+            case "mi":
+                distanceMult = 0.0006213712f;
+                distanceUnit = "mi";
+                break;
+            case "nm":
+                distanceMult = 0.0005399565f;
+                distanceUnit = "nm";
+                break;
+
+            // Speed
+            case "ms":
+                speedUnit = "ms";
+                speedMult = 1;
+                break;
+            case "kmh":
+                speedUnit = "kmh";
+                speedMult = 3.6f;
+                break;
+            case "mph":
+                speedUnit = "mph";
+                speedMult = 2.236936f;
+                break;
+            case "kt":
+                speedUnit = "kt";
+                speedMult = 0.8689758f;
+                break;
+
+            // Altitude
+            case "m":
+                altitudeUnit = "m";
+                altitudeMult = 1;
+                break;
+            case "ft":
+                altitudeUnit = "ft";
+                altitudeMult = 3.28084f;
                 break;
         }
 

@@ -1,14 +1,12 @@
 <resources>
     <!-- Reply Preference -->
     <string-array name="distance_units">
-        <item>Meters (m)</item>
         <item>Kilometers (km)</item>
         <item>Miles (mi)</item>
         <item>Nautical Mile (nm)</item>
     </string-array>
 
     <string-array name="distance_units_values">
-        <item>m</item>
         <item>km</item>
         <item>mi</item>
         <item>nm</item>

@@ -53,6 +53,9 @@
     <string name="space2_title">Space 2</string>
     <string name="space3_title">Space 3</string>
     <string name="space4_title">Space 4</string>
+    <string name="speed_unit_title">Speed unit</string>
+    <string name="altitude_unit_title">Altitude unit</string>
+    <string name="distance_unit_title">Distance unit</string>
     <!--Preference Title-->
 
 
@@ -62,6 +65,9 @@
     <string name="space2_key">space2</string>
     <string name="space3_key">space3</string>
     <string name="space4_key">space4</string>
+    <string name="speed_unit_key">speed_unit</string>
+    <string name="altitude_unit_key">altitude_unit</string>
+    <string name="distance_unit_key">distance_unit</string>
     <!--Preference Keys-->
 
 
