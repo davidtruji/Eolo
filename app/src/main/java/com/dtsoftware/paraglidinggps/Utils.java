@@ -54,7 +54,7 @@ public class Utils {
     public static final String ALTITUDE_FORMAT = "%.0f";
     public static final String DURATION_FORMAT = "%02d:%02d:%02d";
     public static final String DATE_FORMAT = "dd/MM/yyyy";
-    public static final String FLIGHT_DATE_FORMAT = "HHmmss_ddMMyyyy";
+    public static final String FLIGHT_DATE_FORMAT = "ddMMyyyy";
 
 
     public static final double POLYGON_SIZE = .000025;

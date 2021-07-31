@@ -30,14 +30,14 @@ public class FlightListAdapter extends RecyclerView.Adapter<FlightListAdapter.Fl
 
     public static class FlightViewHolder extends RecyclerView.ViewHolder {
 
-        private final TextView tvflightName, tvDistance, tvTime, tvDate;
+        private final TextView tvFlightTitle, tvDistance, tvDuration, tvDate;
 
         private FlightViewHolder(View itemView) {
             super(itemView);
-            tvflightName = itemView.findViewById(R.id.tvFlightName);
-            tvDistance = itemView.findViewById(R.id.tvFlightDistance);
-            tvTime = itemView.findViewById(R.id.tvFlightTime);
-            tvDate = itemView.findViewById(R.id.tvRouteDistance);
+            tvFlightTitle = itemView.findViewById(R.id.tvFlightTitle);
+            tvDistance = itemView.findViewById(R.id.tvDistance);
+            tvDuration = itemView.findViewById(R.id.tvDuration);
+            tvDate = itemView.findViewById(R.id.tvDate);
         }
 
         public void setClickListener(Flight flight, ClickListener clickListener) {
@@ -53,7 +53,7 @@ public class FlightListAdapter extends RecyclerView.Adapter<FlightListAdapter.Fl
     @NonNull
     @Override
     public FlightViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View itemView = mInflater.inflate(R.layout.flight_list_item, parent, false);
+        View itemView = mInflater.inflate(R.layout.flight_list_item_beta, parent, false);
         return new FlightViewHolder(itemView);
     }
 
@@ -62,9 +62,9 @@ public class FlightListAdapter extends RecyclerView.Adapter<FlightListAdapter.Fl
         if (flights != null) {
             Flight current = flights.get(position);
 
-            holder.tvflightName.setText(current.getLocationName());
+            holder.tvFlightTitle.setText(current.getLocationName());
             holder.tvDistance.setText(current.getDistanceString() + " km");
-            holder.tvTime.setText(current.getDurationString());
+            holder.tvDuration.setText(current.getDurationString());
             holder.tvDate.setText(current.getDateString());
 
             holder.setClickListener(current,itemClickListener);

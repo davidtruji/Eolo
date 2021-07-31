@@ -19,6 +19,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import com.dtsoftware.paraglidinggps.R;
 import com.dtsoftware.paraglidinggps.Utils;
+import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 
@@ -31,25 +32,12 @@ public class FlightsFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        View root = inflater.inflate(R.layout.fragment_flights_list, container, false);
+        View root = inflater.inflate(R.layout.fragment_flights_beta, container, false);
         FragmentManager fragmentManager = getParentFragmentManager();
 
-        Toolbar toolbar = root.findViewById(R.id.flights_toolbar);
-        toolbar.setTitle(getString(R.string.title_flights));
-
-        fabAdd = root.findViewById(R.id.fab_fl_add_flight);
-        fabAdd.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                FragmentTransaction transaction = fragmentManager.beginTransaction();
-                AddFlightFragment addFlightFragment = new AddFlightFragment();
-
-                transaction.hide(FlightsFragment.this);
-                transaction.add(R.id.nav_host_fragment, addFlightFragment);
-                transaction.addToBackStack(null);
-                transaction.commit();
-            }
-        });
+        CollapsingToolbarLayout collapsingToolbar =
+                (CollapsingToolbarLayout) root.findViewById(R.id.collapsing_toolbar_layout);
+        collapsingToolbar.setTitle(getString(R.string.title_flights));
 
 
         FlightsViewModel flightsViewModel = new ViewModelProvider(getActivity()).get(FlightsViewModel.class);
@@ -83,11 +71,6 @@ public class FlightsFragment extends Fragment {
         recyclerView.setAdapter(adapter);
         LinearLayoutManager layoutManager = new LinearLayoutManager(root.getContext());
         recyclerView.setLayoutManager(layoutManager);
-
-        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(),
-                layoutManager.getOrientation());
-        recyclerView.addItemDecoration(dividerItemDecoration);
-
 
         tvHoursCount = root.findViewById(R.id.tvHoursCount);
         tvNumberOfFlights = root.findViewById(R.id.tvFlightsCount);

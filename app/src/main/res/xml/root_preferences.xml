@@ -18,6 +18,7 @@
     <PreferenceCategory app:title="Units">
         <ListPreference
             android:icon="@drawable/speed"
+            app:defaultValue="kmh"
             app:entries="@array/speed_units"
             app:entryValues="@array/speed_units_values"
             app:key="@string/speed_unit_key"
@@ -26,6 +27,7 @@
 
         <ListPreference
             android:icon="@drawable/regla"
+            app:defaultValue="km"
             app:entries="@array/distance_units"
             app:entryValues="@array/distance_units_values"
             app:key="@string/distance_unit_key"
@@ -34,6 +36,7 @@
 
         <ListPreference
             android:icon="@drawable/speed"
+            app:defaultValue="m"
             app:entries="@array/altitude_units"
             app:entryValues="@array/altitude_units_values"
             app:key="@string/altitude_unit_key"
