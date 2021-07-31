@@ -41,10 +41,10 @@ public class RouteWaypointsAdapter extends RecyclerView.Adapter<RouteWaypointsAd
 
         private RouteWaypointsViewHolder(View itemView) {
             super(itemView);
-            tvName = itemView.findViewById(R.id.tv_wli_name);
-            tvLat = itemView.findViewById(R.id.tv_wli_lat);
-            tvLong = itemView.findViewById(R.id.tv_wli_lng);
-            tvDistance = itemView.findViewById(R.id.tvBlock4);
+            tvName = itemView.findViewById(R.id.tvWaypointName);
+            tvLat = itemView.findViewById(R.id.tvLatitude);
+            tvLong = itemView.findViewById(R.id.tvLongitude);
+            tvDistance = itemView.findViewById(R.id.tvWaypointDistance);
         }
 
         public void setClickListener(Waypoint waypoint, int position, ClickListener clickListener) {

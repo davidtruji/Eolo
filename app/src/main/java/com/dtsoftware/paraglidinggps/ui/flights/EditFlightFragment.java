@@ -1,13 +1,16 @@
 package com.dtsoftware.paraglidinggps.ui.flights;
 
 import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.icu.util.Calendar;
 import android.os.Bundle;
+
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -15,15 +18,16 @@ import android.view.ViewGroup;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.NumberPicker;
+import android.widget.TimePicker;
+
 import com.dtsoftware.paraglidinggps.Flight;
 import com.dtsoftware.paraglidinggps.R;
 import com.dtsoftware.paraglidinggps.Utils;
 
 
-
 public class EditFlightFragment extends Fragment {
 
-    private EditText et_name, et_date, et_duration, et_distance, et_min_alt, et_max_alt;
+    private EditText et_name, et_date, et_hour, et_duration, et_distance, et_min_alt, et_max_alt, et_min_speed, et_avg_speed, et_max_speed;
     private SharedFlightViewModel sharedFlightViewModel;
     private Flight flight;
 
@@ -76,7 +80,10 @@ public class EditFlightFragment extends Fragment {
         et_distance = root.findViewById(R.id.et_ef_distance);
         et_min_alt = root.findViewById(R.id.et_ef_min_alt);
         et_max_alt = root.findViewById(R.id.et_ef_max_alt);
-
+        et_hour = root.findViewById(R.id.et_ef_hour);
+        et_min_speed = root.findViewById(R.id.et_ef_minSpeed);
+        et_avg_speed = root.findViewById(R.id.et_AvgSpeed);
+        et_max_speed = root.findViewById(R.id.et_maxSpeed);
 
         et_date.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -94,6 +101,14 @@ public class EditFlightFragment extends Fragment {
         });
 
 
+        et_hour.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showHourDialog();
+            }
+        });
+
+
         bindFlight(flight);
 
 
@@ -104,9 +119,12 @@ public class EditFlightFragment extends Fragment {
         flight.setLocationName(et_name.getText().toString());
         flight.setDate(Utils.StringDateToTimestamp(et_date.getText().toString()));
         flight.setDuration(Utils.StringToDuration(et_duration.getText().toString()));
-        flight.setDistance(Float.parseFloat(et_distance.getText().toString()) * 1000); // Paso de km del usuario a metros
+        flight.setDistance(Float.parseFloat(et_distance.getText().toString()) * 1000); // todo: Convertir unidades según ajustes
         flight.setMaxAltitude(Integer.parseInt(et_max_alt.getText().toString()));
         flight.setMinAltitude(Integer.parseInt(et_min_alt.getText().toString()));
+        flight.setMinSpeed(Integer.parseInt(et_min_speed.getText().toString()));
+        flight.setAvgSpeed(Integer.parseInt(et_avg_speed.getText().toString()));
+        flight.setMaxSpeed(Integer.parseInt(et_max_speed.getText().toString()));
 
         sharedFlightViewModel.updateFlight(flight);
     }
@@ -118,7 +136,11 @@ public class EditFlightFragment extends Fragment {
         et_distance.setText(flight.getDistanceString());
         et_min_alt.setText(flight.getMinAltitudeString());
         et_max_alt.setText(flight.getMaxAltitudeString());
+        et_min_speed.setText(String.valueOf(flight.getMinSpeed()));
+        et_avg_speed.setText(String.valueOf(flight.getAvgSpeed()));
+        et_max_speed.setText(String.valueOf(flight.getMaxSpeed()));
     }
+
 
     private void showDateDialog() {
         Calendar calendar = Calendar.getInstance();
@@ -135,6 +157,18 @@ public class EditFlightFragment extends Fragment {
         }, yearNow, monthNow, dayNow);
         datePickerDialog.show();
 
+
+    }
+
+    private void showHourDialog() {
+
+        TimePickerDialog timePickerDialog = new TimePickerDialog(getContext(), new TimePickerDialog.OnTimeSetListener() {
+            @Override
+            public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                et_hour.setText(hourOfDay + ":" + minute);
+            }
+        }, 19, 0, true);
+        timePickerDialog.show();
 
     }
 

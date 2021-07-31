@@ -5,6 +5,8 @@ import android.animation.TypeEvaluator;
 import android.animation.ValueAnimator;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +22,7 @@ import androidx.lifecycle.ViewModelProvider;
 import com.dtsoftware.paraglidinggps.R;
 import com.dtsoftware.paraglidinggps.Utils;
 import com.dtsoftware.paraglidinggps.Waypoint;
+import com.google.android.material.textfield.TextInputLayout;
 import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.Point;
 import com.mapbox.mapboxsdk.Mapbox;
@@ -83,9 +86,28 @@ public class EditWaypointFragment extends Fragment implements MapboxMap.OnMapCli
 
     private TextView tvLat, tvLng;
     private EditText etName;
+    private TextInputLayout tilName;
     private Toolbar toolbar;
     private WaypointViewModel waypointViewModel;
 
+
+    TextWatcher textWatcher = new TextWatcher() {
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            if (s.length() < 1)
+                tilName.setError("Name required");
+            else
+                tilName.setErrorEnabled(false);
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+        }
+    };
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -98,14 +120,15 @@ public class EditWaypointFragment extends Fragment implements MapboxMap.OnMapCli
 
         toolbar = root.findViewById(R.id.aw_toolbar);
         toolbar.setSubtitle("Tap to edit the position");
-        toolbar.inflateMenu(R.menu.aw_toolbar_menu);
+        toolbar.inflateMenu(R.menu.ew_toolbar_menu);
         toolbar.setNavigationIcon(R.drawable.back);
         toolbar.setOnMenuItemClickListener(item -> {
 
             switch (item.getItemId()) {
 
                 case R.id.action_save:
-                    updateWaypoint();
+                    if (validateWaypoint())
+                        updateWaypoint();
                     break;
 
                 case R.id.action_delete:
@@ -127,6 +150,9 @@ public class EditWaypointFragment extends Fragment implements MapboxMap.OnMapCli
         tvLat = root.findViewById(R.id.tv_aw_lat);
         tvLng = root.findViewById(R.id.tv_aw_lng);
         etName = root.findViewById(R.id.et_aw_name);
+        tilName = root.findViewById(R.id.textInputLayout);
+
+        etName.addTextChangedListener(textWatcher);
 
         mapView.onCreate(savedInstanceState);
 
@@ -245,6 +271,16 @@ public class EditWaypointFragment extends Fragment implements MapboxMap.OnMapCli
         dialog.show();
     }
 
+
+    private boolean validateWaypoint() {
+
+        boolean validation = (etName.getText().toString().length() > 0);
+
+        if (!validation)
+            tilName.setError("Name required");
+
+        return validation;
+    }
 
     @Override
     public void onStart() {

@@ -1,6 +1,5 @@
 package com.dtsoftware.paraglidinggps.ui.flights;
 
-import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
@@ -9,10 +8,9 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import android.util.Log;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,7 +40,7 @@ public class FlightsFragment extends Fragment {
 
         FlightsViewModel flightsViewModel = new ViewModelProvider(getActivity()).get(FlightsViewModel.class);
 
-        RecyclerView recyclerView = root.findViewById(R.id.rvFlightsList);
+        RecyclerView recyclerView = root.findViewById(R.id.rvWaypointsList);
 
         final FlightListAdapter adapter = new FlightListAdapter(getContext(), flight -> {
 

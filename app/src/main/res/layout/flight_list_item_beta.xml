@@ -3,7 +3,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:clickable="true"
+    android:background="?android:selectableItemBackground"
+    android:focusable="true">
 
     <ImageView
         android:id="@+id/imageView"
@@ -36,7 +39,6 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:text="00:00:00"
-        android:textColor="@color/black"
         android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="@+id/tvDistance"
         app:layout_constraintStart_toEndOf="@+id/tvDistance" />
@@ -47,7 +49,6 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:text="01/01/21"
-        android:textColor="@color/black"
         android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="@+id/tvDuration"
         app:layout_constraintStart_toEndOf="@+id/tvDuration" />
@@ -58,7 +59,6 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
         android:text="15 Km"
-        android:textColor="@color/black"
         android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="@+id/tvFlightTitle"

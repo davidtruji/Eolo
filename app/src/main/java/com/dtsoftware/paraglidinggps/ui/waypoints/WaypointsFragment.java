@@ -29,6 +29,7 @@ import com.dtsoftware.paraglidinggps.ui.flights.FlightListAdapter;
 import com.dtsoftware.paraglidinggps.ui.flights.FlightsFragment;
 import com.dtsoftware.paraglidinggps.ui.flights.FlightsViewModel;
 import com.dtsoftware.paraglidinggps.ui.flights.SharedFlightViewModel;
+import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.List;
@@ -48,17 +49,18 @@ public class WaypointsFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
 
-        View root = inflater.inflate(R.layout.waypoints_fragment, container, false);
+        View root = inflater.inflate(R.layout.fragment_waypoints, container, false);
 
-        Toolbar toolbar = root.findViewById(R.id.waypoints_toolbar);
-        toolbar.setTitle(getString(R.string.title_waypoints));
+        CollapsingToolbarLayout collapsingToolbar =
+                (CollapsingToolbarLayout) root.findViewById(R.id.collapsing_toolbar_layout);
+        collapsingToolbar.setTitle(getString(R.string.title_waypoints));
 
         fragmentManager = getParentFragmentManager();
 
         waypointsViewModel = new ViewModelProvider(getActivity()).get(WaypointsViewModel.class);
 
-        RecyclerView recyclerView = root.findViewById(R.id.rv_waypoints);
-        fabAddWaypoint = root.findViewById(R.id.fab_wp_add);
+        RecyclerView recyclerView = root.findViewById(R.id.rvWaypointsList);
+        fabAddWaypoint = root.findViewById(R.id.fabAddWaypoint);
 
         fabAddWaypoint.setOnClickListener(new View.OnClickListener() {
             @Override

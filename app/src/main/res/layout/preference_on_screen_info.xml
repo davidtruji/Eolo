@@ -121,7 +121,7 @@
         tools:layout_constraintTop_toTopOf="@+id/Block3">
 
         <com.dtsoftware.paraglidinggps.TextViewOutline
-            android:id="@+id/tvBlock4"
+            android:id="@+id/tvWaypointDistance"
             style="@style/OnScreenInfoLittlepreference"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

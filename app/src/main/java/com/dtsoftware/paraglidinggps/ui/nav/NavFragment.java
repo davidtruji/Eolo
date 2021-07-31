@@ -210,7 +210,7 @@ public class NavFragment extends Fragment implements CompassListener, Permission
         tvBlock3 = root.findViewById(R.id.tvBlock3);
         tvBlock3Label = root.findViewById(R.id.tvBlock3Label);
 
-        tvBlock4 = root.findViewById(R.id.tvBlock4);
+        tvBlock4 = root.findViewById(R.id.tvWaypointDistance);
         tvBlock4Label = root.findViewById(R.id.tvBlock4Label);
 
         tvChronometer = root.findViewById(R.id.tvChronometer);

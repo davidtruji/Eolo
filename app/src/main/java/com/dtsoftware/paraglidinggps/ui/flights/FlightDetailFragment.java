@@ -44,7 +44,7 @@ public class FlightDetailFragment extends Fragment {
     private Flight mflight;
     private SharedFlightViewModel sharedFlightViewModel;
     private FlightsViewModel flightsViewModel;
-    private TextView tvName, tvDate, tvDistance, tvDuration, tvMaxAltitude, tvMinAltitude;
+    private TextView tvName, tvDate, tvDistance, tvDuration, tvMaxAltitude, tvMinAltitude, tvMinSpeed, tvAvgSpeed, tvMaxSpeed;
     private Toolbar toolbar;
 
     private OnMapReadyCallback onMapReadyCallback = new OnMapReadyCallback() {
@@ -86,7 +86,7 @@ public class FlightDetailFragment extends Fragment {
 
         Mapbox.getInstance(getContext(), getString(R.string.mapbox_access_token));
 
-        View root = inflater.inflate(R.layout.fragment_flight_detail, container, false);
+        View root = inflater.inflate(R.layout.fragment_flight_detail_beta, container, false);
 
         sharedFlightViewModel = new ViewModelProvider(getActivity()).get(SharedFlightViewModel.class);
         flightsViewModel = new ViewModelProvider(getActivity()).get(FlightsViewModel.class);
@@ -96,12 +96,15 @@ public class FlightDetailFragment extends Fragment {
         mapView = root.findViewById(R.id.mv_route_map);
         mapView.onCreate(savedInstanceState);
 
-        tvDate = root.findViewById(R.id.tv_rd_distance);
-        tvName = root.findViewById(R.id.tv_fd_name);
-        tvDistance = root.findViewById(R.id.tv_fd_distance);
-        tvDuration = root.findViewById(R.id.tv_fd_duration);
-        tvMaxAltitude = root.findViewById(R.id.tv_fd_max_altitude);
-        tvMinAltitude = root.findViewById(R.id.tv_fd_min_altitude);
+        tvDate = root.findViewById(R.id.tvDate);
+        tvName = root.findViewById(R.id.tvTitle);
+        tvDistance = root.findViewById(R.id.tvDistance);
+        tvDuration = root.findViewById(R.id.tvDuration);
+        tvMaxAltitude = root.findViewById(R.id.tvMaxAltitude);
+        tvMinAltitude = root.findViewById(R.id.tvMinAltitude);
+        tvMinSpeed = root.findViewById(R.id.tvMinSpeed);
+        tvAvgSpeed = root.findViewById(R.id.tvAvgSpeed);
+        tvMaxSpeed = root.findViewById(R.id.tvMaxSpeed);
 
         sharedFlightViewModel.getSelectedFlight().observe(getViewLifecycleOwner(), new Observer<Flight>() {
             @Override
@@ -110,7 +113,7 @@ public class FlightDetailFragment extends Fragment {
             }
         });
 
-        toolbar = root.findViewById(R.id.rd_toolbar);
+        toolbar = root.findViewById(R.id.flight_toolbar);
         toolbar.setTitle("Details");
         toolbar.inflateMenu(R.menu.fd_toolbar_menu);
         toolbar.setNavigationIcon(R.drawable.back);
@@ -152,10 +155,13 @@ public class FlightDetailFragment extends Fragment {
         toolbar.setSubtitle(flight.getLocationName());
         tvName.setText(flight.getLocationName());
         tvDate.setText(flight.getDateString());
-        tvDistance.setText("Distance: " + flight.getDistanceString() + " km");
-        tvDuration.setText("Duration: " + flight.getDurationString() + " (hh:mm:ss)");
-        tvMaxAltitude.setText("Max. Altitude: " + flight.getMaxAltitudeString() + " m");
-        tvMinAltitude.setText("Min. Altitude: " + flight.getMinAltitudeString() + " m");
+        tvDistance.setText(flight.getDistanceString());
+        tvDuration.setText(flight.getDurationString());
+        tvMaxAltitude.setText(flight.getMaxAltitudeString());
+        tvMinAltitude.setText(flight.getMinAltitudeString());
+        tvMinSpeed.setText(String.valueOf(flight.getMinSpeed()));
+        tvAvgSpeed.setText(String.valueOf(flight.getAvgSpeed()));
+        tvMaxSpeed.setText(String.valueOf(flight.getMaxSpeed()));
     }
 
 

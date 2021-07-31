@@ -18,10 +18,11 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/waypoint"
-        app:tint="@color/item_route_list_text_selector" />
+        app:tint="@color/item_route_list_text_selector"
+        tools:ignore="ContentDescription" />
 
     <TextView
-        android:id="@+id/tv_wli_name"
+        android:id="@+id/tvWaypointName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -30,12 +31,12 @@
         android:textColor="@color/item_route_list_text_selector"
         android:textSize="18sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@id/tv_wli_lat"
+        app:layout_constraintBottom_toTopOf="@id/tvLatitude"
         app:layout_constraintStart_toEndOf="@+id/ivWaypoint"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/tv_wli_lat"
+        android:id="@+id/tvLatitude"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
@@ -43,28 +44,28 @@
         android:textColor="@color/item_route_list_text_selector"
         android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="@+id/tv_wli_name"
-        app:layout_constraintTop_toBottomOf="@+id/tv_wli_name" />
+        app:layout_constraintStart_toStartOf="@+id/tvWaypointName"
+        app:layout_constraintTop_toBottomOf="@+id/tvWaypointName" />
 
     <TextView
-        android:id="@+id/tv_wli_lng"
+        android:id="@+id/tvLongitude"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:text="@string/sample_text"
         android:textColor="@color/item_route_list_text_selector"
         android:textSize="12sp"
-        app:layout_constraintStart_toEndOf="@+id/tv_wli_lat"
-        app:layout_constraintTop_toBottomOf="@+id/tv_wli_name" />
+        app:layout_constraintStart_toEndOf="@+id/tvLatitude"
+        app:layout_constraintTop_toBottomOf="@+id/tvWaypointName" />
 
     <TextView
-        android:id="@+id/tvBlock4"
+        android:id="@+id/tvWaypointDistance"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:textColor="@color/item_route_list_text_selector"
         android:textSize="18sp"
         android:visibility="invisible"
-        app:layout_constraintStart_toEndOf="@+id/tv_wli_name"
-        app:layout_constraintTop_toTopOf="@+id/tv_wli_name" />
+        app:layout_constraintStart_toEndOf="@+id/tvWaypointName"
+        app:layout_constraintTop_toTopOf="@+id/tvWaypointName" />
 </androidx.constraintlayout.widget.ConstraintLayout>

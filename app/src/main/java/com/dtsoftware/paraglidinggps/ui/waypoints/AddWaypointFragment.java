@@ -4,6 +4,7 @@ import android.animation.ObjectAnimator;
 import android.animation.TypeEvaluator;
 import android.animation.ValueAnimator;
 import android.graphics.BitmapFactory;
+import android.location.Location;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -11,20 +12,18 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.dtsoftware.paraglidinggps.MainActivity;
 import com.dtsoftware.paraglidinggps.R;
 import com.dtsoftware.paraglidinggps.Waypoint;
+import com.dtsoftware.paraglidinggps.ui.nav.NavViewModel;
+import com.google.android.material.textfield.TextInputLayout;
 import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.Point;
 import com.mapbox.mapboxsdk.Mapbox;
@@ -47,11 +46,29 @@ public class AddWaypointFragment extends Fragment implements OnMapReadyCallback,
     private LatLng currentPosition = new LatLng(0, 0);
     private GeoJsonSource geoJsonSource;
     private ValueAnimator animator;
-
     private TextView tvLat, tvLng;
+    private TextInputLayout tilName;
     private EditText etName;
+    private WaypointsViewModel waypointsViewModel;
+    private NavViewModel navViewModel;
 
-    WaypointsViewModel waypointsViewModel;
+    TextWatcher textWatcher = new TextWatcher() {
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            if (s.length()<1)
+                tilName.setError("Name required");
+            else
+                tilName.setErrorEnabled(false);
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+        }
+    };
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -66,10 +83,9 @@ public class AddWaypointFragment extends Fragment implements OnMapReadyCallback,
         toolbar.inflateMenu(R.menu.aw_toolbar_menu);
         toolbar.setNavigationIcon(R.drawable.back);
         toolbar.setOnMenuItemClickListener(item -> {
-            if (item.getItemId() == R.id.action_save) {
+            if (validateWaypoint()) {
                 waypointsViewModel.insert(new Waypoint(etName.getText().toString(), currentPosition.getLatitude(), currentPosition.getLongitude()));
                 getParentFragmentManager().popBackStack();
-
             }
             return true;
         });
@@ -78,11 +94,15 @@ public class AddWaypointFragment extends Fragment implements OnMapReadyCallback,
         setHasOptionsMenu(true);
 
         waypointsViewModel = new ViewModelProvider(getActivity()).get(WaypointsViewModel.class);
+        navViewModel = new ViewModelProvider(getActivity()).get(NavViewModel.class);
 
         mapView = root.findViewById(R.id.mv_aw_map);
         tvLat = root.findViewById(R.id.tv_aw_lat);
         tvLng = root.findViewById(R.id.tv_aw_lng);
         etName = root.findViewById(R.id.et_aw_name);
+        tilName = root.findViewById(R.id.textInputLayout);
+
+        etName.addTextChangedListener(textWatcher);
 
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
@@ -97,7 +117,6 @@ public class AddWaypointFragment extends Fragment implements OnMapReadyCallback,
         geoJsonSource = new GeoJsonSource("source-id",
                 Feature.fromGeometry(Point.fromLngLat(currentPosition.getLongitude(),
                         currentPosition.getLatitude())));
-
 
         mapboxMap.setStyle(Style.SATELLITE_STREETS, style -> {
 
@@ -116,6 +135,15 @@ public class AddWaypointFragment extends Fragment implements OnMapReadyCallback,
             mapboxMap.addOnMapClickListener(AddWaypointFragment.this);
 
         });
+
+        Location location = navViewModel.getLastLocation().getValue();
+        if (location != null) {
+            currentPosition.setLatitude(location.getLatitude());
+            currentPosition.setLongitude(location.getLongitude());
+            setCameraPosition(new LatLng(location.getLatitude(), location.getLongitude()), 10);
+            geoJsonSource.setGeoJson(Point.fromLngLat(currentPosition.getLongitude(), currentPosition.getLatitude()));
+        }
+
     }
 
     @Override
@@ -139,12 +167,7 @@ public class AddWaypointFragment extends Fragment implements OnMapReadyCallback,
         tvLng.setText("Long. " + String.format(getString(R.string.coordinates_format), point.getLongitude()));
 
 
-        CameraPosition cameraPosition = new CameraPosition.Builder()
-                .target(currentPosition)
-                .build();
-
-        mapboxMap.animateCamera(CameraUpdateFactory
-                .newCameraPosition(cameraPosition), 5000);
+        setCameraPosition(currentPosition, 10);
 
         return true;
     }
@@ -173,6 +196,27 @@ public class AddWaypointFragment extends Fragment implements OnMapReadyCallback,
         }
     };
 
+
+    private void setCameraPosition(LatLng position, double zoom) {
+
+        CameraPosition cameraPosition = new CameraPosition.Builder()
+                .target(position)
+                .zoom(zoom)
+                .build();
+
+        mapboxMap.animateCamera(CameraUpdateFactory
+                .newCameraPosition(cameraPosition), 3000);
+    }
+
+    private boolean validateWaypoint() {
+
+        boolean validation = (etName.getText().toString().length() > 0);
+
+        if (!validation)
+            tilName.setError("Name required");
+
+        return validation;
+    }
 
     @Override
     public void onStart() {

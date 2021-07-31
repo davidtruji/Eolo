@@ -28,11 +28,19 @@ public class Flight {
 
     private int minAltitude; // Altitud mínima en metros
 
+    private int minSpeed; // Minima velocidad m/s
+
+    private int avgSpeed; // Velocidad media m/s
+
+    private int maxSpeed; // Maxima velocidad m/s
+
     private String locationName; // Nombre de la localización del vuelo
 
     public Flight() {
         // Constructor vacio
     }
+
+
     @Ignore
     public Flight(String locationName, ArrayList<FlightLocation> route) {
         this.route = route;
@@ -45,8 +53,9 @@ public class Flight {
             this.date = 0L;
 
         this.duration = Utils.getRouteDuration(route);
-        this.maxAltitude = Utils.getMaxAltitude(route).intValue();
-        this.minAltitude = Utils.getMinAltitude(route).intValue();
+        obtainAltitudeValues();
+        obtainSpeedValues();
+
     }
 
 
@@ -114,6 +123,31 @@ public class Flight {
         this.locationName = locationName;
     }
 
+
+    public int getMinSpeed() {
+        return minSpeed;
+    }
+
+    public void setMinSpeed(int minSpeed) {
+        this.minSpeed = minSpeed;
+    }
+
+    public int getAvgSpeed() {
+        return avgSpeed;
+    }
+
+    public void setAvgSpeed(int avgSpeed) {
+        this.avgSpeed = avgSpeed;
+    }
+
+    public int getMaxSpeed() {
+        return maxSpeed;
+    }
+
+    public void setMaxSpeed(int maxSpeed) {
+        this.maxSpeed = maxSpeed;
+    }
+
     public String getDistanceString() {
         return String.format(Locale.US, Utils.DISTANCE_FORMAT, this.distance / 1000);
     }
@@ -134,6 +168,59 @@ public class Flight {
     @SuppressLint("DefaultLocale")
     public String getMinAltitudeString() {
         return String.valueOf(this.minAltitude);
+    }
+
+    private void obtainAltitudeValues() {
+
+        Double minAltitude, maxAltitude;
+
+        if (route.size() > 0) {
+
+            minAltitude = route.get(0).getAltitude();
+            maxAltitude = route.get(0).getAltitude();
+
+            for (FlightLocation location : route) {
+
+                if (location.getAltitude() < minAltitude)
+                    minAltitude = location.getAltitude();
+                else if (location.getAltitude() > maxAltitude)
+                    maxAltitude = location.getAltitude();
+
+            }
+
+            this.minAltitude = minAltitude.intValue();
+            this.maxAltitude = maxAltitude.intValue();
+
+        }
+
+    }
+
+    private void obtainSpeedValues() {
+
+        Double minSpeed, avgSpeed, maxSpeed;
+
+        if (route.size() > 0) {
+
+            minSpeed = route.get(0).getSpeed();
+            avgSpeed = 0D;
+            maxSpeed = route.get(0).getSpeed();
+
+            for (FlightLocation location : route) {
+
+                if (location.getSpeed() < minSpeed)
+                    minSpeed = location.getSpeed();
+                else if (location.getSpeed() > maxSpeed)
+                    maxSpeed = location.getSpeed();
+
+                avgSpeed += location.getSpeed();
+            }
+
+            this.minSpeed = minSpeed.intValue();
+            this.maxSpeed = maxSpeed.intValue();
+            this.avgSpeed = (int) (avgSpeed / route.size());
+
+        }
+
     }
 
 

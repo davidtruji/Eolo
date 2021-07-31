@@ -49,7 +49,9 @@
             android:id="@+id/et_aw_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Waypoint name" />
+            android:hint="Waypoint name"
+            android:imeOptions="actionDone"
+            android:singleLine="true" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <TextView

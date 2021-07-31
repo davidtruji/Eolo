@@ -9,7 +9,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.dtsoftware.paraglidinggps.Flight;
 import com.dtsoftware.paraglidinggps.R;
 import com.dtsoftware.paraglidinggps.Waypoint;
 
@@ -35,9 +34,9 @@ public class WaypointListAdapter extends RecyclerView.Adapter<WaypointListAdapte
 
         private WaypointViewHolder(View itemView) {
             super(itemView);
-            tvName = itemView.findViewById(R.id.tv_wli_name);
-            tvLat = itemView.findViewById(R.id.tv_wli_lat);
-            tvLong = itemView.findViewById(R.id.tv_wli_lng);
+            tvName = itemView.findViewById(R.id.tvWaypointName);
+            tvLat = itemView.findViewById(R.id.tvLatitude);
+            tvLong = itemView.findViewById(R.id.tvLongitude);
         }
 
         public void setClickListener(Waypoint waypoint, ClickListener clickListener) {
