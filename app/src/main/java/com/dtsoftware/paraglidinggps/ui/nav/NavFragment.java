@@ -77,6 +77,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 
 
 import static android.os.Looper.getMainLooper;
@@ -157,13 +158,10 @@ public class NavFragment extends Fragment implements CompassListener, Permission
     private final ArrayList<Integer> distanceWPTBlocks = new ArrayList<>();
     private final ArrayList<Integer> timeToArrivalBlocks = new ArrayList<>();
 
-    private String speedUnit;
-    private String distanceUnit;
-    private String altitudeUnit;
+    private String speedUnit, distanceUnit, altitudeUnit;
+    private String speedlabel, distanceLabel, altititudeLabel, distanceWptLabel, timeToWptLabel;
 
-    private float speedMult;
-    private float altitudeMult;
-    private float distanceMult;
+    private float speedMult, altitudeMult, distanceMult;
 
     // Variables de vuelo
     private boolean flying = false;
@@ -190,7 +188,7 @@ public class NavFragment extends Fragment implements CompassListener, Permission
         View root = inflater.inflate(R.layout.fragment_navigation, container, false);
 
         Toolbar toolbar = root.findViewById(R.id.nav_toolbar);
-        toolbar.setTitle(getString(R.string.title_nav));
+        toolbar.setTitle(getString(R.string.title_navigation));
         toolbar.inflateMenu(R.menu.nav_toolbar_menu);
         toolbar.setOnMenuItemClickListener(item -> {
             if (item.getItemId() == R.id.action_settings) {
@@ -653,7 +651,6 @@ public class NavFragment extends Fragment implements CompassListener, Permission
                 if (activity.mapboxMap != null && result.getLastLocation() != null) {
                     LocationUpdate locationUpdate = new LocationUpdate.Builder()
                             .location(result.getLastLocation())
-                            .animationDuration(2000L)
                             .build();
                     activity.mapboxMap.getLocationComponent().forceLocationUpdate(locationUpdate);
                 }
@@ -773,13 +770,13 @@ public class NavFragment extends Fragment implements CompassListener, Permission
 
         if (locationComponent.getCameraMode() == CameraMode.TRACKING_COMPASS) {
             locationComponent.setCameraMode(CameraMode.TRACKING_GPS_NORTH);
-            Utils.showSnakcbar(getView().findViewById(R.id.screenInfo_layout), getString(R.string.tracking_gps_north_snack));
+            Utils.showSnakcbar(getView().findViewById(R.id.screenInfo_layout), getString(R.string.snap_north));
         } else if (locationComponent.getCameraMode() == CameraMode.TRACKING_GPS_NORTH) {
             locationComponent.setCameraMode(CameraMode.TRACKING_COMPASS);
-            Utils.showSnakcbar(getView().findViewById(R.id.screenInfo_layout), getString(R.string.tracking_compass_snack));
+            Utils.showSnakcbar(getView().findViewById(R.id.screenInfo_layout), getString(R.string.snap_compass));
         } else {
             locationComponent.setCameraMode(CameraMode.TRACKING_GPS_NORTH);
-            Utils.showSnakcbar(getView().findViewById(R.id.screenInfo_layout), getString(R.string.tracking_gps_north_snack));
+            Utils.showSnakcbar(getView().findViewById(R.id.screenInfo_layout), getString(R.string.snap_north));
         }
 
 
@@ -795,7 +792,7 @@ public class NavFragment extends Fragment implements CompassListener, Permission
     public void saveFlight() {
         FlightsViewModel flightsViewModel = new ViewModelProvider(this).get(FlightsViewModel.class);
         flightsViewModel.insert(new Flight(Utils.generateFlightName(), flight));
-        Utils.showSnakcbar(getView().findViewById(R.id.screenInfo_layout), "Saved Flight");
+        Utils.showSnakcbar(getView().findViewById(R.id.screenInfo_layout), getString(R.string.snap_saved_flight));
     }
 
 
@@ -824,6 +821,7 @@ public class NavFragment extends Fragment implements CompassListener, Permission
         setNavigationInformationPreferences();
         setMapLayerPreferences();
         setUnitsPreferences();
+        resetOnScreenInfo();
         sharedPreferences.registerOnSharedPreferenceChangeListener(this);
     }
 
@@ -841,17 +839,13 @@ public class NavFragment extends Fragment implements CompassListener, Permission
             case "space3":
             case "space4":
                 setNavigationInformationPreferences();
-                updateDistance(0);
-                updateTimeToArrival(0);
-                updateDistanceWPT(0);
-                updateSpeed(0);
-                updateAltitude(0);
-                updateBearing(0);
+                resetOnScreenInfo();
                 break;
             case "speed_unit":
             case "altitude_unit":
             case "distance_unit":
                 setUnitsPreferences();
+                resetOnScreenInfo();
                 break;
         }
 
@@ -1000,11 +994,118 @@ public class NavFragment extends Fragment implements CompassListener, Permission
     }
 
 
+    private void setInfoLabels() {
+
+        timeToWptLabel = getString(R.string.time_to_wpt);
+
+        for (Integer block : altitudeBlocks) {
+            switch (block) {
+                case 1:
+                    tvBlock1Label.setText(altititudeLabel);
+                    break;
+                case 2:
+                    tvBlock2Label.setText(altititudeLabel);
+                    break;
+                case 3:
+                    tvBlock3Label.setText(altititudeLabel);
+                    break;
+                case 4:
+                    tvBlock4Label.setText(altititudeLabel);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        for (Integer block : speedBlocks) {
+            switch (block) {
+                case 1:
+                    tvBlock1Label.setText(speedlabel);
+                    break;
+                case 2:
+                    tvBlock2Label.setText(speedlabel);
+                    break;
+                case 3:
+                    tvBlock3Label.setText(speedlabel);
+                    break;
+                case 4:
+                    tvBlock4Label.setText(speedlabel);
+                    break;
+                default:
+                    break;
+            }
+
+        }
+
+        for (Integer block : distanceBlocks) {
+            switch (block) {
+                case 1:
+                    tvBlock1Label.setText(distanceLabel);
+                    break;
+                case 2:
+                    tvBlock2Label.setText(distanceLabel);
+                    break;
+                case 3:
+                    tvBlock3Label.setText(distanceLabel);
+                    break;
+                case 4:
+                    tvBlock4Label.setText(distanceLabel);
+                    break;
+                default:
+                    break;
+            }
+
+        }
+
+        for (Integer block : distanceWPTBlocks) {
+            switch (block) {
+                case 1:
+                    tvBlock1Label.setText(distanceWptLabel);
+                    break;
+                case 2:
+                    tvBlock2Label.setText(distanceWptLabel);
+                    break;
+                case 3:
+                    tvBlock3Label.setText(distanceWptLabel);
+                    break;
+                case 4:
+                    tvBlock4Label.setText(distanceWptLabel);
+                    break;
+                default:
+                    break;
+            }
+
+        }
+
+        for (Integer block : timeToArrivalBlocks) {
+            switch (block) {
+                case 1:
+                    tvBlock1Label.setText(timeToWptLabel);
+                    break;
+                case 2:
+                    tvBlock2Label.setText(timeToWptLabel);
+                    break;
+                case 3:
+                    tvBlock3Label.setText(timeToWptLabel);
+                    break;
+                case 4:
+                    tvBlock4Label.setText(timeToWptLabel);
+                    break;
+                default:
+                    break;
+            }
+
+        }
+
+
+    }
+
+
     private void updateBearing(float bearing) {
 
 
         String brg = Utils.degreesToBearing(bearing);
-        String brg_degrees = String.format(getContext().getString(R.string.bearing_format), bearing) + "º";
+        String brg_degrees = String.format(Locale.US, Utils.BEARING_FORMAT, bearing) + "º";
 
         for (Integer block : bearingBlocks) {
 
@@ -1043,26 +1144,20 @@ public class NavFragment extends Fragment implements CompassListener, Permission
         else
             min = "∞";
 
-        String label = getString(R.string.time_to_arrival_label);
-
         for (Integer block : timeToArrivalBlocks) {
 
             switch (block) {
                 case 1:
                     tvBlock1.setText(min);
-                    tvBlock1Label.setText(label);
                     break;
                 case 2:
                     tvBlock2.setText(min);
-                    tvBlock2Label.setText(label);
                     break;
                 case 3:
                     tvBlock3.setText(min);
-                    tvBlock3Label.setText(label);
                     break;
                 case 4:
                     tvBlock4.setText(min);
-                    tvBlock4Label.setText(label);
                     break;
                 default:
                     break;
@@ -1077,25 +1172,20 @@ public class NavFragment extends Fragment implements CompassListener, Permission
     private void updateAltitude(int altitude) {
 
         String alt = String.valueOf((int) (altitude * altitudeMult));
-        String label = "Altitude " + altitudeUnit;
 
         for (Integer block : altitudeBlocks) {
             switch (block) {
                 case 1:
                     tvBlock1.setText(alt);
-                    tvBlock1Label.setText(label);
                     break;
                 case 2:
                     tvBlock2.setText(alt);
-                    tvBlock2Label.setText(label);
                     break;
                 case 3:
                     tvBlock3.setText(alt);
-                    tvBlock3Label.setText(label);
                     break;
                 case 4:
                     tvBlock4.setText(alt);
-                    tvBlock4Label.setText(label);
                     break;
                 default:
                     break;
@@ -1108,25 +1198,20 @@ public class NavFragment extends Fragment implements CompassListener, Permission
     private void updateSpeed(int speed) {
 
         String spd = String.valueOf((int) (speed * speedMult));
-        String label = "Speed " + speedUnit;
 
         for (Integer block : speedBlocks) {
             switch (block) {
                 case 1:
                     tvBlock1.setText(spd);
-                    tvBlock1Label.setText(label);
                     break;
                 case 2:
                     tvBlock2.setText(spd);
-                    tvBlock2Label.setText(label);
                     break;
                 case 3:
                     tvBlock3.setText(spd);
-                    tvBlock3Label.setText(label);
                     break;
                 case 4:
                     tvBlock4.setText(spd);
-                    tvBlock4Label.setText(label);
                     break;
                 default:
                     break;
@@ -1138,26 +1223,21 @@ public class NavFragment extends Fragment implements CompassListener, Permission
 
     private void updateDistance(float distance) {
 
-        String dst = String.format(getString(R.string.distance_format), distance * distanceMult);
-        String label = "Distance " + distanceUnit;
+        String dst = String.format(Locale.US, Utils.DISTANCE_FORMAT, distance * distanceMult);
 
         for (Integer block : distanceBlocks) {
             switch (block) {
                 case 1:
                     tvBlock1.setText(dst);
-                    tvBlock1Label.setText(label);
                     break;
                 case 2:
                     tvBlock2.setText(dst);
-                    tvBlock2Label.setText(label);
                     break;
                 case 3:
                     tvBlock3.setText(dst);
-                    tvBlock3Label.setText(label);
                     break;
                 case 4:
                     tvBlock4.setText(dst);
-                    tvBlock4Label.setText(label);
                     break;
                 default:
                     break;
@@ -1169,26 +1249,21 @@ public class NavFragment extends Fragment implements CompassListener, Permission
 
     private void updateDistanceWPT(float distance) {
 
-        String dst = String.format(getString(R.string.distance_format), distance * distanceMult);
-        String label = "Distance to WPT " + distanceUnit;
+        String dst = String.format(Locale.US, Utils.DISTANCE_FORMAT, distance * distanceMult);
 
         for (Integer block : distanceWPTBlocks) {
             switch (block) {
                 case 1:
                     tvBlock1.setText(dst);
-                    tvBlock1Label.setText(label);
                     break;
                 case 2:
                     tvBlock2.setText(dst);
-                    tvBlock2Label.setText(label);
                     break;
                 case 3:
                     tvBlock3.setText(dst);
-                    tvBlock3Label.setText(label);
                     break;
                 case 4:
                     tvBlock4.setText(dst);
-                    tvBlock4Label.setText(label);
                     break;
                 default:
                     break;
@@ -1225,6 +1300,8 @@ public class NavFragment extends Fragment implements CompassListener, Permission
 
         value = sharedPreferences.getString(getString(R.string.distance_unit_key), "NULL");
         setUnits(value);
+
+        setInfoLabels();
     }
 
 
@@ -1251,6 +1328,7 @@ public class NavFragment extends Fragment implements CompassListener, Permission
         value = sharedPreferences.getString(getString(R.string.space4_key), "NULL");
         addBlockToArray(4, value);
 
+        setInfoLabels();
     }
 
     private void addBlockToArray(int block, String array) {
@@ -1291,42 +1369,54 @@ public class NavFragment extends Fragment implements CompassListener, Permission
             case "km":
                 distanceMult = 0.001f;
                 distanceUnit = "km";
+                distanceLabel = getString(R.string.distance_km);
+                distanceWptLabel = getString(R.string.distance_wpt_km);
                 break;
             case "mi":
                 distanceMult = 0.0006213712f;
                 distanceUnit = "mi";
+                distanceLabel = getString(R.string.distance_mi);
+                distanceWptLabel = getString(R.string.distance_wpt_mi);
                 break;
             case "nm":
                 distanceMult = 0.0005399565f;
                 distanceUnit = "nm";
+                distanceLabel = getString(R.string.distance_nm);
+                distanceWptLabel = getString(R.string.distance_wpt_nm);
                 break;
 
             // Speed
             case "ms":
                 speedUnit = "ms";
                 speedMult = 1;
+                speedlabel = getString(R.string.speed_ms);
                 break;
             case "kmh":
                 speedUnit = "kmh";
                 speedMult = 3.6f;
+                speedlabel = getString(R.string.speed_kmh);
                 break;
             case "mph":
                 speedUnit = "mph";
                 speedMult = 2.236936f;
+                speedlabel = getString(R.string.speed_mph);
                 break;
             case "kt":
                 speedUnit = "kt";
-                speedMult = 0.8689758f;
+                speedMult = 1.943844f;
+                speedlabel = getString(R.string.speed_kt);
                 break;
 
             // Altitude
             case "m":
                 altitudeUnit = "m";
                 altitudeMult = 1;
+                altititudeLabel = getString(R.string.altitude_m);
                 break;
             case "ft":
                 altitudeUnit = "ft";
                 altitudeMult = 3.28084f;
+                altititudeLabel = getString(R.string.altitude_ft);
                 break;
         }
 

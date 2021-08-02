@@ -1,5 +1,6 @@
 package com.dtsoftware.paraglidinggps.ui.route;
 
+import android.content.SharedPreferences;
 import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.os.Bundle;
@@ -13,13 +14,13 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.dtsoftware.paraglidinggps.R;
 import com.dtsoftware.paraglidinggps.Utils;
 import com.dtsoftware.paraglidinggps.ui.nav.NavViewModel;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.Point;
 import com.mapbox.mapboxsdk.Mapbox;
@@ -47,6 +48,7 @@ public class RouteFragment extends Fragment implements OnMapReadyCallback, Mapbo
     private RouteViewModel routeViewModel;
     private RecyclerView recyclerView;
     private RouteWaypointsAdapter adapter;
+    private String distanceUnit;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -62,8 +64,7 @@ public class RouteFragment extends Fragment implements OnMapReadyCallback, Mapbo
 
         Toolbar toolbar = root.findViewById(R.id.routes_toolbar);
         toolbar.setTitle(getString(R.string.title_route));
-        toolbar.setSubtitle("Select a waypoint or tap the map");
-        toolbar.inflateMenu(R.menu.routes_toolbar_menu);
+        toolbar.setSubtitle(getString(R.string.route_subtitle));
 
         btnSetRoute = root.findViewById(R.id.btn_set);
         btnRemoveRoute = root.findViewById(R.id.bnt_remove);
@@ -71,28 +72,26 @@ public class RouteFragment extends Fragment implements OnMapReadyCallback, Mapbo
 
         btnSetRoute.setOnClickListener(view -> {
             routeViewModel.setSelectedWaypoint(currentPosition);
-            Utils.showSnakcbar(getView().findViewById(R.id.coordinatorLy), "Established route");
+            Utils.showSnakcbar(getView().findViewById(R.id.coordinatorLy), getString(R.string.snap_route_seted));
         });
 
         btnRemoveRoute.setOnClickListener(view -> {
             routeViewModel.setSelectedWaypoint(null);
-            Utils.showSnakcbar(getView().findViewById(R.id.coordinatorLy), "The route has been deleted");
+            Utils.showSnakcbar(getView().findViewById(R.id.coordinatorLy), getString(R.string.snap_route_cleared));
         });
-
 
         recyclerView = root.findViewById(R.id.rvWaypointsList);
 
-        adapter = new RouteWaypointsAdapter(getContext(), (waypoint, position) -> {
+        setupSharedPreferences();// Antes de crear el adapte IMPORTANTE
+
+        adapter = new RouteWaypointsAdapter(getContext(), distanceUnit, (waypoint, position) -> {
             adapter.setSelectedItem(position);
             LatLng point = new LatLng(waypoint.getLatitude(), waypoint.getLongitude());
             currentPosition = point;
             setWaypointLayer();
             setCameraPosition(point, 15);
             btnSetRoute.setEnabled(true);
-        }
-
-
-        );
+        });
 
         recyclerView.setAdapter(adapter);
         LinearLayoutManager layoutManager = new LinearLayoutManager(root.getContext());
@@ -187,6 +186,11 @@ public class RouteFragment extends Fragment implements OnMapReadyCallback, Mapbo
         if (mapboxMap != null) {
             mapboxMap.setStyle(Style.SATELLITE_STREETS);
         }
+    }
+
+    private void setupSharedPreferences() {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this.getContext());
+        distanceUnit = sharedPreferences.getString(getString(R.string.distance_unit_key), "NULL");
     }
 
 

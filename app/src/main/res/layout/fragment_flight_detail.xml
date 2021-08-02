@@ -37,7 +37,6 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
         android:layout_marginTop="16dp"
-        android:text="La Parra"
         android:textColor="@color/black"
         android:textSize="20sp"
         app:layout_constraintStart_toStartOf="parent"
@@ -49,7 +48,6 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
         android:layout_marginTop="16dp"
-        android:text="15"
         android:textColor="@color/black"
         android:textSize="20sp"
         app:layout_constraintStart_toStartOf="parent"
@@ -59,7 +57,6 @@
         android:id="@+id/tvDistanceLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Distance (Km)"
         app:layout_constraintStart_toStartOf="@+id/tvDistance"
         app:layout_constraintTop_toBottomOf="@+id/tvDistance" />
 
@@ -68,7 +65,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="32dp"
-        android:text="01/01/21"
         android:textColor="@color/black"
         app:layout_constraintBottom_toBottomOf="@+id/tvTitle"
         app:layout_constraintEnd_toEndOf="parent"
@@ -79,7 +75,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
-        android:text="00:00:00"
         android:textColor="@color/black"
         android:textSize="20sp"
         app:layout_constraintBottom_toBottomOf="@+id/tvDistance"
@@ -90,7 +85,7 @@
         android:id="@+id/tvDurationLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Duration (hh:mm:ss)"
+        android:text="@string/duration_label"
         app:layout_constraintStart_toStartOf="@+id/tvDuration"
         app:layout_constraintTop_toBottomOf="@+id/tvDuration" />
 
@@ -135,7 +130,6 @@
                     android:layout_weight="1"
                     android:drawablePadding="8dp"
                     android:gravity="center_vertical"
-                    android:text="Min. Altitude (m)"
                     app:drawableStartCompat="@drawable/min_altitude" />
 
                 <TextView
@@ -144,7 +138,6 @@
                     android:layout_height="match_parent"
                     android:gravity="center_vertical"
                     android:padding="8dp"
-                    android:text="0"
                     android:textColor="@color/black" />
             </LinearLayout>
 
@@ -164,7 +157,6 @@
                     android:layout_weight="1"
                     android:drawablePadding="8dp"
                     android:gravity="center_vertical"
-                    android:text="Max. Altitude (m)"
                     app:drawableStartCompat="@drawable/max_altitude" />
 
                 <TextView
@@ -173,7 +165,6 @@
                     android:layout_height="match_parent"
                     android:gravity="center_vertical"
                     android:padding="8dp"
-                    android:text="0"
                     android:textColor="@color/black" />
             </LinearLayout>
 
@@ -193,7 +184,6 @@
                     android:layout_weight="1"
                     android:drawablePadding="8dp"
                     android:gravity="center_vertical"
-                    android:text="Min. Speed (Km/h)"
                     app:drawableStartCompat="@drawable/speed" />
 
                 <TextView
@@ -202,7 +192,6 @@
                     android:layout_height="match_parent"
                     android:gravity="center_vertical"
                     android:padding="8dp"
-                    android:text="0"
                     android:textColor="@color/black" />
             </LinearLayout>
 
@@ -222,7 +211,6 @@
                     android:layout_weight="1"
                     android:drawablePadding="8dp"
                     android:gravity="center_vertical"
-                    android:text="Avg. Speed (Km/h)"
                     app:drawableStartCompat="@drawable/speed" />
 
                 <TextView
@@ -231,7 +219,6 @@
                     android:layout_height="match_parent"
                     android:gravity="center_vertical"
                     android:padding="8dp"
-                    android:text="0"
                     android:textColor="@color/black" />
 
             </LinearLayout>
@@ -252,7 +239,6 @@
                     android:layout_weight="1"
                     android:drawablePadding="8dp"
                     android:gravity="center_vertical"
-                    android:text="Max. Speed (Km/h)"
                     app:drawableStartCompat="@drawable/speed" />
 
                 <TextView
@@ -261,7 +247,6 @@
                     android:layout_height="match_parent"
                     android:gravity="center_vertical"
                     android:padding="8dp"
-                    android:text="0"
                     android:textColor="@color/black" />
             </LinearLayout>
 

@@ -10,9 +10,11 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.dtsoftware.paraglidinggps.R;
+import com.dtsoftware.paraglidinggps.Utils;
 import com.dtsoftware.paraglidinggps.Waypoint;
 
 import java.util.List;
+import java.util.Locale;
 
 public class WaypointListAdapter extends RecyclerView.Adapter<WaypointListAdapter.WaypointViewHolder> {
 
@@ -62,8 +64,8 @@ public class WaypointListAdapter extends RecyclerView.Adapter<WaypointListAdapte
             Waypoint current = waypoints.get(position);
 
             holder.tvName.setText(current.getWaypointName());
-            holder.tvLat.setText("Lat. " + String.format(context.getString(R.string.coordinates_format),current.getLatitude()));
-            holder.tvLong.setText("Long. " + String.format(context.getString(R.string.coordinates_format),current.getLongitude()));
+            holder.tvLat.setText("Lat. " + String.format(Locale.US, Utils.COORDINATES_FORMAT,current.getLatitude()));
+            holder.tvLong.setText("Long. " + String.format(Locale.US, Utils.COORDINATES_FORMAT,current.getLongitude()));
 
             holder.setClickListener(current, itemClickListener);
 

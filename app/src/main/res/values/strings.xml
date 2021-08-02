@@ -1,51 +1,114 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
+
+
+    <!--Titles-->
     <string name="app_name">Paragliding GPS</string>
-    <string name="title_nav">Navigation</string>
+    <string name="title_activity_settings">ActivitySettings</string>
+    <string name="title_navigation">Navigation</string>
     <string name="title_waypoints">Waypoints</string>
     <string name="title_route">Route</string>
     <string name="title_flights">Flights</string>
-    <string name="title_aw">New Waypoint</string>
-    <string name="title_ar">New Route</string>
-    <string name="title_er">Edit Route</string>
+    <string name="title_add_waypoint">New Waypoint</string>
+    <string name="title_edit_flight">Edit flight</string>
     <string name="TAG">DEBUG-INFO</string>
+    <!--Titles-->
+
+    <!--Navigation-->
+    <string name="settings">Settings</string>
+    <string name="btn_On">Stop</string>
+    <string name="btn_Off">Start</string>
+    <string name="snap_compass">Tracking device compass</string>
+    <string name="snap_north">GPS north blocked</string>
+    <string name="snap_saved_flight">Flight saved</string>
+
+    <string name="altitude_m">Altitude (m)</string>
+    <string name="altitude_ft">Altitude (ft)</string>
+
+    <string name="speed_ms">Speed (m/s)</string>
+    <string name="speed_kmh">Speed (km/h)</string>
+    <string name="speed_mph">Speed (mph)</string>
+    <string name="speed_kt">Speed (kt)</string>
+
+    <string name="distance_km">Distance (km)</string>
+    <string name="distance_mi">Distance (mi)</string>
+    <string name="distance_nm">Distance (nm)</string>
+
+    <string name="distance_wpt_km">Distance WPT(km)</string>
+    <string name="distance_wpt_mi">Distance WPT(mi)</string>
+    <string name="distance_wpt_nm">Distance WPT(nm)</string>
+    <string name="chronometer">Chronometer (mm:ss)</string>
+
+    <string name="time_to_wpt">Time to WPT (\')</string>
+    <!--Navigation-->
+
+    <!--Route-->
+    <string name="route_subtitle">Select a waypoint or tap the map</string>
+    <string name="btn_direct_to">Direct to</string>
+    <string name="btn_clear_route">Clear route</string>
+    <string name="snap_route_seted">Established route</string>
+    <string name="snap_route_cleared">Route cleared</string>
+    <!--Route-->
+
+    <!--Flights-->
+    <string name="flights_count_label">Flights</string>
+    <string name="hours_count_label">Flight hours</string>
+    <!--Flights-->
 
 
-    <string name="mapbox_access_token" tools:ignore="Typos">pk.eyJ1IjoiZGF2aWR0cnVqaSIsImEiOiJja2N5eHk1azQwZWNwMnVwNGdhdmI0NjFjIn0.fmvbTZB2ja54sltI3znqZA</string>
-    <string name="user_location_permission_explanation">Location access needed</string>
-    <string name="user_location_permission_not_granted">No location access</string>
+    <!--Flight Detail-->
+    <string name="duration_label">Duration (hh:mm:ss)</string>
 
-    <!--Formats-->
-    <string name="speed_format">%.0f</string>
-    <string name="altitude_format">%.0f</string>
-    <string name="bearing_format">%.0f</string>
-    <string name="distance_format">%.1f</string>
-    <string name="coordinates_format">%1$.4f</string>
-    <!--Formats-->
+    <string name="min_altitude_m">Min. Altitude (m)</string>
+    <string name="max_altitude_m">Max. Altitude (m)</string>
+
+    <string name="min_altitude_ft">Min. Altitude (ft)</string>
+    <string name="max_altitude_ft">Max. Altitude (ft)</string>
+
+    <string name="min_speed_kmh">Min. Speed (km/h)</string>
+    <string name="avg_speed_kmh">Avg. Speed (km/h)</string>
+    <string name="max_speed_kmh">Max. Speed (km/h)</string>
+
+    <string name="min_speed_ms">Min. Speed (m/s)</string>
+    <string name="avg_speed_ms">Avg. Speed (m/s)</string>
+    <string name="max_speed_ms">Max. Speed (m/s)</string>
+
+    <string name="min_speed_mph">Min. Speed (mph)</string>
+    <string name="avg_speed_mph">Avg. Speed (mph)</string>
+    <string name="max_speed_mph">Max. Speed (mph)</string>
+
+    <string name="min_speed_kt">Min. Speed (kt)</string>
+    <string name="avg_speed_kt">Avg. Speed (kt)</string>
+    <string name="max_speed_kt">Max. Speed (kt)</string>
+
+    <string name="delete_dialog_tittle">Delete Flight</string>
+    <string name="delete_dialog_msg">Are you sure you want to delete this flight?</string>
+    <string name="delete_dialog_yes">Yes</string>
+    <string name="delete_dialog_no">No</string>
+
+    <string name="menu_edit">Edit</string>
+    <!--Flight Detail-->
 
 
-    <!--Labels-->
-    <string name="distance">Distance: </string>
-    <string name="altitude_label">Altitude (m)</string>
-    <string name="chronometer_label">Time (mm:ss)</string>
-    <string name="speed_label">Speed (km/h)</string>
-    <string name="time_to_arrival_label">Time to arrival (\')</string>
-    <string name="degrees_unit">(°)</string>
-    <string name="distance_label">Distance (Km)</string>
-    <string name="distanceWPT_label">Distance to WPT (Km)</string>
-    <string name="flights_counter">Flights</string>
-    <string name="hours_counter">Flight hours</string>
-    <!--Labels-->
+    <!--Edit Flight-->
+    <string name="flight_info_label">Flight information</string>
+    <string name="flight_info_speed_label">Speed</string>
+    <string name="flight_info_altitude_label">Altitude</string>
 
-    <!--Compass Letters-->
-    <string name="north"> N </string>
-    <string name="northEast">NE</string>
-    <string name="east">E</string>
-    <string name="southEast">SE</string>
-    <string name="south">S</string>
-    <string name="southWest">SW</string>
-    <string name="west">W</string>
-    <string name="northWest">NW</string>
-    <!--Compass Letters-->
+    <string name="flight_name_label">Flight name</string>
+    <string name="flight_date_label">Date</string>
+    <string name="flight_hour_label">Hour</string>
+    <string name="flight_duration_label">Duration</string>
+    <!--Edit Flight-->
+
+
+    <!--Waypoints-->
+    <!--Waypoints-->
+
+    <!--New Waypoint-->
+    <string name="new_wtp_subtitle">Tap the map to add a waypoint</string>
+    <string name="wpt_name">Waypoint name</string>
+    <string name="name_required">Waypoint name required</string>
+    <!--New Waypoint-->
 
     <!--Preference Title-->
     <string name="layer_title">Map Layer</string>
@@ -71,41 +134,20 @@
     <!--Preference Keys-->
 
 
-    <string name="default_route_name">My route</string>
-    <string name="route_name_hint">Route name</string>
+    <string name="mapbox_access_token" tools:ignore="Typos">pk.eyJ1IjoiZGF2aWR0cnVqaSIsImEiOiJja2N5eHk1azQwZWNwMnVwNGdhdmI0NjFjIn0.fmvbTZB2ja54sltI3znqZA</string>
+    <string name="user_location_permission_explanation">Location access needed</string>
+    <string name="user_location_permission_not_granted">No location access</string>
 
 
-    <string name="tracking_compass_snack">Tracking device compass</string>
-    <string name="tracking_gps_north_snack">GPS North Blocked</string>
-
-    <string name="start_button">Start</string>
-    <string name="stop_button">Stop</string>
-
-    <string name="set_route_btn">Set route</string>
-    <string name="remove_route_btn">Remove route</string>
-
-    <string name="save_button">Save flight</string>
-    <string name="discard_button">Discard flight</string>
-
-    <string name="sample_text">Text</string>
-    <string name="add_new_route_desc">Add new route</string>
-    <string name="set_route">Set Route</string>
-    <string name="title_activity_settings">SettingsActivity</string>
-
-    <!-- Preference Titles -->
-    <string name="messages_header">Messages</string>
-    <string name="sync_header">Sync</string>
-
-    <!-- Messages Preferences -->
-    <string name="signature_title">Your signature</string>
-    <string name="reply_title">Default reply action</string>
-
-    <!-- Sync Preferences -->
-    <string name="sync_title">Sync email periodically</string>
-    <string name="attachment_title">Download incoming attachments</string>
-    <string name="attachment_summary_on">Automatically download attachments for incoming emails
-    </string>
-    <string name="attachment_summary_off">Only download attachments when manually requested</string>
-    <string name="settings">Settings</string>
+    <!--Compass Letters-->
+    <string name="north"> N </string>
+    <string name="northEast">NE</string>
+    <string name="east">E</string>
+    <string name="southEast">SE</string>
+    <string name="south">S</string>
+    <string name="southWest">SW</string>
+    <string name="west">W</string>
+    <string name="northWest">NW</string>
+    <!--Compass Letters-->
 
 </resources>

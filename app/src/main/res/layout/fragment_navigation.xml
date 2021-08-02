@@ -78,7 +78,7 @@
                 style="@style/OnScreenInfoLabel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/chronometer_label" />
+                android:text="@string/chronometer" />
         </LinearLayout>
 
         <LinearLayout
@@ -197,7 +197,8 @@
                 android:layout_gravity="center_horizontal|center_vertical"
                 android:adjustViewBounds="true"
                 android:padding="50dp"
-                android:src="@drawable/north_arrow" />
+                android:src="@drawable/north_arrow"
+                tools:ignore="ContentDescription" />
 
             <ImageView
                 android:id="@+id/route_compass"
@@ -207,7 +208,8 @@
                 android:adjustViewBounds="true"
                 android:padding="50dp"
                 android:src="@drawable/route_arrow"
-                android:visibility="invisible" />
+                android:visibility="invisible"
+                tools:ignore="ContentDescription" />
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/fabClean"
@@ -220,7 +222,8 @@
                 android:clickable="true"
                 android:focusable="true"
                 android:src="@drawable/compass_off"
-                mapbox:fabSize="mini" />
+                mapbox:fabSize="mini"
+                tools:ignore="ContentDescription" />
 
 
             <ToggleButton
@@ -235,8 +238,8 @@
                 android:focusable="true"
                 android:fontFamily="sans-serif-condensed"
                 android:textColor="@color/white"
-                android:textOff="@string/start_button"
-                android:textOn="@string/stop_button"
+                android:textOff="@string/btn_Off"
+                android:textOn="@string/btn_On"
                 android:textStyle="bold" />
 
         </androidx.coordinatorlayout.widget.CoordinatorLayout>

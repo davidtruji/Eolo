@@ -41,7 +41,7 @@
                     style="@style/FLightsListInfoLabel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/flights_counter"
+                    android:text="@string/flights_count_label"
                     app:layout_constraintEnd_toEndOf="@+id/tvFlightsCount"
                     app:layout_constraintStart_toStartOf="@+id/tvFlightsCount"
                     app:layout_constraintTop_toBottomOf="@+id/tvFlightsCount" />
@@ -60,7 +60,7 @@
                     style="@style/FLightsListInfoLabel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/hours_counter"
+                    android:text="@string/hours_count_label"
                     app:layout_constraintEnd_toEndOf="@+id/tvHoursCount"
                     app:layout_constraintStart_toStartOf="@+id/tvHoursCount"
                     app:layout_constraintTop_toBottomOf="@+id/tvHoursCount" />

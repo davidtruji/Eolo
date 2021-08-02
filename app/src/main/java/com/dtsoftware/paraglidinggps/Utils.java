@@ -1,28 +1,16 @@
 package com.dtsoftware.paraglidinggps;
 
 import android.annotation.SuppressLint;
-import android.graphics.Color;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
 
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-
-import com.dtsoftware.paraglidinggps.ui.nav.NavFragment;
 import com.google.android.material.snackbar.Snackbar;
 import com.mapbox.geojson.Feature;
-import com.mapbox.geojson.FeatureCollection;
+import com.mapbox.geojson.LineString;
 import com.mapbox.geojson.Point;
-import com.mapbox.geojson.Polygon;
 import com.mapbox.mapboxsdk.geometry.LatLngBounds;
-import com.mapbox.mapboxsdk.maps.Style;
-import com.mapbox.mapboxsdk.style.layers.CircleLayer;
-import com.mapbox.mapboxsdk.style.layers.LineLayer;
-import com.mapbox.mapboxsdk.style.layers.Property;
-import com.mapbox.mapboxsdk.style.layers.PropertyFactory;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 
 import java.text.ParseException;
@@ -34,8 +22,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
-import static com.mapbox.mapboxsdk.style.expressions.Expression.eq;
-import static com.mapbox.mapboxsdk.style.expressions.Expression.literal;
 
 public class Utils {
 
@@ -50,17 +36,19 @@ public class Utils {
     public static final String NORTH_WEST = "NW"; // [292.5° - 337.5°)
 
     public static final String DISTANCE_FORMAT = "%.1f";
+    public static final String BEARING_FORMAT = "%.0f";
+    public static final String COORDINATES_FORMAT = "%1$.4f";
     public static final String FLIGHT_HOURS_FORMAT = "%05d";
     public static final String ALTITUDE_FORMAT = "%.0f";
+    public static final String SPEED_FORMAT = "%.0f";
     public static final String DURATION_FORMAT = "%02d:%02d:%02d";
+    public static final String HOUR_DATE_FORMAT = "HH:mmdd/MM/yyyy";
     public static final String DATE_FORMAT = "dd/MM/yyyy";
+    public static final String HOUR_FORMAT = "HH:mm";
     public static final String FLIGHT_DATE_FORMAT = "ddMMyyyy";
 
 
-    public static final double POLYGON_SIZE = .000025;
     public static final String GEO_JSON_ID = "source-id";
-    public static final String POINT_LAYER_ID = "point-layer-id";
-    public static final String LINE_LAYER_ID = "line-layer-id";
 
     public static String degreesToBearing(Float degrees) {
 
@@ -99,10 +87,6 @@ public class Utils {
         snackbar.show();
     }
 
-    public static String getDistanceString(float distance) {
-        return String.format(Locale.US, DISTANCE_FORMAT, distance / 1000);
-    }
-
 
     public static Float getRouteDistance(ArrayList<FlightLocation> route) {
         float distance = 0f; // Distancia en metros de la ruta
@@ -132,51 +116,6 @@ public class Utils {
         }
         return duration;
     }
-
-
-    public static Double getMaxAltitude(ArrayList<FlightLocation> route) {
-        double maxAltitude = 0D;
-
-        if (route.size() > 0) {
-
-            maxAltitude = route.get(0).getAltitude();
-
-            for (FlightLocation location : route) {
-
-                if (location.getAltitude() > maxAltitude)
-                    maxAltitude = location.getAltitude();
-
-
-            }
-
-        }
-        return maxAltitude;
-    }
-
-
-    public static Double getMinAltitude(ArrayList<FlightLocation> route) {
-        double minAltitude = 0D;
-
-        if (route.size() > 0) {
-
-            minAltitude = route.get(0).getAltitude();
-
-            for (FlightLocation location : route) {
-
-                if (location.getAltitude() < minAltitude)
-                    minAltitude = location.getAltitude();
-
-
-            }
-
-        }
-
-        return minAltitude;
-    }
-
-
-
-
 
 
     @SuppressLint("DefaultLocale")
@@ -218,6 +157,22 @@ public class Utils {
         return dateFormat.format(new Date(dateTimestamp));
     }
 
+    public static String timestampToHourString(long hourTimestamp) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat(HOUR_FORMAT, Locale.getDefault());
+        return dateFormat.format(new Date(hourTimestamp));
+    }
+
+    public static long hourDateStringToTimestamp(String hourDate) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat(HOUR_DATE_FORMAT, Locale.getDefault());
+        Date date = null;
+        try {
+            date = dateFormat.parse(hourDate);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return date.getTime();
+    }
+
 
     public static Integer getTotalFlightHours(List<Flight> vuelos) {
         long hours = 0L;
@@ -235,91 +190,15 @@ public class Utils {
     }
 
 
-    public static void hideAllFragments(FragmentManager fragmentManager) {
-        List<Fragment> fragmentList = fragmentManager.getFragments();
-        for (Fragment f : fragmentList) {
-            fragmentManager.beginTransaction().hide(f).commit();
-        }
-    }
-
-    public static void removeAllFragments(FragmentManager fragmentManager) {
-        List<Fragment> fragmentList = fragmentManager.getFragments();
-        for (Fragment f : fragmentList) {
-            if (!(f instanceof NavFragment))
-                fragmentManager.beginTransaction().remove(f).commit();
-        }
-    }
-
-    public static NavFragment getNavFragment(FragmentManager fragmentManager) {
-        List<Fragment> fragmentList = fragmentManager.getFragments();
-        NavFragment navFragment = null;
-
-        for (Fragment f : fragmentList) {
-            if ((f instanceof NavFragment))
-                navFragment = (NavFragment) f;
-
-            break;
-        }
-        return navFragment;
-    }
-
     public static GeoJsonSource getGeoJsonSourceFromRoute(ArrayList<FlightLocation> route) {
-        List<Feature> featureList = new ArrayList<>();
-        Feature feature;
-        FeatureCollection featureCollection;
-
-        double groundAltitude = getMinAltitude(route);
+        List<Point> linePoints = new ArrayList<>();
 
         for (FlightLocation location : route) {
-            feature = Feature.fromGeometry(getPolygonFromLocation(location));
-            feature.addNumberProperty("e", location.getAltitude() - groundAltitude);
-            featureList.add(feature);
+            linePoints.add(Point.fromLngLat(location.getLongitude(), location.getLatitude()));
         }
 
-        featureCollection = FeatureCollection.fromFeatures(featureList);
-
-        return new GeoJsonSource(GEO_JSON_ID, featureCollection);
-    }
-
-
-    private static Polygon getPolygonFromLocation(FlightLocation location) {
-
-        List<Point> pointList = new ArrayList<>();
-        List<List<Point>> coordinates = new ArrayList<>();
-
-        double lat = location.getLatitude();
-        double lng = location.getLongitude();
-        double latN, latS, lngW, lngE;
-
-        if (lat + POLYGON_SIZE > 90)
-            latN = 90 - ((lat + POLYGON_SIZE) - 90);
-        else
-            latN = lat + POLYGON_SIZE;
-
-        if (lat - POLYGON_SIZE < -90)
-            latS = -90 + ((lat - POLYGON_SIZE) + 90);
-        else
-            latS = lat - POLYGON_SIZE;
-
-        if (lng + POLYGON_SIZE > 180)
-            lngE = -180 + ((lng + POLYGON_SIZE) - 180);
-        else
-            lngE = lng + POLYGON_SIZE;
-
-        if (lng - POLYGON_SIZE < -180)
-            lngW = 180 - ((lng - POLYGON_SIZE) + 180);
-        else
-            lngW = lng - POLYGON_SIZE;
-
-        pointList.add(Point.fromLngLat(lngW, latN)); // Arriba izq
-        pointList.add(Point.fromLngLat(lngE, latN)); // Arriba der
-        pointList.add(Point.fromLngLat(lngE, latS)); // Abajo der
-        pointList.add(Point.fromLngLat(lngW, latS)); // Abajo izq
-        pointList.add(Point.fromLngLat(lngW, latN)); // Arriba izq (Repetido necesariamente)
-
-        coordinates.add(pointList);
-
-        return Polygon.fromLngLats(coordinates);
+        return new GeoJsonSource(GEO_JSON_ID,
+                Feature.fromGeometry(LineString.fromLngLats(linePoints)));
     }
 
 
@@ -367,48 +246,6 @@ public class Utils {
         return "Flight_" + sdf.format(date);
     }
 
-
-    public static void addPointsLayerToMap(@NonNull Style loadedMapStyle, String source_id) {
-        // Create and style a CircleLayer that uses the Point Features' coordinates in the GeoJSON data
-        CircleLayer individualCirclesLayer = new CircleLayer(Utils.POINT_LAYER_ID, source_id);
-        individualCirclesLayer.setProperties(
-                PropertyFactory.circleColor(Color.RED),
-                PropertyFactory.circleRadius(8f),
-                PropertyFactory.circleStrokeWidth(1f),
-                PropertyFactory.circleStrokeColor(Color.WHITE));
-        individualCirclesLayer.setFilter(eq(literal("$type"), literal("Point")));
-        loadedMapStyle.addLayer(individualCirclesLayer);
-    }
-
-
-    /**
-     * Añade la capa de lineas al recurso GEOJSON
-     *
-     * @param loadedMapStyle estilo del mapa
-     */
-    public static void addLinesLayerToMap(@NonNull Style loadedMapStyle, String source_id) {
-        // Create and style a CircleLayer that uses the Point Features' coordinates in the GeoJSON data
-        LineLayer individualLineLayer = new LineLayer(LINE_LAYER_ID, source_id);
-        individualLineLayer.setProperties(
-                PropertyFactory.lineCap(Property.LINE_CAP_ROUND),
-                PropertyFactory.lineJoin(Property.LINE_JOIN_ROUND),
-                PropertyFactory.lineWidth(3f),
-                PropertyFactory.lineColor(Color.RED));
-        individualLineLayer.setFilter(eq(literal("$type"), literal("LineString")));
-        loadedMapStyle.addLayer(individualLineLayer);
-    }
-
-
-    /**
-     * Añade las capas de puntos y lineas necesarias para visualizar rutas en un mapa
-     *
-     * @param loadedMapStyle estilo del mapa
-     */
-    public static void addRouteLayersToMap(@NonNull Style loadedMapStyle, String source_id) {
-        addLinesLayerToMap(loadedMapStyle, source_id);
-        addPointsLayerToMap(loadedMapStyle, source_id);
-    }
-
     public static void rotateImage(ImageView img, float startDegree, float endDegree) {
         RotateAnimation ra = new RotateAnimation(startDegree,
                 endDegree,
@@ -421,6 +258,62 @@ public class Utils {
         ra.setDuration(500);
         // Start animation of compass image
         img.startAnimation(ra);
+    }
+
+    public static float metersToKm(float meters) {
+        return meters * 0.001f;
+    }
+
+    public static float kmToMeters(float km) {
+        return km * 1000;
+    }
+
+    public static float metersToMi(float meters) {
+        return meters * 0.0006213712f;
+    }
+
+    public static float miToMeters(float mi) {
+        return mi * 1609.344f;
+    }
+
+    public static float metersToNm(float meters) {
+        return meters * 0.0005399565f;
+    }
+
+    public static float nmToMeters(float nm) {
+        return nm * 1852.001f;
+    }
+
+    public static float metersToFt(float meters) {
+        return meters * 3.28084f;
+    }
+
+    public static float ftToMeters(float ft) {
+        return ft * 0.30480003f;
+    }
+
+    public static float metersPerSecondToKmh(int metersPerSecond) {
+        return metersPerSecond * 3.6f;
+    }
+
+    public static float kmhToMetersPerSecond(int kmh) {
+        return kmh * 0.2777778f;
+    }
+
+    public static float metersPerSecondToMph(int metersPerSecond) {
+        return metersPerSecond * 2.236936f;
+    }
+
+    public static float mphToMetersPerSecond(int mph) {
+        return mph * 0.44704f;
+    }
+
+    public static float metersPerSecondToKt(int metersPerSecond) {
+        return metersPerSecond * 1.943844f;
+    }
+
+    public static float ktToMetersPerSecond(int kt) {
+        return kt * 0.5144447f;
     }
 
 

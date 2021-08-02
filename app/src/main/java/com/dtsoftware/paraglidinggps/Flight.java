@@ -123,7 +123,6 @@ public class Flight {
         this.locationName = locationName;
     }
 
-
     public int getMinSpeed() {
         return minSpeed;
     }

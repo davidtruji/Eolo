@@ -4,7 +4,7 @@
     <item
         android:id="@+id/navigation_nav"
         android:icon="@drawable/navigation"
-        android:title="@string/title_nav" />
+        android:title="@string/title_navigation" />
 
     <item
         android:id="@+id/navigation_route"

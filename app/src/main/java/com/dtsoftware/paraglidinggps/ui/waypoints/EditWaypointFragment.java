@@ -37,6 +37,8 @@ import com.mapbox.mapboxsdk.style.layers.PropertyFactory;
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 
+import java.util.Locale;
+
 public class EditWaypointFragment extends Fragment implements MapboxMap.OnMapClickListener {
 
     private MapView mapView;
@@ -119,7 +121,7 @@ public class EditWaypointFragment extends Fragment implements MapboxMap.OnMapCli
         setHasOptionsMenu(true);
 
         toolbar = root.findViewById(R.id.aw_toolbar);
-        toolbar.setSubtitle("Tap to edit the position");
+        toolbar.setSubtitle(getString(R.string.new_wtp_subtitle));
         toolbar.inflateMenu(R.menu.ew_toolbar_menu);
         toolbar.setNavigationIcon(R.drawable.back);
         toolbar.setOnMenuItemClickListener(item -> {
@@ -181,8 +183,8 @@ public class EditWaypointFragment extends Fragment implements MapboxMap.OnMapCli
 
         currentPosition = point;
 
-        tvLat.setText("Lat. " + String.format(getString(R.string.coordinates_format), point.getLatitude()));
-        tvLng.setText("Long. " + String.format(getString(R.string.coordinates_format), point.getLongitude()));
+        tvLat.setText("Lat. " + String.format(Locale.US, Utils.COORDINATES_FORMAT, point.getLatitude()));
+        tvLng.setText("Long. " + String.format(Locale.US, Utils.COORDINATES_FORMAT, point.getLongitude()));
 
 
         CameraPosition cameraPosition = new CameraPosition.Builder()
@@ -224,8 +226,8 @@ public class EditWaypointFragment extends Fragment implements MapboxMap.OnMapCli
 
         this.waypoint = waypoint;
 
-        tvLat.setText("Lat. " + String.format(getString(R.string.coordinates_format), waypoint.getLatitude()));
-        tvLng.setText("Long. " + String.format(getString(R.string.coordinates_format), waypoint.getLongitude()));
+        tvLat.setText("Lat. " + String.format(Locale.US, Utils.COORDINATES_FORMAT, waypoint.getLatitude()));
+        tvLng.setText("Long. " + String.format(Locale.US, Utils.COORDINATES_FORMAT, waypoint.getLongitude()));
 
 
         currentPosition.setLatitude(waypoint.getLatitude());

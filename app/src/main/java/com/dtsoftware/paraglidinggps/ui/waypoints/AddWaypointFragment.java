@@ -21,6 +21,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.dtsoftware.paraglidinggps.R;
+import com.dtsoftware.paraglidinggps.Utils;
 import com.dtsoftware.paraglidinggps.Waypoint;
 import com.dtsoftware.paraglidinggps.ui.nav.NavViewModel;
 import com.google.android.material.textfield.TextInputLayout;
@@ -37,6 +38,8 @@ import com.mapbox.mapboxsdk.maps.Style;
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory;
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
+
+import java.util.Locale;
 
 
 public class AddWaypointFragment extends Fragment implements OnMapReadyCallback, MapboxMap.OnMapClickListener {
@@ -78,8 +81,8 @@ public class AddWaypointFragment extends Fragment implements OnMapReadyCallback,
         View root = inflater.inflate(R.layout.fragment_add_waypoint, container, false);
 
         Toolbar toolbar = root.findViewById(R.id.aw_toolbar);
-        toolbar.setTitle(getString(R.string.title_aw));
-        toolbar.setSubtitle("Tap to add a point");
+        toolbar.setTitle(getString(R.string.title_add_waypoint));
+        toolbar.setSubtitle(getString(R.string.new_wtp_subtitle));
         toolbar.inflateMenu(R.menu.aw_toolbar_menu);
         toolbar.setNavigationIcon(R.drawable.back);
         toolbar.setOnMenuItemClickListener(item -> {
@@ -163,8 +166,8 @@ public class AddWaypointFragment extends Fragment implements OnMapReadyCallback,
 
         currentPosition = point;
 
-        tvLat.setText("Lat. " + String.format(getString(R.string.coordinates_format), point.getLatitude()));
-        tvLng.setText("Long. " + String.format(getString(R.string.coordinates_format), point.getLongitude()));
+        tvLat.setText("Lat. " + String.format(Locale.US, Utils.COORDINATES_FORMAT, point.getLatitude()));
+        tvLng.setText("Long. " + String.format(Locale.US, Utils.COORDINATES_FORMAT, point.getLongitude()));
 
 
         setCameraPosition(currentPosition, 10);

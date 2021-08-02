@@ -3,11 +3,15 @@ package com.dtsoftware.paraglidinggps.ui.flights;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
+
 import android.annotation.SuppressLint;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -15,26 +19,29 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
 import com.dtsoftware.paraglidinggps.R;
 import com.dtsoftware.paraglidinggps.Utils;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import java.util.Locale;
 
 
 public class FlightsFragment extends Fragment {
 
     private TextView tvHoursCount, tvNumberOfFlights;
-    private FloatingActionButton fabAdd;
+    private String distanceUnit;
+
 
     @SuppressLint("SetTextI18n")
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        View root = inflater.inflate(R.layout.fragment_flights_beta, container, false);
+        View root = inflater.inflate(R.layout.fragment_flights, container, false);
         FragmentManager fragmentManager = getParentFragmentManager();
 
         CollapsingToolbarLayout collapsingToolbar =
-                (CollapsingToolbarLayout) root.findViewById(R.id.collapsing_toolbar_layout);
+                root.findViewById(R.id.collapsing_toolbar_layout);
         collapsingToolbar.setTitle(getString(R.string.title_flights));
 
 
@@ -42,7 +49,9 @@ public class FlightsFragment extends Fragment {
 
         RecyclerView recyclerView = root.findViewById(R.id.rvWaypointsList);
 
-        final FlightListAdapter adapter = new FlightListAdapter(getContext(), flight -> {
+        setupSharedPreferences();
+
+        final FlightListAdapter adapter = new FlightListAdapter(getContext(), distanceUnit, flight -> {
 
 
             SharedFlightViewModel sharedFlightViewModel = new ViewModelProvider(getActivity()).get(SharedFlightViewModel.class);
@@ -55,7 +64,7 @@ public class FlightsFragment extends Fragment {
             transaction.hide(FlightsFragment.this);
 
             if (flightDetailFragment.isAdded()) {
-                transaction.show(flightDetailFragment);//TODO: transiciones de fragments
+                transaction.show(flightDetailFragment);
             } else {
                 transaction.add(R.id.nav_host_fragment, flightDetailFragment);
             }
@@ -75,12 +84,19 @@ public class FlightsFragment extends Fragment {
 
         flightsViewModel.getAllFlights().observe(getViewLifecycleOwner(), flights -> {
             adapter.setFlights(flights);
-            tvHoursCount.setText(String.format(Utils.FLIGHT_HOURS_FORMAT, Utils.getTotalFlightHours(flights)));
+            tvHoursCount.setText(String.format(Locale.US, Utils.FLIGHT_HOURS_FORMAT, Utils.getTotalFlightHours(flights)));
             tvNumberOfFlights.setText(String.valueOf(flights.size()));
         });
 
 
         return root;
+    }
+
+
+    private void setupSharedPreferences() {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this.getContext());
+        String value = sharedPreferences.getString(getString(R.string.distance_unit_key), "NULL");
+        distanceUnit = value;
     }
 
 

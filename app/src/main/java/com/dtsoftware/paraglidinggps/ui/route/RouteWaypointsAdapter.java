@@ -1,5 +1,6 @@
 package com.dtsoftware.paraglidinggps.ui.route;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.location.Location;
 import android.view.LayoutInflater;
@@ -13,26 +14,31 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.dtsoftware.paraglidinggps.R;
+import com.dtsoftware.paraglidinggps.Utils;
 import com.dtsoftware.paraglidinggps.Waypoint;
 import com.dtsoftware.paraglidinggps.ui.nav.NavViewModel;
 
 import java.util.List;
+import java.util.Locale;
 
 public class RouteWaypointsAdapter extends RecyclerView.Adapter<RouteWaypointsAdapter.RouteWaypointsViewHolder> {
 
     private final LayoutInflater mInflater;
     private List<Waypoint> waypoints; // Cached copy
-    private Context context; // Para poder usar los recursos
+    //private final Context context; // Para poder usar los recursos
     private static ClickListener itemClickListener;
-    private NavViewModel navViewModel;
+    private final NavViewModel navViewModel;
     private int selectedItem;
+    private final String distanceUnit;
 
-    RouteWaypointsAdapter(Context context, ClickListener clickListener) {
+
+    RouteWaypointsAdapter(Context context, String distanceUnit, ClickListener clickListener) {
         mInflater = LayoutInflater.from(context);
-        this.context = context;
+        //this.context = context;
         navViewModel = new ViewModelProvider((FragmentActivity) context).get(NavViewModel.class);
         RouteWaypointsAdapter.itemClickListener = clickListener;
         selectedItem = -1;
+        this.distanceUnit = distanceUnit;
     }
 
     public static class RouteWaypointsViewHolder extends RecyclerView.ViewHolder {
@@ -71,21 +77,18 @@ public class RouteWaypointsAdapter extends RecyclerView.Adapter<RouteWaypointsAd
 
 
             holder.tvName.setText(current.getWaypointName());
-            holder.tvLat.setText("Lat. " + String.format(context.getString(R.string.coordinates_format), current.getLatitude()));
-            holder.tvLong.setText("Long. " + String.format(context.getString(R.string.coordinates_format), current.getLongitude()));
+            holder.tvLat.setText("Lat. " + String.format(Locale.US, Utils.COORDINATES_FORMAT, current.getLatitude()));
+            holder.tvLong.setText("Long. " + String.format(Locale.US, Utils.COORDINATES_FORMAT, current.getLongitude()));
             holder.setClickListener(current, position, itemClickListener);
 
-            int distance = getDistanceToWaypoint(current);
+            String distance = getDistanceStringToWaypoint(current);
 
-            if (distance > 0) {
-                holder.tvDistance.setText("(" + String.valueOf(distance) + " Km)");
-                holder.tvDistance.setVisibility(View.VISIBLE);
-            }
 
-            if (selectedItem == position)
-                holder.itemView.setSelected(true);
-            else
-                holder.itemView.setSelected(false);
+            holder.tvDistance.setText(distance);
+            holder.tvDistance.setVisibility(View.VISIBLE);
+
+
+            holder.itemView.setSelected(selectedItem == position);
 
 
         } // Covers the case of data not being ready yet.
@@ -93,25 +96,41 @@ public class RouteWaypointsAdapter extends RecyclerView.Adapter<RouteWaypointsAd
 
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     public void setWaypoints(List<Waypoint> waypoints) {
         this.waypoints = waypoints;
         notifyDataSetChanged();
     }
 
-    private int getDistanceToWaypoint(Waypoint waypoint) {
+    private String getDistanceStringToWaypoint(Waypoint waypoint) {
         Location currentLocation = navViewModel.getLastLocation().getValue();
         Location waypointLocation = new Location("waypointLocation");
 
         waypointLocation.setLongitude(waypoint.getLongitude());
         waypointLocation.setLatitude(waypoint.getLatitude());
 
-        if (currentLocation != null)
-            return (int) (currentLocation.distanceTo(waypointLocation) / 1000);
-        else
-            return 0;
+        float distance = currentLocation.distanceTo(waypointLocation);
+        String distanceString = "-";
+
+        switch (distanceUnit) {
+            case "km":
+                distanceString = "(" + (int) Utils.metersToKm(distance) + " km)";
+                break;
+            case "mi":
+                distanceString = "(" + (int) Utils.metersToMi(distance) + " mi)";
+                break;
+            case "nm":
+                distanceString = "(" + (int) Utils.metersToNm(distance) + " nm)";
+
+                break;
+        }
+
+
+        return distanceString;
 
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     public void setSelectedItem(int index) {
         selectedItem = index;
         notifyDataSetChanged();

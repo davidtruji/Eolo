@@ -65,7 +65,7 @@
             android:drawableTop="@drawable/ic_d_arrow"
             android:drawableTint="@color/mtrl_text_btn_text_color_selector"
             android:enabled="false"
-            android:text="@string/set_route_btn" />
+            android:text="@string/btn_direct_to" />
 
         <Button
             android:id="@+id/bnt_remove"
@@ -76,7 +76,7 @@
             android:drawableTop="@drawable/delete"
             android:drawableTint="@color/mtrl_text_btn_text_color_selector"
             android:enabled="false"
-            android:text="@string/remove_route_btn" />
+            android:text="@string/btn_clear_route" />
     </LinearLayout>
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
