@@ -46,7 +46,7 @@ public class EditWaypointFragment extends Fragment implements MapboxMap.OnMapCli
     private LatLng currentPosition = new LatLng(0, 0);
     private GeoJsonSource geoJsonSource;
     private ValueAnimator animator;
-    private OnMapReadyCallback onMapReadyCallback = new OnMapReadyCallback() {
+    private final OnMapReadyCallback onMapReadyCallback = new OnMapReadyCallback() {
         @Override
         public void onMapReady(@NonNull MapboxMap mapboxMap) {
             EditWaypointFragment.this.mapboxMap = mapboxMap;
@@ -258,13 +258,13 @@ public class EditWaypointFragment extends Fragment implements MapboxMap.OnMapCli
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
-        builder.setMessage("Are you sure of delete this Waypoint?")
-                .setTitle("Delete")
-                .setPositiveButton("YES", (dialogInterface, i) -> {
+        builder.setMessage(getString(R.string.delete_waypoin_msg))
+                .setTitle(getString(R.string.delete_waypoint_tittle))
+                .setPositiveButton(getString(R.string.delete_waypoin_yes), (dialogInterface, i) -> {
                     waypointViewModel.deleteWaypointById(waypoint.getId());
                     getParentFragmentManager().popBackStack();
                 })
-                .setNegativeButton("NO", (dialogInterface, i) -> {
+                .setNegativeButton(getString(R.string.delete_waypoin_no), (dialogInterface, i) -> {
                     //Do nothing
                 });
 

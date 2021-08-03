@@ -1,9 +1,15 @@
 package com.dtsoftware.paraglidinggps;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.preference.PreferenceManager;
 
 import com.dtsoftware.paraglidinggps.ui.flights.FlightsFragment;
 import com.dtsoftware.paraglidinggps.ui.nav.NavFragment;
@@ -12,19 +18,10 @@ import com.dtsoftware.paraglidinggps.ui.waypoints.WaypointsFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
-
 
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG_NAVIGATION_FRAGMENT = "fragment_navigation";
-    private static final String TAG_ROUTE_FRAGMENT = "fragment_route";
-    private static final String TAG_FLIGHTS_FRAGMENT = "fragment_flights";
-    private static final String TAG_WAYPOINTS_FRAGMENT = "fragment_waypoints";
 
     private Fragment fragmentNav;
     private Fragment fragmentWaypoints;
@@ -58,33 +55,31 @@ public class MainActivity extends AppCompatActivity {
         fm.beginTransaction().add(R.id.nav_host_fragment, fragmentNav, TAG_NAVIGATION_FRAGMENT).commit();
         activeFragment = fragmentNav;
 
-        navView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        navView.setOnItemSelectedListener(item -> {
 
-                // Limpio la pila de BACK antes de entrar en un destino de nivel TOP
-                for (int i = 0; i < fm.getBackStackEntryCount(); i++)
-                    fm.popBackStack();
+            // Limpio la pila de BACK antes de entrar en un destino de nivel TOP
+            for (int i = 0; i < fm.getBackStackEntryCount(); i++)
+                fm.popBackStack();
 
-                switch (item.getItemId()) {
-                    case R.id.navigation_nav:
-                        setFragment(fragmentNav);
-                        break;
-                    case R.id.navigation_waypoints:
-                        setFragment(fragmentWaypoints);
-                        break;
-                    case R.id.navigation_flights:
-                        setFragment(fragmentFlights);
-                        break;
-                    case R.id.navigation_route:
-                        setFragment(fragmentRoutes);
-                        break;
-                }
-                return true;
+            switch (item.getItemId()) {
+                case R.id.navigation_nav:
+                    setFragment(fragmentNav);
+                    break;
+                case R.id.navigation_waypoints:
+                    setFragment(fragmentWaypoints);
+                    break;
+                case R.id.navigation_flights:
+                    setFragment(fragmentFlights);
+                    break;
+                case R.id.navigation_route:
+                    setFragment(fragmentRoutes);
+                    break;
             }
+            return true;
         });
 
-
+        // Load the deault settings for the first time
+        PreferenceManager.setDefaultValues(this, R.xml.root_preferences, false);
     }
 
 

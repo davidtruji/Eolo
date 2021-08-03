@@ -3,6 +3,7 @@ package com.dtsoftware.paraglidinggps.ui.nav;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -12,8 +13,11 @@ import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.preference.PreferenceManager;
@@ -47,7 +51,6 @@ import com.mapbox.android.core.location.LocationEngineCallback;
 import com.mapbox.android.core.location.LocationEngineProvider;
 import com.mapbox.android.core.location.LocationEngineRequest;
 import com.mapbox.android.core.location.LocationEngineResult;
-import com.mapbox.android.core.permissions.PermissionsListener;
 import com.mapbox.android.core.permissions.PermissionsManager;
 import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.FeatureCollection;
@@ -80,6 +83,7 @@ import java.util.List;
 import java.util.Locale;
 
 
+import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static android.os.Looper.getMainLooper;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.eq;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.get;
@@ -94,7 +98,7 @@ import static java.lang.Math.abs;
 
 
 @SuppressLint({"UseCompatLoadingForDrawables", "SetTextI18n"})
-public class NavFragment extends Fragment implements CompassListener, PermissionsListener, OnCameraTrackingChangedListener, SharedPreferences.OnSharedPreferenceChangeListener {
+public class NavFragment extends Fragment implements CompassListener, OnCameraTrackingChangedListener, SharedPreferences.OnSharedPreferenceChangeListener {
 
 
     // Constantes
@@ -140,6 +144,26 @@ public class NavFragment extends Fragment implements CompassListener, Permission
 
     };
 
+
+    // Register the permissions callback, which handles the user's response to the
+    // system permissions dialog. Save the return value, an instance of
+    // ActivityResultLauncher, as an instance variable.
+    private final ActivityResultLauncher<String> requestPermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+                if (isGranted) {
+                    // Permission is granted. Continue the action or workflow in your
+                    // app.
+                    NavFragment.this.mapboxMap.getStyle(this::enableLocationComponent);
+                } else {
+
+                    // Explain to the user that the feature is unavailable because the
+                    // features requires a permission that the user has denied. At the
+                    // same time, respect the user's decision. Don't link to system
+                    // settings in an effort to convince the user to change their
+                    // decision.
+                }
+            });
+
     // Variables UI
     private NavViewModel navViewModel;
     private WaypointsViewModel waypointsViewModel;
@@ -158,9 +182,7 @@ public class NavFragment extends Fragment implements CompassListener, Permission
     private final ArrayList<Integer> distanceWPTBlocks = new ArrayList<>();
     private final ArrayList<Integer> timeToArrivalBlocks = new ArrayList<>();
 
-    private String speedUnit, distanceUnit, altitudeUnit;
     private String speedlabel, distanceLabel, altititudeLabel, distanceWptLabel, timeToWptLabel;
-
     private float speedMult, altitudeMult, distanceMult;
 
     // Variables de vuelo
@@ -208,7 +230,7 @@ public class NavFragment extends Fragment implements CompassListener, Permission
         tvBlock3 = root.findViewById(R.id.tvBlock3);
         tvBlock3Label = root.findViewById(R.id.tvBlock3Label);
 
-        tvBlock4 = root.findViewById(R.id.tvWaypointDistance);
+        tvBlock4 = root.findViewById(R.id.tvBlock4);
         tvBlock4Label = root.findViewById(R.id.tvBlock4Label);
 
         tvChronometer = root.findViewById(R.id.tvChronometer);
@@ -217,7 +239,7 @@ public class NavFragment extends Fragment implements CompassListener, Permission
         ivRouteCompass = root.findViewById(R.id.route_compass);
 
         tbStartFly = root.findViewById(R.id.tbStart);
-        fabCompass = root.findViewById(R.id.fabClean);
+        fabCompass = root.findViewById(R.id.fabCompassMode);
 
         mapView = root.findViewById(R.id.mv_nav_map);
         mapView.onCreate(savedInstanceState);
@@ -533,7 +555,7 @@ public class NavFragment extends Fragment implements CompassListener, Permission
     @SuppressWarnings({"MissingPermission"})
     private void enableLocationComponent(@NonNull Style loadedMapStyle) {
         // Check if permissions are enabled and if not request
-        if (PermissionsManager.areLocationPermissionsGranted(getContext())) {
+        if (ContextCompat.checkSelfPermission(getContext(), ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
 
 
             LocationComponentOptions customLocationComponentOptions = LocationComponentOptions.builder(getContext())
@@ -556,7 +578,6 @@ public class NavFragment extends Fragment implements CompassListener, Permission
             // Activate with the LocationComponentActivationOptions object
             locationComponent.activateLocationComponent(locationComponentActivationOptions);
 
-
             // Enable to make component visible
             locationComponent.setLocationComponentEnabled(true);
 
@@ -568,18 +589,20 @@ public class NavFragment extends Fragment implements CompassListener, Permission
             // Set the component's render mode
             locationComponent.setRenderMode(RenderMode.COMPASS);
 
-            // Añado el Listener que vigila el estado de la cámara
+            // Camera tracking mode listener
             locationComponent.addOnCameraTrackingChangedListener(this);
 
+            // Compass Listener
             locationComponent.getCompassEngine().addCompassListener(this);
 
 
             initLocationEngine();
         } else {
-            permissionsManager = new PermissionsManager(this);
-            permissionsManager.requestLocationPermissions(getActivity());
+            // Location permissions request
+            requestPermissionLauncher.launch(ACCESS_FINE_LOCATION);
         }
     }
+
 
     /**
      * Set up the LocationEngine and the parameters for querying the device's location
@@ -595,27 +618,6 @@ public class NavFragment extends Fragment implements CompassListener, Permission
 
         locationEngine.requestLocationUpdates(request, callback, getMainLooper());
         locationEngine.getLastLocation(callback);
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-        permissionsManager.onRequestPermissionsResult(requestCode, permissions, grantResults);
-    }
-
-    @Override
-    public void onExplanationNeeded(List<String> permissionsToExplain) {
-        Toast.makeText(getContext(), R.string.user_location_permission_explanation,
-                Toast.LENGTH_LONG).show();
-    }
-
-    @Override
-    public void onPermissionResult(boolean granted) {
-        if (granted) {
-            mapboxMap.getStyle(this::enableLocationComponent);
-        } else {
-            Toast.makeText(getContext(), R.string.user_location_permission_not_granted, Toast.LENGTH_LONG).show();
-        }
     }
 
 
@@ -692,7 +694,6 @@ public class NavFragment extends Fragment implements CompassListener, Permission
 
         updateDistanceWPT(distanceWPT);
         updateTimeToArrival(minutesETA);
-
 
     }
 
@@ -1364,57 +1365,47 @@ public class NavFragment extends Fragment implements CompassListener, Permission
 
 
         switch (unit_value) {
-
             // Distance
             case "km":
                 distanceMult = 0.001f;
-                distanceUnit = "km";
                 distanceLabel = getString(R.string.distance_km);
                 distanceWptLabel = getString(R.string.distance_wpt_km);
                 break;
             case "mi":
                 distanceMult = 0.0006213712f;
-                distanceUnit = "mi";
                 distanceLabel = getString(R.string.distance_mi);
                 distanceWptLabel = getString(R.string.distance_wpt_mi);
                 break;
             case "nm":
                 distanceMult = 0.0005399565f;
-                distanceUnit = "nm";
                 distanceLabel = getString(R.string.distance_nm);
                 distanceWptLabel = getString(R.string.distance_wpt_nm);
                 break;
 
             // Speed
             case "ms":
-                speedUnit = "ms";
                 speedMult = 1;
                 speedlabel = getString(R.string.speed_ms);
                 break;
             case "kmh":
-                speedUnit = "kmh";
                 speedMult = 3.6f;
                 speedlabel = getString(R.string.speed_kmh);
                 break;
             case "mph":
-                speedUnit = "mph";
                 speedMult = 2.236936f;
                 speedlabel = getString(R.string.speed_mph);
                 break;
             case "kt":
-                speedUnit = "kt";
                 speedMult = 1.943844f;
                 speedlabel = getString(R.string.speed_kt);
                 break;
 
             // Altitude
             case "m":
-                altitudeUnit = "m";
                 altitudeMult = 1;
                 altititudeLabel = getString(R.string.altitude_m);
                 break;
             case "ft":
-                altitudeUnit = "ft";
                 altitudeMult = 3.28084f;
                 altititudeLabel = getString(R.string.altitude_ft);
                 break;

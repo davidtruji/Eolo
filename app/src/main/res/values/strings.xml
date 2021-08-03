@@ -110,7 +110,19 @@
     <string name="name_required">Waypoint name required</string>
     <!--New Waypoint-->
 
+    <!--Edit Waypoint-->
+    <string name="delete_waypoint_tittle">Delete Waypoint</string>
+    <string name="delete_waypoin_msg">Are you sure you want to delete this waypoint?</string>
+    <string name="delete_waypoin_yes">Yes</string>
+    <string name="delete_waypoin_no">No</string>
+    <!--Edit Waypoint-->
+
+
     <!--Preference Title-->
+    <string name="map_settings">Map settings</string>
+    <string name="unit_settings">Units settings</string>
+    <string name="osi_settings">On screen information</string>
+
     <string name="layer_title">Map Layer</string>
     <string name="space1_title">Space 1</string>
     <string name="space2_title">Space 2</string>
@@ -120,7 +132,6 @@
     <string name="altitude_unit_title">Altitude unit</string>
     <string name="distance_unit_title">Distance unit</string>
     <!--Preference Title-->
-
 
     <!--Preference Keys-->
     <string name="layer_key">layer</string>
@@ -133,21 +144,8 @@
     <string name="distance_unit_key">distance_unit</string>
     <!--Preference Keys-->
 
-
     <string name="mapbox_access_token" tools:ignore="Typos">pk.eyJ1IjoiZGF2aWR0cnVqaSIsImEiOiJja2N5eHk1azQwZWNwMnVwNGdhdmI0NjFjIn0.fmvbTZB2ja54sltI3znqZA</string>
     <string name="user_location_permission_explanation">Location access needed</string>
     <string name="user_location_permission_not_granted">No location access</string>
-
-
-    <!--Compass Letters-->
-    <string name="north"> N </string>
-    <string name="northEast">NE</string>
-    <string name="east">E</string>
-    <string name="southEast">SE</string>
-    <string name="south">S</string>
-    <string name="southWest">SW</string>
-    <string name="west">W</string>
-    <string name="northWest">NW</string>
-    <!--Compass Letters-->
 
 </resources>

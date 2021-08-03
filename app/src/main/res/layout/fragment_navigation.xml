@@ -140,7 +140,7 @@
             mapbox:layout_constraintTop_toTopOf="@+id/Block2">
 
             <com.dtsoftware.paraglidinggps.TextViewOutline
-                android:id="@+id/tvWaypointDistance"
+                android:id="@+id/tvBlock4"
                 style="@style/OnScreenInfoLittle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
@@ -212,7 +212,7 @@
                 tools:ignore="ContentDescription" />
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/fabClean"
+                android:id="@+id/fabCompassMode"
                 style="@style/FabButtons"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
